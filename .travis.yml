@@ -23,21 +23,11 @@ after_success:
   - RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
   - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
   - |
-    # tinyweb
     if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
       pushd src;
       zip -r "../releases/${RELEASE}.zip" *;
       popd;
       ls -al releases/*;
-      if [[ -z "$TRAVIS_TAG" ]]; then
-        npm run github-release -- \
-          --owner=cncjs \
-          --repo=cncjs-pendant-tinyweb \
-          --tag="${TRAVIS_BRANCH}-latest" \
-          --name="${TRAVIS_BRANCH}" \
-          --body="${COMMIT_LOG}" \
-          "releases/${RELEASE}-tinyweb.zip"
-      fi
     fi
 
 before_deploy:
