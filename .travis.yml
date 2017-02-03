@@ -12,6 +12,10 @@ node_js:
   - '5'
   - '4'
 
+env:
+  global:
+    - secure: "uF85Lr2WQ9LXRMX+m/tYXxSpmLzcQhhHvGlY0aQYeccQD4WaQ9VBrzoEOKlp9MftQL8xSlxhYCbFsFnV01+VZDk8W/EagghnbnBa4ZevSOU/4JAfEZRF80QSPhQHxnRAbTsAB/G6sgWJUHVBL53pTuMg5f0bu9i+45Dha9S0of8aH2QwPj76uPXBRdu6wSu0pYqiw4oSo7BBofcv0cEoZ6pLddJcuuM0o3Tn4/5FnqDwHhtwGr24l7gltjWQjCW+cR0Uh2QSiccZsnZY0Vn4AeK0Y5M/NhzzVy+Gh/v2ALCDTfJ4XqylwWu9aAIrIdVe19GPLkEbt3FySJcnBQKxqH5bLdJhz5BUalZ9gDoEtFPOZcfUSbv9nUSjelDxwH5u3wFWhGMwhDvD14cSgsZkk1xoLc934fwxNufKoxBpj2LQ4I7aTtKaeioIwLvtQxva/0bvKKpvP4gEMZb/ghfTiUXUHW2KqfS7t+kRhKwfJqt2ffBIsD4GDyO5lbeapIng7OVTCL7aVVA9f4PNK7rC1F4inMK3pWqvYsH77wF5GGeTX52CYAU2aBmzD/SNnriW/5ex1THcsCbWi6EClYVDCP5puJiHvDovFGhLFfsBUJ2aUYTqpJz1pLY63mGsoz0Uab1mT0QQytnNdXjpXqUZsEj71hr3NQIUeDJ6tBe7A7o=" # GITHUB_TOKEN
+
 before_install:
   - npm install -g npm
   - npm --version
