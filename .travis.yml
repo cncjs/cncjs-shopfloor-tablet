@@ -27,8 +27,9 @@ after_success:
   - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
   - |
     if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-      pushd src;
-      zip -r "../releases/${RELEASE}.zip" *;
+      pushd releases;
+      ln -sf ../src ${RELEASE};
+      zip -r ${RELEASE}.zip ${RELEASE};
       popd;
       ls -al releases/*;
       if [[ -z "$TRAVIS_TAG" ]]; then
