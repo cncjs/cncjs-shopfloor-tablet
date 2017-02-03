@@ -26,7 +26,7 @@ after_success:
     # tinyweb
     if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
       pushd src;
-      zip -r "../releases/${RELEASE}-tinyweb.zip" "tinyweb";
+      zip -r "../releases/${RELEASE}.zip" *;
       popd;
       ls -al releases/*;
       if [[ -z "$TRAVIS_TAG" ]]; then
