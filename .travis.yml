@@ -16,6 +16,9 @@ before_install:
   - npm install -g npm
   - npm --version
 
+install:
+  - npm install
+
 after_success:
   - mkdir -p releases
   - PACKAGE_NAME=`scripts/package-name.sh package.json`
@@ -28,6 +31,15 @@ after_success:
       zip -r "../releases/${RELEASE}.zip" *;
       popd;
       ls -al releases/*;
+      if [[ -z "$TRAVIS_TAG" ]]; then
+        npm run github-release -- \
+          --owner=cncjs \
+          --repo=cncjs-pendant-tinyweb \
+          --tag="${TRAVIS_BRANCH}" \
+          --name="${TRAVIS_BRANCH}" \
+          --body="${COMMIT_LOG}" \
+          "releases/${RELEASE}.zip"
+      fi
     fi
 
 before_deploy:

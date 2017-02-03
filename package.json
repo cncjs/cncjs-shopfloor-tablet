@@ -4,10 +4,8 @@
   "description": "A tiny web console for small 320x240 LCD display",
   "homepage": "https://github.com/cncjs/cncjs-pendant-tinyweb",
   "author": "Cheton Wu <cheton@gmail.com>",
-  "bin": {
-  },
-  "files": [
-  ],
+  "bin": {},
+  "files": [],
   "repository": {
     "type": "git",
     "url": "git@github.com:cncjs/cncjs-pendant-tinyweb.git"
@@ -22,8 +20,8 @@
     "pendant",
     "tinyweb"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "github": "^8.1.1"
   }
 }
