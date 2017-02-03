@@ -1,0 +1,59 @@
+sudo: required
+dist: trusty
+group: edge
+
+language: node_js
+
+os:
+  - linux
+
+node_js:
+  - '6'
+  - '5'
+  - '4'
+
+before_install:
+  - npm install -g npm
+  - npm --version
+
+after_success:
+  - mkdir -p releases
+  - PACKAGE_NAME=`scripts/package-name.sh src/package.json`
+  - PACKAGE_VERSION=`scripts/package-version.sh src/package.json`
+  - RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
+  - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
+  - |
+    # tinyweb
+    if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
+      pushd src;
+      zip -r "../releases/${RELEASE}-tinyweb.zip" "tinyweb";
+      popd;
+      ls -al releases/*;
+      if [[ -z "$TRAVIS_TAG" ]]; then
+        npm run github-release -- \
+          --owner=cncjs \
+          --repo=cncjs-pendant-tinyweb \
+          --tag="${TRAVIS_BRANCH}-latest" \
+          --name="${TRAVIS_BRANCH}" \
+          --body="${COMMIT_LOG}" \
+          "releases/${RELEASE}-tinyweb.zip"
+      fi
+    fi
+
+before_deploy:
+  - echo "Deploying to GitHub releases"
+  - ls -al releases
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "YqB7SYKrGQO6hQdFiadQYebhFyXpf9BAB3frOlzwmGIx0gKI1ZUA2F2VB8N0+8v6EKipYipianxo0inuRCO34hZOwIaKIp2fQwtXvTDfSWLjdjDMblTfLy+TAwcL3KhkTr2A0hI3fhaQwQ6vKfZFlj8MkjaqScouWMVpdGkh5fTVMdv2zdn79MZ4ScaT/9riAuH3sT9fkWp98ZjatMM+an7b77Ji1NCQwTmXA5pFK42oFBdgOyDFkzugN2cDGduL69yYTKm32ct+bm2l6q5qCqYi/Sd1+GDiNGPacoez7XAjbcw0ZWGHY0E4QvMZzH8UKL71kx+0S+MXM8JnmkbeSOw9uAS3rNh00/YQ3XXMmioSngQLhWOHEnkrdGnj8t/tVptbicXGa3HJP4+ERGegPZV4IL0VUuSTPRl6pwOCVkGG/Urip6/fe+hgxh19hhgbTYoBoVzQSLFMX9Qz7TYdVHl05Wg/3OTWE2JvLJp4bfdRsdT1yQGWN5btBpfzYbyPx+ksfHgkoD8i9kJY7viXa36LWAwnR1WjGGVprEiC5WqgDC3k1sfGiazePsc+nkqv17A6Yoi8tFajLel7C+BvnjnubybbWBJ852HYb3uT58qb1UA3DYIvMOSdujGF0mMvVLp5ihiTCGm7g82my78cDoqAvWhDX/yRmndoNIgWWB0="
+  file_glob: true
+  file:
+    - 'releases/*.*'
+  overwrite: true
+  skip_cleanup: true
+  on:
+    # https://docs.travis-ci.com/user/deployment#Conditional-Releases-with-on
+    tags: true  # Deploy app only when a tag is applied to the commit
+    node: '4'
