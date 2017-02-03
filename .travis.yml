@@ -40,7 +40,7 @@ after_success:
         npm run github-release -- \
           --owner=cncjs \
           --repo=cncjs-pendant-tinyweb \
-          --tag="${TRAVIS_BRANCH}" \
+          --tag="latest" \
           --name="${TRAVIS_BRANCH}" \
           --body="${COMMIT_LOG}" \
           "releases/${RELEASE}.zip"
