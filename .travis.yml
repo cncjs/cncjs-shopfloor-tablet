@@ -38,8 +38,14 @@ after_success:
       popd;
       ls -al releases/*;
       if [[ -z "$TRAVIS_TAG" ]]; then
-        mv ${RELEASE}.zip ${RELEASE}-${COMMIT_HASH}.zip;
-        npm run github-release -- \
+        mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
+        npm run github-release -- delete \
+          --owner=cncjs \
+          --repo=cncjs-pendant-tinyweb \
+          --tag="latest" \
+          --name="${TRAVIS_BRANCH}" \
+          "*.zip";
+        npm run github-release -- upload \
           --owner=cncjs \
           --repo=cncjs-pendant-tinyweb \
           --tag="latest" \
