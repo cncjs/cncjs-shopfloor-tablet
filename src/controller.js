@@ -39,8 +39,8 @@ var TINYG = 'TinyG';
 var CNCController = function() {
     this.callbacks = {
         'config:change': [],
-        'task:run': [],
-        'task:complete': [],
+        'task:start': [],
+        'task:finish': [],
         'task:error': [],
         'serialport:list': [],
         'serialport:open': [],
