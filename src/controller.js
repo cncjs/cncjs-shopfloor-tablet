@@ -129,21 +129,23 @@ CNCController.prototype.listAllPorts = function() {
 // @param {string} cmd The command string
 // @example Example Usage
 // - Load G-code
-//   controller.command('load', name, gcode, callback)
+//   controller.command('gcode:load', name, gcode, callback)
 // - Unload G-code
-//   controller.command('unload')
+//   controller.command('gcode:unload')
 // - Start sending G-code
-//   controller.command('start')
+//   controller.command('gcode:start')
 // - Stop sending G-code
-//   controller.command('stop')
+//   controller.command('gcode:stop')
 // - Pause
-//   controller.command('pause')
+//   controller.command('gcode:pause')
 // - Resume
-//   controller.command('resume')
+//   controller.command('gcode:resume')
 // - Feed Hold
 //   controller.command('feedhold')
 // - Cycle Start
 //   controller.command('cyclestart')
+// - Status Report
+//   controller.command('statusreport')
 // - Homing
 //   controller.command('homing')
 // - Sleep
@@ -152,12 +154,20 @@ CNCController.prototype.listAllPorts = function() {
 //   controller.command('unlock')
 // - Reset
 //   controller.command('reset')
+// - Feed Override
+//   controller.command('feedOverride')
+// - Spindle Override
+//   controller.command('spindleOverride')
+// - Rapid Override
+//   controller.command('rapidOverride')
 // - G-code
 //   controller.command('gcode', 'G0X0Y0')
-// - Load macro
-//   controller.command('loadmacro', '<macro-id>', callback)
+// - Load a macro
+//   controller.command('macro:load', '<macro-id>', { /* optional vars */ }, callback)
+// - Run a macro
+//   controller.command('macro:run', '<macro-id>', { /* optional vars */ }, callback)
 // - Load file from a watch directory
-//   controller.command('loadfile', '/path/to/file', callback)
+//   controller.command('watchdir:load', '/path/to/file', callback)
 CNCController.prototype.command = function(cmd) {
     var args = Array.prototype.slice.call(arguments, 1);
     socket.emit.apply(socket, ['command', this.port, cmd].concat(args));
@@ -168,8 +178,7 @@ CNCController.prototype.write = function(data) {
 };
 
 CNCController.prototype.writeln = function(data) {
-    data = ('' + data).trim() + '\n';
-    this.write(data);
+    socket.emit('writeln', this.port, data);
 };
 
 root.cnc.controller = new CNCController();
