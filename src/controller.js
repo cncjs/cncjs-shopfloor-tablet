@@ -48,17 +48,23 @@ var CNCController = function() {
         'serialport:error': [],
         'serialport:read': [],
         'serialport:write': [],
+        'gcode:load': [],
+        'gcode:unload': [],
         'feeder:status': [],
         'sender:status': [],
         'Grbl:state': [],
+        'Grbl:settings': [],
         'Smoothie:state': [],
-        'TinyG:state': []
+        'Smoothie:settings': [],
+        'TinyG:state': [],
+        'TinyG:settings': []
     };
 
     port = '';
     baudrate = 0;
     type = '';
     state = {};
+    settings = {};
 
     Object.keys(this.callbacks).forEach(function(eventName) {
         socket.on(eventName, function() {
@@ -68,13 +74,25 @@ var CNCController = function() {
                 this.type = GRBL;
                 this.state = args[0];
             }
+            if (eventName === 'Grbl:settings') {
+                this.type = GRBL;
+                this.settings = args[0];
+            }
             if (eventName === 'Smoothie:state') {
                 this.type = SMOOTHIE;
                 this.state = args[0];
             }
+            if (eventName === 'Smoothie:settings') {
+                this.type = SMOOTHIE;
+                this.settings = args[0];
+            }
             if (eventName === 'TinyG:state') {
                 this.type = TINYG;
                 this.state = args[0];
+            }
+            if (eventName === 'TinyG:settings') {
+                this.type = TINYG;
+                this.settings = args[0];
             }
 
             this.callbacks[eventName].forEach(function(callback) {
@@ -173,12 +191,16 @@ CNCController.prototype.command = function(cmd) {
     socket.emit.apply(socket, ['command', this.port, cmd].concat(args));
 };
 
-CNCController.prototype.write = function(data) {
-    socket.emit('write', this.port, data);
+// @param {string} data The data to write.
+// @param {object} [context] The associated context information.
+CNCController.prototype.write = function(data, context) {
+    socket.emit('write', this.port, data, context);
 };
 
-CNCController.prototype.writeln = function(data) {
-    socket.emit('writeln', this.port, data);
+// @param {string} data The data to write.
+// @param {object} [context] The associated context information.
+CNCController.prototype.writeln = function(data, context) {
+    socket.emit('writeln', this.port, data, context);
 };
 
 root.cnc.controller = new CNCController();
