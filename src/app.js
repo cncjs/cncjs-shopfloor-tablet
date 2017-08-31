@@ -15,6 +15,9 @@ controller.on('serialport:list', function(list) {
         $el.append($option);
     });
 
+    if (cnc.controllerType) {
+        $('[data-route="connection"] select[data-name="controllerType"]').val(cnc.controllerType);
+    }
     if (cnc.port) {
         $('[data-route="connection"] select[data-name="port"]').val(cnc.port);
     }
@@ -25,17 +28,20 @@ controller.on('serialport:list', function(list) {
 });
 
 controller.on('serialport:open', function(options) {
+    var controllerType = options.controllerType;
     var port = options.port;
     var baudrate = options.baudrate;
 
     console.log('Connected to \'' + port + '\' at ' + baudrate + '.');
 
     cnc.connected = true;
+    cnc.controllerType = controllerType;
     cnc.port = port;
     cnc.baudrate = baudrate;
 
     $('[data-route="workspace"] [data-name="port"]').val(port);
 
+    Cookies.set('cnc.controllerType', controllerType);
     Cookies.set('cnc.port', port);
     Cookies.set('cnc.baudrate', baudrate);
 
@@ -48,6 +54,7 @@ controller.on('serialport:close', function(options) {
     console.log('Disconnected from \'' + port + '\'.');
 
     cnc.connected = false;
+    cnc.controllerType = '';
     cnc.port = '';
     cnc.baudrate = 0;
 
@@ -184,16 +191,30 @@ controller.on('Smoothie:state', function(data) {
     $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
 });
 
-controller.on('TinyG2:state', function(data) {
+controller.on('TinyG:state', function(data) {
     var sr = data.sr || {};
     var machineState = sr.machineState;
+    var stateText = {
+        0: 'Initializing',
+        1: 'Ready',
+        2: 'Alarm',
+        3: 'Program Stop',
+        4: 'Program End',
+        5: 'Run',
+        6: 'Hold',
+        7: 'Probe',
+        8: 'Cycle',
+        9: 'Homing',
+        10: 'Jog',
+        11: 'Interlock',
+    }[machineState] || 'N/A';
     var mpos = sr.mpos;
     var wpos = sr.wpos;
     var READY = 1, STOP = 3, END = 4, RUN = 5;
     var canClick = [READY, STOP, END, RUN].indexOf(machineState) >= 0;
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] [data-name="active-state"]').text(machineState);
+    $('[data-route="axes"] [data-name="active-state"]').text(stateText);
     $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
     $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
     $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
@@ -214,11 +235,15 @@ $('[data-route="workspace"] [data-name="btn-close"]').on('click', function() {
 // Connection
 //
 $('[data-route="connection"] [data-name="btn-open"]').on('click', function() {
+    var controllerType = $('[data-route="connection"] [data-name="controllerType"]').val();
     var port = $('[data-route="connection"] [data-name="port"]').val();
     var baudrate = $('[data-route="connection"] [data-name="baudrate"]').val();
 
     $('[data-route="connection"] [data-name="msg"]').val('');
-    controller.openPort(port, { baudrate: Number(baudrate) });
+    controller.openPort(port, {
+        controllerType: controllerType,
+        baudrate: Number(baudrate)
+    });
 });
 
 //

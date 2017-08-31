@@ -36,13 +36,25 @@ var GRBL = 'Grbl';
 var SMOOTHIE = 'Smoothie';
 var TINYG = 'TinyG';
 
+// Workflow State
+var WORKFLOW_STATE_RUNNING = 'running';
+var WORKFLOW_STATE_PAUSED = 'paused';
+var WORKFLOW_STATE_IDLE = 'idle';
+
 var CNCController = function() {
+    this.socket = socket;
+
     this.callbacks = {
+        //
+        // System Events
+        //
+        'startup': [],
         'config:change': [],
         'task:start': [],
         'task:finish': [],
         'task:error': [],
         'serialport:list': [],
+        'serialport:change': [],
         'serialport:open': [],
         'serialport:close': [],
         'serialport:error': [],
@@ -52,6 +64,7 @@ var CNCController = function() {
         'gcode:unload': [],
         'feeder:status': [],
         'sender:status': [],
+        'workflow:state': [],
         'Grbl:state': [],
         'Grbl:settings': [],
         'Smoothie:state': [],
@@ -60,16 +73,31 @@ var CNCController = function() {
         'TinyG:settings': []
     };
 
-    port = '';
-    baudrate = 0;
-    type = '';
-    state = {};
-    settings = {};
+    this.port = '';
+    this.baudrate = 115200;
+    this.type = '';
+    this.state = {};
+    this.settings = {};
+    this.workflowState = WORKFLOW_STATE_IDLE;
 
     Object.keys(this.callbacks).forEach(function(eventName) {
         socket.on(eventName, function() {
             var args = Array.prototype.slice.call(arguments);
 
+            if (eventName === 'serialport:open') {
+                this.port = args[0].port;
+                this.type = args[0].controllerType;
+            }
+            if (eventName === 'serialport:close') {
+                this.port = '';
+                this.type = '';
+                this.state = {};
+                this.settings = {};
+                this.workflowState = WORKFLOW_STATE_IDLE;
+            }
+            if (eventName === 'workflow:state') {
+                this.workflowState = args[0];
+            }
             if (eventName === 'Grbl:state') {
                 this.type = GRBL;
                 this.state = args[0];
@@ -127,8 +155,9 @@ CNCController.prototype.off = function(eventName, callback) {
 CNCController.prototype.openPort = function(port, options) {
     socket.emit('open', port, options);
 
+    this.type = options.controllerType;
     this.port = port;
-    this.baudrate = baudrate;
+    this.baudrate = options.baudrate;
 };
 
 CNCController.prototype.closePort = function(port) {
@@ -136,6 +165,7 @@ CNCController.prototype.closePort = function(port) {
 
     socket.emit('close', port);
 
+    this.type = '';
     this.port = '';
     this.baudrate = 0;
 };

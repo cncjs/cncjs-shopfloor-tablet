@@ -41,19 +41,28 @@
 </div>
 <div class="hidden" data-route="connection">
     <div class="form-group">
+        <label>Controller Type</label>
+        <select class="form-control" data-name="controllerType">
+            <option value="Grbl">Grbl</option>
+            <option value="Smoothie">Smoothie</option>
+            <option value="TinyG">TinyG</option>
+        </select>
+    </div>
+    <div class="form-group">
         <label>Port</label>
         <select class="form-control" data-name="port"></select>
     </div>
     <div class="form-group">
         <label>Baud rate</label>
         <select class="form-control" data-name="baudrate">
-            <option>115200</option>
-            <option>57600</option>
-            <option>38400</option>
-            <option>19200</option>
-            <option>9600</option>
-            <option>4800</option>
-            <option>2400</option>
+            <option value="250000">250000</option>
+            <option value="115200" selected>115200</option>
+            <option value="57600">57600</option>
+            <option value="38400">38400</option>
+            <option value="19200">19200</option>
+            <option value="9600">9600</option>
+            <option value="4800">4800</option>
+            <option value="2400">2400</option>
         </select>
     </div>
     <div class="form-group">
@@ -77,7 +86,7 @@
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('homing')"><i class="fa fa-home"></i>&nbsp;Homing</a>
                                     </li>
                                     <li>
-                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('gcode', '$SLP')"><i class="fa fa-sleep"></i>&nbsp;Sleep</a>
+                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('gcode', '$SLP')"><i class="fa fa-bed"></i>&nbsp;Sleep</a>
                                     </li>
                                     <li>
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('unlock')"><i class="fa fa-unlock-alt"></i>&nbsp;Unlock</a>
@@ -358,6 +367,7 @@ var root = window;
 root.cnc = {
     router: null,
     controller: null,
+    controllerType: Cookies.get('cnc.controllerType'),
     port: Cookies.get('cnc.port'),
     baudrate: Cookies.get('cnc.baudrate'),
     connected: false
