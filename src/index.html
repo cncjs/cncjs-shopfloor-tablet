@@ -363,21 +363,17 @@
 <script src="vendor/js-cookie/js.cookie.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <script>
-var root = window;
-root.cnc = {
-    router: null,
-    controller: null,
-    controllerType: Cookies.get('cnc.controllerType'),
-    port: Cookies.get('cnc.port'),
-    baudrate: Cookies.get('cnc.baudrate'),
-    connected: false
-};
-</script>
-<script src="controller.js"></script>
-<script>
 $('document').ready(function() {
     var root = window;
-    var routes = {
+    root.cnc = {
+        router: null,
+        controller: null,
+        controllerType: Cookies.get('cnc.controllerType'),
+        port: Cookies.get('cnc.port'),
+        baudrate: Cookies.get('cnc.baudrate'),
+        connected: false
+    };
+    root.cnc.router = window.Router({
         '/': function() {
             if (root.cnc.connected) {
                 window.location = '#/workspace';
@@ -391,8 +387,7 @@ $('document').ready(function() {
         },
         '/axes': function() {
         }
-    };
-    root.cnc.router = window.Router(routes);
+    });
     root.cnc.router.configure({
         on: function() {
             var route = window.location.hash.slice(2);
@@ -407,6 +402,7 @@ $('document').ready(function() {
     });
 });
 </script>
+<script src="controller.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

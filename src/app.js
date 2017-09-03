@@ -1,5 +1,6 @@
-(function(root) {
+$(function() {
 
+var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
 
@@ -253,4 +254,4 @@ $('[data-route="axes"] [data-name="btn-dropdown"]').dropdown();
 $('[data-route="axes"] [data-name="active-state"]').text('Not connected');
 $('[data-route="axes"] select[data-name="select-distance"]').val('1');
 
-})(this);
+});

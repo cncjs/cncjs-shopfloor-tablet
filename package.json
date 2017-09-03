@@ -1,6 +1,6 @@
 {
   "name": "cncjs-pendant-tinyweb",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A tiny web console for small 320x240 LCD display",
   "homepage": "https://github.com/cncjs/cncjs-pendant-tinyweb",
   "author": "Cheton Wu <cheton@gmail.com>",

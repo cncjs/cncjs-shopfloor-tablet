@@ -1,6 +1,6 @@
-(function(root) {
+$(function() {
 
-// token
+var root = window;
 var token = '';
 
 try {
@@ -235,4 +235,4 @@ CNCController.prototype.writeln = function(data, context) {
 
 root.cnc.controller = new CNCController();
 
-})(this);
+});
