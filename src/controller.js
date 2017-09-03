@@ -1,15 +1,32 @@
 $(function() {
 
-var root = window;
-var token = '';
+var parseParams = function(str) {
+    return str.split('&').reduce(function (params, param) {
+        if (!param) {
+            return params;
+        }
+        var paramSplit = param.split('=').map(function (value) {
+            return decodeURIComponent(value.replace('+', ' '));
+        });
+        params[paramSplit[0]] = paramSplit[1];
+        return params;
+    }, {});
+};
 
-try {
-    var cnc = JSON.parse(localStorage.getItem('cnc') || {});
-    cnc.state = cnc.state || {};
-    cnc.state.session = cnc.state.session || {};
-    token = cnc.state.session.token || '';
-} catch (err) {
-    // Ignore error
+var params = parseParams(window.location.search.slice(1));
+var root = window;
+var token = params.token || '';
+
+if (!token) {
+    try {
+        var cnc = {};
+        cnc = JSON.parse(localStorage.getItem('cnc') || {});
+        cnc.state = cnc.state || {};
+        cnc.state.session = cnc.state.session || {};
+        token = cnc.state.session.token || '';
+    } catch (err) {
+        // Ignore error
+    }
 }
 
 // WebSocket
