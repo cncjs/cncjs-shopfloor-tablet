@@ -213,12 +213,40 @@ controller.on('TinyG:state', function(data) {
     var wpos = sr.wpos;
     var READY = 1, STOP = 3, END = 4, RUN = 5;
     var canClick = [READY, STOP, END, RUN].indexOf(machineState) >= 0;
+    var units = sr.modal.units;
+    var mlabel = 'MPos:';
+    var wlabel = 'WPos:';
+    switch (sr.modal.units) {
+    case 'G20':
+        mlabel = 'MPos (in):';
+        wlabel = 'WPos (in):';
+	// TinyG reports machine coordinates in mm regardless of the in/mm mode
+	mpos.x = (mpos.x / 25.4).toFixed(4);
+	mpos.y = (mpos.y / 25.4).toFixed(4);
+	mpos.z = (mpos.z / 25.4).toFixed(4);
+	// TinyG reports work coordinates according to the in/mm mode
+        wpos.x = Number(wpos.x).toFixed(4);
+        wpos.y = Number(wpos.y).toFixed(4);
+        wpos.z = Number(wpos.z).toFixed(4);
+	break;
+    case 'G21':
+        mlabel = 'MPos (mm):';
+        wlabel = 'WPos (mm):';
+	mpos.x = Number(mpos.x).toFixed(3);
+	mpos.y = Number(mpos.y).toFixed(3);
+	mpos.z = Number(mpos.z).toFixed(3);
+        wpos.x = Number(wpos.x).toFixed(3);
+        wpos.y = Number(wpos.y).toFixed(3);
+        wpos.z = Number(wpos.z).toFixed(3);
+    }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] [data-name="active-state"]').text(stateText);
+    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
     $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
     $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
     $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
+    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
     $('[data-route="axes"] [data-name="wpos-x"]').text(wpos.x);
     $('[data-route="axes"] [data-name="wpos-y"]').text(wpos.y);
     $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
