@@ -213,7 +213,6 @@ controller.on('TinyG:state', function(data) {
     var wpos = sr.wpos;
     var READY = 1, STOP = 3, END = 4, RUN = 5;
     var canClick = [READY, STOP, END, RUN].indexOf(machineState) >= 0;
-    var units = sr.modal.units;
     var mlabel = 'MPos:';
     var wlabel = 'WPos:';
     switch (sr.modal.units) {
