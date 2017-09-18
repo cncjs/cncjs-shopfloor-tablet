@@ -46,6 +46,17 @@ controller.on('serialport:open', function(options) {
     Cookies.set('cnc.port', port);
     Cookies.set('cnc.baudrate', baudrate);
 
+    if (controllerType == 'Grbl') {
+        // Read the settings so we can determine the units for position reports
+        // This will trigger a Grbl:settings callback to set grblReportingUnits
+
+        // This has a problem: The first status report arrives before the
+        // settings report, so interpreting the numbers from the first status
+        // report is ambiguous.  Subsequent status reports are interpreted correctly.
+	// We work around that by deferring status reports until the settings report.
+        controller.writeln('$$');
+    }
+
     root.location = '#/axes';
 });
 
@@ -151,12 +162,31 @@ controller.on('serialport:read', function(data) {
     console.log('%cR%c', style, '', data);
 });
 
+// GRBL reports position in units according to the $13 setting,
+// independent of the GCode in/mm parser state.
+// We track the $13 value by watching for the Grbl:settings event and by
+// watching for manual changes via serialport:write.  Upon initial connection,
+// we issue a settings request in serialport:open.
+var grblReportingUnits;  // initially undefined
+
 controller.on('serialport:write', function(data) {
     var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #00529B; background: #BDE5F8';
     console.log('%cW%c', style, '', data);
+
+    // Track manual changes to the Grbl position reporting units setting
+    // We are looking for either $13=0 or $13=1
+    if (cnc.controllerType == 'Grbl') {
+        cmd = data.split('=');
+        if (cmd.length == 2 && cmd[0] == "$13") {
+            grblReportingUnits = cmd[1];
+        }
+    }
 });
 
-controller.on('Grbl:state', function(data) {
+// This is a copy of the Grbl:state report that came in before the Grbl:settings report
+var savedGrblState;
+
+function renderGrblState(data) {
     var status = data.status || {};
     var activeState = status.activeState;
     var mpos = status.mpos;
@@ -164,14 +194,78 @@ controller.on('Grbl:state', function(data) {
     var IDLE = 'Idle', RUN = 'Run';
     var canClick = [IDLE, RUN].indexOf(activeState) >= 0;
 
+    var parserstate = data.parserstate || {};
+
+    // Unit conversion factor - depends on both $13 setting and parser units
+    var factor = 1.0;
+    // Number of postdecimal digits to display; 3 for in, 4 for mm
+    var digits = 4;
+
+    var mlabel = 'MPos:';
+    var wlabel = 'WPos:';
+
+    switch (parserstate.modal.units) {
+    case 'G20':
+        mlabel = 'MPos (in):';
+        wlabel = 'WPos (in):';
+        digits = 4;
+        factor = grblReportingUnits == 0 ? 1/25.4 : 1.0 ;
+        break;
+    case 'G21':
+        mlabel = 'MPos (mm):';
+        wlabel = 'WPos (mm):';
+        digits = 3;
+        factor = grblReportingUnits == 0 ? 1.0 : 25.4;
+        break;
+    }
+
+    console.log(grblReportingUnits, factor);
+
+    mpos.x = (mpos.x * factor).toFixed(digits);
+    mpos.y = (mpos.y * factor).toFixed(digits);
+    mpos.z = (mpos.z * factor).toFixed(digits);
+
+    wpos.x = (wpos.x * factor).toFixed(digits);
+    wpos.y = (wpos.y * factor).toFixed(digits);
+    wpos.z = (wpos.y * factor).toFixed(digits);
+
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] [data-name="active-state"]').text(activeState);
+    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
     $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
     $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
     $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
+    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
     $('[data-route="axes"] [data-name="wpos-x"]').text(wpos.x);
     $('[data-route="axes"] [data-name="wpos-y"]').text(wpos.y);
     $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
+}
+
+controller.on('Grbl:state', function(data) {
+    // If we do not yet know the reporting units from the $13 setting, we copy
+    // the data for later processing when we do know.
+    if (typeof grblReportingUnits == 'undefined') {
+	console.log("DEFER");
+	savedGrblState = JSON.parse(JSON.stringify(data));
+    } else {
+	console.log("STATE");
+	renderGrblState(data);
+    }
+});
+
+controller.on('Grbl:settings', function(data) {
+    var settings = data.settings || {};
+    console.log("SETTINGS");
+    if (settings['$13'] != undefined) {
+        grblReportingUnits = settings['$13'];
+
+	if (typeof savedGrblState != 'undefined') {
+	    renderGrblState(savedGrblState);
+	    // Don't re-render the state if we get later settings reports,
+	    // as the savedGrblState is probably stale.
+	    savedGrblState = undefined;
+	}
+    }
 });
 
 controller.on('Smoothie:state', function(data) {
@@ -219,21 +313,21 @@ controller.on('TinyG:state', function(data) {
     case 'G20':
         mlabel = 'MPos (in):';
         wlabel = 'WPos (in):';
-	// TinyG reports machine coordinates in mm regardless of the in/mm mode
-	mpos.x = (mpos.x / 25.4).toFixed(4);
-	mpos.y = (mpos.y / 25.4).toFixed(4);
-	mpos.z = (mpos.z / 25.4).toFixed(4);
-	// TinyG reports work coordinates according to the in/mm mode
+        // TinyG reports machine coordinates in mm regardless of the in/mm mode
+        mpos.x = (mpos.x / 25.4).toFixed(4);
+        mpos.y = (mpos.y / 25.4).toFixed(4);
+        mpos.z = (mpos.z / 25.4).toFixed(4);
+        // TinyG reports work coordinates according to the in/mm mode
         wpos.x = Number(wpos.x).toFixed(4);
         wpos.y = Number(wpos.y).toFixed(4);
         wpos.z = Number(wpos.z).toFixed(4);
-	break;
+        break;
     case 'G21':
         mlabel = 'MPos (mm):';
         wlabel = 'WPos (mm):';
-	mpos.x = Number(mpos.x).toFixed(3);
-	mpos.y = Number(mpos.y).toFixed(3);
-	mpos.z = Number(mpos.z).toFixed(3);
+        mpos.x = Number(mpos.x).toFixed(3);
+        mpos.y = Number(mpos.y).toFixed(3);
+        mpos.z = Number(mpos.z).toFixed(3);
         wpos.x = Number(wpos.x).toFixed(3);
         wpos.y = Number(wpos.y).toFixed(3);
         wpos.z = Number(wpos.z).toFixed(3);
