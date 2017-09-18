@@ -46,14 +46,14 @@ controller.on('serialport:open', function(options) {
     Cookies.set('cnc.port', port);
     Cookies.set('cnc.baudrate', baudrate);
 
-    if (controllerType == 'Grbl') {
+    if (controllerType === 'Grbl') {
         // Read the settings so we can determine the units for position reports
         // This will trigger a Grbl:settings callback to set grblReportingUnits
 
         // This has a problem: The first status report arrives before the
         // settings report, so interpreting the numbers from the first status
         // report is ambiguous.  Subsequent status reports are interpreted correctly.
-	// We work around that by deferring status reports until the settings report.
+        // We work around that by deferring status reports until the settings report.
         controller.writeln('$$');
     }
 
@@ -175,10 +175,10 @@ controller.on('serialport:write', function(data) {
 
     // Track manual changes to the Grbl position reporting units setting
     // We are looking for either $13=0 or $13=1
-    if (cnc.controllerType == 'Grbl') {
+    if (cnc.controllerType === 'Grbl') {
         cmd = data.split('=');
-        if (cmd.length == 2 && cmd[0] == "$13") {
-            grblReportingUnits = cmd[1];
+        if (cmd.length === 2 && cmd[0] === "$13") {
+            grblReportingUnits = Number(cmd[1]) || 0;
         }
     }
 });
@@ -209,17 +209,17 @@ function renderGrblState(data) {
         mlabel = 'MPos (in):';
         wlabel = 'WPos (in):';
         digits = 4;
-        factor = grblReportingUnits == 0 ? 1/25.4 : 1.0 ;
+        factor = grblReportingUnits === 0 ? 1/25.4 : 1.0 ;
         break;
     case 'G21':
         mlabel = 'MPos (mm):';
         wlabel = 'WPos (mm):';
         digits = 3;
-        factor = grblReportingUnits == 0 ? 1.0 : 25.4;
+        factor = grblReportingUnits === 0 ? 1.0 : 25.4;
         break;
     }
 
-    console.log(grblReportingUnits, factor);
+    //console.log(grblReportingUnits, factor);
 
     mpos.x = (mpos.x * factor).toFixed(digits);
     mpos.y = (mpos.y * factor).toFixed(digits);
@@ -244,27 +244,24 @@ function renderGrblState(data) {
 controller.on('Grbl:state', function(data) {
     // If we do not yet know the reporting units from the $13 setting, we copy
     // the data for later processing when we do know.
-    if (typeof grblReportingUnits == 'undefined') {
-	console.log("DEFER");
-	savedGrblState = JSON.parse(JSON.stringify(data));
+    if (typeof grblReportingUnits === 'undefined') {
+        savedGrblState = JSON.parse(JSON.stringify(data));
     } else {
-	console.log("STATE");
-	renderGrblState(data);
+        renderGrblState(data);
     }
 });
 
 controller.on('Grbl:settings', function(data) {
     var settings = data.settings || {};
-    console.log("SETTINGS");
-    if (settings['$13'] != undefined) {
-        grblReportingUnits = settings['$13'];
+    if (settings['$13'] !== undefined) {
+        grblReportingUnits = Number(settings['$13']) || 0;
 
-	if (typeof savedGrblState != 'undefined') {
-	    renderGrblState(savedGrblState);
-	    // Don't re-render the state if we get later settings reports,
-	    // as the savedGrblState is probably stale.
-	    savedGrblState = undefined;
-	}
+        if (typeof savedGrblState !== 'undefined') {
+            renderGrblState(savedGrblState);
+            // Don't re-render the state if we get later settings reports,
+            // as the savedGrblState is probably stale.
+            savedGrblState = undefined;
+        }
     }
 });
 
