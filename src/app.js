@@ -53,13 +53,8 @@ controller.on('serialport:open', function(options) {
         // This has a problem: The first status report arrives before the
         // settings report, so interpreting the numbers from the first status
         // report is ambiguous.  Subsequent status reports are interpreted correctly.
-
+	// We work around that by deferring status reports until the settings report.
         controller.writeln('$$');
-
-        // Force a new statusreport so we can interpret the numbers correctly.
-        // This fails because, even though a status report request is sent
-        // to Grbl, the app does not send us back a Grbl:state event in response
-        // controller.command('statusreport');
     }
 
     root.location = '#/axes';
@@ -188,13 +183,10 @@ controller.on('serialport:write', function(data) {
     }
 });
 
+// This is a copy of the Grbl:state report that came in before the Grbl:settings report
 var savedGrblState;
 
 function renderGrblState(data) {
-    if (typeof grblReportingUnits == 'undefined') {
-	savedGrblState = JSON.parse(JSON.stringify(data));
-	return;
-    }
     var status = data.status || {};
     var activeState = status.activeState;
     var mpos = status.mpos;
@@ -227,6 +219,8 @@ function renderGrblState(data) {
         break;
     }
 
+    console.log(grblReportingUnits, factor);
+
     mpos.x = (mpos.x * factor).toFixed(digits);
     mpos.y = (mpos.y * factor).toFixed(digits);
     mpos.z = (mpos.z * factor).toFixed(digits);
@@ -248,14 +242,29 @@ function renderGrblState(data) {
 }
 
 controller.on('Grbl:state', function(data) {
-    renderGrblState(data);
+    // If we do not yet know the reporting units from the $13 setting, we copy
+    // the data for later processing when we do know.
+    if (typeof grblReportingUnits == 'undefined') {
+	console.log("DEFER");
+	savedGrblState = JSON.parse(JSON.stringify(data));
+    } else {
+	console.log("STATE");
+	renderGrblState(data);
+    }
 });
 
 controller.on('Grbl:settings', function(data) {
     var settings = data.settings || {};
+    console.log("SETTINGS");
     if (settings['$13'] != undefined) {
         grblReportingUnits = settings['$13'];
-	renderGrblState(savedGrblState);
+
+	if (typeof savedGrblState != 'undefined') {
+	    renderGrblState(savedGrblState);
+	    // Don't re-render the state if we get later settings reports,
+	    // as the savedGrblState is probably stale.
+	    savedGrblState = undefined;
+	}
     }
 });
 
