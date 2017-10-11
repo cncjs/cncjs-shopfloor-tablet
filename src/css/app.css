@@ -8,6 +8,9 @@
   padding: 5px;
   font-size: 14px;
 }
+[data-route="axes"] .btn[disabled] {
+  opacity: .4;
+}
 [data-route="axes"] > * {
   margin-bottom: 5px;
 }
@@ -17,10 +20,22 @@
 [data-route="axes"] .dropdown-menu>li>a .fa {
   width: 16px;
 }
+[data-route="axes"] .coordinate-entry {
+  padding-top: 25px;
+}
+[data-route="axes"] .load-panel .row {
+  padding-bottom: 25px;
+}
+[data-route="axes"] .load-panel .btn {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
 [data-route="axes"] .nav-panel .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
+  padding-bottom: 5px;
 }
 [data-route="axes"] .nav-panel .row [class^="col-"],
 [data-route="axes"] .nav-panel .row [class*=" col-"] {
@@ -31,11 +46,11 @@
   padding-right: 0;
 }
 [data-route="axes"] .active-state {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f6f6f6;
+#  border: 1px solid #ccc;
+#  border-radius: 4px;
+  background-color: #f6f686;
   padding: 5px 10px;
-  text-align: center;
+  text-align: left;
 }
 [data-route="axes"] .axis-label {
   text-align: right;
@@ -69,6 +84,15 @@
 [data-route="axes"] .rotate--90deg:before {
   transform: rotate(-90deg);
 }
+[data-route="axes"] .load-panel .row [class^="col-"],
+[data-route="axes"] .load-panel .row [class*=" col-"] {
+  padding-right: 5px;
+}
+[data-route="axes"] .load-panel .row [class^="col-"]:last-child,
+[data-route="axes"] .load-panel .row [class*=" col-"]:last-child {
+  padding-right: 0;
+}
+
 [data-route="axes"] .control-pad .row [class^="col-"],
 [data-route="axes"] .control-pad .row [class*=" col-"] {
   padding-right: 5px;
@@ -81,7 +105,7 @@
   padding-bottom: 5px;
 }
 [data-route="axes"] .control-pad .row:last-child {
-  padding-bottom: 0;
+  padding-bottom: 5px;
 }
 [data-route="axes"] .control-pad .btn {
   width: 100%;

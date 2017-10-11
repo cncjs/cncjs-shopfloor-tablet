@@ -85,6 +85,20 @@ controller.on('serialport:error', function(options) {
 
 });
 
+cnc.loadFile = function() {
+    filename = document.getElementById('filename').value;
+    controller.command('watchdir:load', filename);
+}
+
+cnc.setAxis = function(axis) {
+    coordinate = document.getElementById('coordinate').value;
+    controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
+}
+
+cnc.zeroAxis = function(axis) {
+    controller.command('gcode', 'G10 L20 P1 ' + axis + '0');
+}
+
 cnc.sendMove = function(cmd) {
     var jog = function(params) {
         params = params || {};
@@ -305,8 +319,12 @@ controller.on('TinyG:state', function(data) {
     }[machineState] || 'N/A';
     var mpos = sr.mpos;
     var wpos = sr.wpos;
-    var READY = 1, STOP = 3, END = 4, RUN = 5;
-    var canClick = [READY, STOP, END, RUN].indexOf(machineState) >= 0;
+    var READY = 1, STOP = 3, END = 4, RUN = 5, HOLD = 6;
+    var canClick = [READY, STOP, END].indexOf(machineState) >= 0;
+    var canStart = [READY, STOP, END].indexOf(machineState) >= 0;
+    var canPause = [RUN].indexOf(machineState) >= 0;
+    var canResume = [HOLD].indexOf(machineState) >= 0;
+    var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
     var mlabel = 'MPos:';
     var wlabel = 'WPos:';
     switch (sr.modal.units) {
@@ -334,7 +352,17 @@ controller.on('TinyG:state', function(data) {
     }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] [data-name="active-state"]').text(stateText);
+    $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !canStart);
+    $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
+    $('[data-route="axes"] .nav-panel .btn-pause').prop('disabled', !canPause);
+    $('[data-route="axes"] .nav-panel .btn-pause').prop('style').backgroundColor = canPause ? '#f68686' : '#f6f6f6';
+    $('[data-route="axes"] .nav-panel .btn-resume').prop('disabled', !canResume);
+    $('[data-route="axes"] .nav-panel .btn-resume').prop('style').backgroundColor = canResume ? '#86f686' : '#f6f6f6';
+
+    $('[data-route="axes"] .nav-panel .btn-stop').prop('disabled', !canStop);
+    $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
+
+    $('[data-route="axes"] [data-name="active-state"]').text('State: ' + stateText);
     $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
     $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
     $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
