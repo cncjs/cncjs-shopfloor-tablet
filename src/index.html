@@ -151,53 +151,159 @@
 
     <div class="axis-position">
         <div class="container-fluid">
+<!--
             <div class="row no-gutter">
-                <div class="col-xs-2">
-                </div>
-                <div class="col-xs-10">
-                    <div class="col-xs-4">
-                        <div class="axis-label">X</div>
-                    </div>
-                    <div class="col-xs-4">
-                        <div class="axis-label">Y</div>
-                    </div>
-                    <div class="col-xs-4">
-                        <div class="axis-label">Z</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row no-gutter">
-                <div class="col-xs-2" data-name="mpos-label">
+                <div class="col-xs-2 pos-name" data-name="mpos-label">
                     MPos:
                 </div>
                 <div class="col-xs-10">
                     <div class="col-xs-4">
-                        <div class="axis-position" data-name="mpos-x">0.000</div>
+                      <input type="number" class="form-control axis-position" id="mpos-x" value="0.0000">
                     </div>
                     <div class="col-xs-4">
-                        <div class="axis-position" data-name="mpos-y">0.000</div>
+                      <input type="number" class="form-control axis-position" id="mpos-y" value="0.0000">
                     </div>
                     <div class="col-xs-4">
-                        <div class="axis-position" data-name="mpos-z">0.000</div>
+                      <input type="number" class="form-control axis-position" id="mpos-z" value="0.0000">
+                    </div>
+                </div>
+            </div>
+-->
+            <div class="row no-gutter">
+                <div class="col-xs-2 pos-name" data-name="wpos-label">
+                    WPos:
+                </div>
+                <div class="col-xs-10">
+                    <div class="col-xs-1">
+                        <div class="axis-label">X</div>
+                    </div>
+                    <div class="col-xs-2">
+                      <input type="number" class="form-control axis-position" id="wpos-x" value="0.0000">
+                    </div>
+                    <div class="col-xs-1">
+                    </div>
+                    <div class="col-xs-1">
+                        <div class="axis-label">Y</div>
+                    </div>
+                    <div class="col-xs-2">
+                      <input type="number" class="form-control axis-position" id="wpos-y" value="0.0000">
+                    </div>
+                    <div class="col-xs-1">
+                    </div>
+                    <div class="col-xs-1">
+                        <div class="axis-label">Z</div>
+                    </div>
+                    <div class="col-xs-2">
+                      <input type="number" class="form-control axis-position" id="wpos-z" value="0.0000">
+                    </div>
+                    <div class="col-xs-1">
                     </div>
                 </div>
             </div>
             <div class="row no-gutter">
-                <div class="col-xs-2" data-name="wpos-label">
-                    WPos:
+                <div class="col-xs-2">
                 </div>
                 <div class="col-xs-10">
-                    <div class="col-xs-4">
-                        <div class="axis-position" data-name="wpos-x">0.000</div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default zerox"
+                         title="Set X to 0"
+			 onclick="cnc.zeroAxis('X')"
+		       >
+                        Zero
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default set-x"
+                         title="Set X (G10 X0)"
+                         onclick="cnc.setAxis('X0', 'wpos-x')"
+		       >
+                        Set
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default move-x"
+                         title="Move to X (G0 X0)"
+                         onclick="cnc.moveAxis('X', 'wpos-x')"
+                      >
+                        Go
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
                     </div>
-                    <div class="col-xs-4">
-                        <div class="axis-position" data-name="wpos-y">0.000</div>
+
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default zeroy"
+                         title="Set Y to 0"
+			 onclick="cnc.zeroAxis('Y')"
+		       >
+                        Zero
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default set-y"
+                         title="Set Y (G10 Y0)"
+                         onclick="cnc.setAxis('Y0', 'wpos-y')"
+                      >
+                        Set
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default move-y"
+                         title="Move to Y (G0 Y0)"
+                         onclick="cnc.moveAxis('Y', 'wpos-y')"
+		      >
+                        Go
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
                     </div>
-                    <div class="col-xs-4">
-                        <div class="axis-position" data-name="wpos-z">0.000</div>
+
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default zeroz"
+                         title="Set Z to 0"
+			 onclick="cnc.zeroAxis('Z')"
+		       >
+                        Zero
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button
+                         type="button"
+                         class="btn btn-default set-z"
+                         title="Set Z (G10 Z0)"
+                         onclick="cnc.setAxis('Z0', 'wpos-z')"
+		      >
+                        Set
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
+                      <button type="button"
+                         class="btn btn-default move-z"
+                         title="Move to Z (G0 Z0)"
+                         onclick="cnc.moveAxis('Z', 'wpos-z')"
+                      >
+                         Go
+                      </button>
+		    </div>
+                    <div class="col-xs-1">
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <div class="control-pad">
@@ -383,73 +489,6 @@
                         onclick="cnc.sendMove('Z-')"
                     >
                         Z-
-                    </button>
-                </div>
-	    </div>
-        </div>
-	<div class="container-fluid">
-	    <div class="row no-gutter coordinate-entry">
-                <div class="col-xs-3">
-                    <input type="number" class="form-control" id="coordinate" value="0">
-	        </div>
-                <div class="col-xs-2">
-                    <button
-                       type="button"
-                       class="btn btn-default setx"
-                       title="setx"
-                       onclick="cnc.setAxis('X')"
-		    >
-                        SetX
-                    </button>
-		</div>
-                <div class="col-xs-2">
-                    <button
-                       type="button"
-                       class="btn btn-default sety"
-                       title="sety"
-                       onclick="cnc.setAxis('Y')"
-		    >
-                        SetY
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button
-                       type="button"
-                       class="btn btn-default setz"
-                       title="setz"
-                       onclick="cnc.setAxis('Z')"
-		    >
-                        SetZ
-                    </button>
-                </div>
-                <div class="col-xs-1">
-                    <button
-                       type="button"
-                       class="btn btn-default zerox"
-                       title="zerox"
-                       onclick="cnc.zeroAxis('X')"
-		    >
-                        ZeroX
-                    </button>
-                </div>
-                <div class="col-xs-1">
-                    <button
-                       type="button"
-                       class="btn btn-default zeroy"
-                       title="zeroy"
-                       onclick="cnc.zeroAxis('Y')"
-		    >
-                        ZeroY
-                    </button>
-                </div>
-                <div class="col-xs-1">
-                    <button
-                       type="button"
-                       class="btn btn-default zeroz"
-                       title="zeroz"
-                       onclick="cnc.zeroAxis('Z')"
-		    >
-                        ZeroZ
                     </button>
                 </div>
 	    </div>

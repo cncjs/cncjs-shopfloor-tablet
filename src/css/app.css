@@ -26,10 +26,16 @@
 [data-route="axes"] .load-panel .row {
   padding-bottom: 25px;
 }
+[data-route="axes"] .axis-position .container-fluid {
+  padding-bottom: 25px;
+}
 [data-route="axes"] .load-panel .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
+}
+[data-route="axes"] .nav-panel .row {
+  padding-bottom: 25px;
 }
 [data-route="axes"] .nav-panel .btn {
   width: 100%;
@@ -52,8 +58,11 @@
   padding: 5px 10px;
   text-align: left;
 }
+[data-route="axes"] .pos-name {
+  text-align: left;
+}
 [data-route="axes"] .axis-label {
-  text-align: right;
+  text-align: left;
   font-size: 20px;
   padding: 0 8px;
 }

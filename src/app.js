@@ -90,8 +90,13 @@ cnc.loadFile = function() {
     controller.command('watchdir:load', filename);
 }
 
-cnc.setAxis = function(axis) {
-    coordinate = document.getElementById('coordinate').value;
+cnc.moveAxis = function(axis, field) {
+    coordinate = document.getElementById(field).value;
+    controller.command('gcode', 'G0 ' + axis + coordinate);
+}
+
+cnc.setAxis = function(axis, field) {
+    coordinate = document.getElementById(field).value;
     controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
 }
 
@@ -246,13 +251,13 @@ function renderGrblState(data) {
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] [data-name="active-state"]').text(activeState);
     $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
-    $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
-    $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
-    $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
+    $('[data-route="axes"] [id="mpos-x"]').text(mpos.x);
+    $('[data-route="axes"] [id="mpos-y"]').text(mpos.y);
+    $('[data-route="axes"] [id="mpos-z"]').text(mpos.z);
     $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
-    $('[data-route="axes"] [data-name="wpos-x"]').text(wpos.x);
-    $('[data-route="axes"] [data-name="wpos-y"]').text(wpos.y);
-    $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
+    $('[data-route="axes"] [id="wpos-x"]').text(wpos.x);
+    $('[data-route="axes"] [id="wpos-y"]').text(wpos.y);
+    $('[data-route="axes"] [id="wpos-z"]').text(wpos.z);
 }
 
 controller.on('Grbl:state', function(data) {
@@ -292,12 +297,12 @@ controller.on('Smoothie:state', function(data) {
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] [data-name="active-state"]').text(activeState);
-    $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
-    $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
-    $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
-    $('[data-route="axes"] [data-name="wpos-x"]').text(wpos.x);
-    $('[data-route="axes"] [data-name="wpos-y"]').text(wpos.y);
-    $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
+    $('[data-route="axes"] [id="mpos-x"]').text(mpos.x);
+    $('[data-route="axes"] [id="mpos-y"]').text(mpos.y);
+    $('[data-route="axes"] [id="mpos-z"]').text(mpos.z);
+    $('[data-route="axes"] [id="wpos-x"]').text(wpos.x);
+    $('[data-route="axes"] [id="wpos-y"]').text(wpos.y);
+    $('[data-route="axes"] [id="wpos-z"]').text(wpos.z);
 });
 
 controller.on('TinyG:state', function(data) {
@@ -352,6 +357,8 @@ controller.on('TinyG:state', function(data) {
     }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
+    $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
+
     $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !canStart);
     $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
     $('[data-route="axes"] .nav-panel .btn-pause').prop('disabled', !canPause);
@@ -363,14 +370,14 @@ controller.on('TinyG:state', function(data) {
     $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
 
     $('[data-route="axes"] [data-name="active-state"]').text('State: ' + stateText);
-    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
-    $('[data-route="axes"] [data-name="mpos-x"]').text(mpos.x);
-    $('[data-route="axes"] [data-name="mpos-y"]').text(mpos.y);
-    $('[data-route="axes"] [data-name="mpos-z"]').text(mpos.z);
+//    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
+//    $('[data-route="axes"] [id="mpos-x"]').prop('value', mpos.x);
+//    $('[data-route="axes"] [id="mpos-y"]').prop('value', mpos.y);
+//    $('[data-route="axes"] [id="mpos-z"]').prop('value', mpos.z);
     $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
-    $('[data-route="axes"] [data-name="wpos-x"]').text(wpos.x);
-    $('[data-route="axes"] [data-name="wpos-y"]').text(wpos.y);
-    $('[data-route="axes"] [data-name="wpos-z"]').text(wpos.z);
+    $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
+    $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
+    $('[data-route="axes"] [id="wpos-z"]').prop('value', wpos.z);
 });
 
 controller.listAllPorts();
