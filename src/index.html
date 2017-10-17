@@ -71,23 +71,36 @@
     </div>
 </div>
 <div class="hidden" data-route="axes">
-    <div class="load-panel">
+    <div class="nav-panel">
         <div class="container-fluid">
-	    <div class="row no-gutter">
-                <div class="col-xs-8">
-                    <input type="text" class="form-control" id="filename" placeholder="Filename">
-	        </div>
+            <div class="row no-gutter">
                 <div class="col-xs-2">
-                    <button
-                       type="button"
-                       class="btn btn-default loadfile"
-                       title="load"
-                       onclick="cnc.loadFile()"
-		    >
-                        Load
+                    <div class="active-state" data-name="active-state"></div>
+                </div>
+                <div class="col-xs-2">
+                    <button type="button" class="btn btn-default btn-start" onclick="cnc.controller.command('gcode:start')">
+                        Start
                     </button>
                 </div>
                 <div class="col-xs-2">
+                    <button type="button" class="btn btn-default btn-pause" onclick="cnc.controller.command('gcode:pause')">
+                        Pause
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button type="button" class="btn btn-default btn-resume" onclick="cnc.controller.command('gcode:resume')">
+                        Resume
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button type="button" class="btn btn-default btn-stop" onclick="cnc.controller.command('gcode:stop')">
+                        Stop
+                    </button>
+                </div>
+
+                <div class="col-xs-1">
+		</div>
+                <div class="col-xs-1">
                     <div class="btn-group btn-group-justified">
                         <div class="btn-group">
                             <div class="dropdown">
@@ -116,35 +129,9 @@
                         </div>
                     </div>
                 </div>
-	    </div>
-        </div>
-    </div>
-    <div class="nav-panel">
-        <div class="container-fluid">
-            <div class="row no-gutter">
-                <div class="col-xs-3">
-                    <div class="active-state" data-name="active-state"></div>
-                </div>
-                <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-start" onclick="cnc.controller.command('gcode:start')">
-                        Start
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-pause" onclick="cnc.controller.command('gcode:pause')">
-                        Pause
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-resume" onclick="cnc.controller.command('gcode:resume')">
-                        Resume
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-stop" onclick="cnc.controller.command('gcode:stop')">
-                        Stop
-                    </button>
-                </div>
+
+
+
             </div>
         </div>
     </div>
@@ -158,148 +145,120 @@
                 </div>
                 <div class="col-xs-10">
                     <div class="col-xs-4">
-                      <input type="number" class="form-control axis-position" id="mpos-x" value="0.0000">
+                      <input type="number" class="form-control position" id="mpos-x" value="0.0000">
                     </div>
                     <div class="col-xs-4">
-                      <input type="number" class="form-control axis-position" id="mpos-y" value="0.0000">
+                      <input type="number" class="form-control position" id="mpos-y" value="0.0000">
                     </div>
                     <div class="col-xs-4">
-                      <input type="number" class="form-control axis-position" id="mpos-z" value="0.0000">
+                      <input type="number" class="form-control position" id="mpos-z" value="0.0000">
                     </div>
                 </div>
             </div>
 -->
             <div class="row no-gutter">
-                <div class="col-xs-2 pos-name" data-name="wpos-label">
-                    WPos:
+                <div class="col-xs-1 pos-name" data-name="wpos-label">
+                    WPos
                 </div>
-                <div class="col-xs-10">
+
+                <div class="col-xs-11">
                     <div class="col-xs-1">
                         <div class="axis-label">X</div>
                     </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control axis-position" id="wpos-x" value="0.0000">
+                      <input type="number" class="form-control position" id="wpos-x" value="0.0000">
                     </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Goto 0 in X" onclick="cnc.goAxis('X', 0)">
+                        Go0
+                      </button>
                     </div>
                     <div class="col-xs-1">
                         <div class="axis-label">Y</div>
                     </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control axis-position" id="wpos-y" value="0.0000">
+                      <input type="number" class="form-control position" id="wpos-y" value="0.0000">
                     </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Goto 0 in Y" onclick="cnc.goAxis('Y', 0)">
+                        Go0
+                      </button>
                     </div>
                     <div class="col-xs-1">
                         <div class="axis-label">Z</div>
                     </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control axis-position" id="wpos-z" value="0.0000">
+                      <input type="number" class="form-control position" id="wpos-z" value="0.0000">
                     </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Goto 0 in Z" onclick="cnc.goAxis('Z', 0)">
+                        Go0
+                      </button>
                     </div>
                 </div>
             </div>
             <div class="row no-gutter">
-                <div class="col-xs-2">
+            </div>
+            <div class="row no-gutter">
+                <div class="col-xs-1">
+                   <button type="button" class="btn btn-default btn-units" id="units" title="Toggle Units" onclick="cnc.toggleUnits()">
+                      Units: mm
+                   </button>
                 </div>
-                <div class="col-xs-10">
+
+                <div class="col-xs-11">
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default zerox"
-                         title="Set X to 0"
-			 onclick="cnc.zeroAxis('X')"
-		       >
-                        Zero
-                      </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default set-x"
-                         title="Set X (G10 X0)"
-                         onclick="cnc.setAxis('X0', 'wpos-x')"
-		       >
+                      <button type="button" class="btn btn-default" title="Set X (G10 X0)" onclick="cnc.setAxis('X0', 'wpos-x')">
                         Set
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default move-x"
-                         title="Move to X (G0 X0)"
-                         onclick="cnc.moveAxis('X', 'wpos-x')"
-                      >
+                      <button type="button" class="btn btn-default" title="Move to X (G0 X0)" onclick="cnc.moveAxis('X', 'wpos-x')">
                         Go
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Set X to 0" onclick="cnc.zeroAxis('X')">
+                        Set0
+                      </button>
                     </div>
 
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default zeroy"
-                         title="Set Y to 0"
-			 onclick="cnc.zeroAxis('Y')"
-		       >
-                        Zero
-                      </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default set-y"
-                         title="Set Y (G10 Y0)"
-                         onclick="cnc.setAxis('Y0', 'wpos-y')"
-                      >
+                      <button type="button" class="btn btn-default" title="Set Y (G10 Y0)" onclick="cnc.setAxis('Y0', 'wpos-y')">
                         Set
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default move-y"
-                         title="Move to Y (G0 Y0)"
-                         onclick="cnc.moveAxis('Y', 'wpos-y')"
-		      >
+                      <button type="button" class="btn btn-default" title="Move to Y (G0 Y0)" onclick="cnc.moveAxis('Y', 'wpos-y')">
                         Go
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Set Y to 0" onclick="cnc.zeroAxis('Y')">
+                        Set0
+                      </button>
                     </div>
 
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default zeroz"
-                         title="Set Z to 0"
-			 onclick="cnc.zeroAxis('Z')"
-		       >
-                        Zero
-                      </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button
-                         type="button"
-                         class="btn btn-default set-z"
-                         title="Set Z (G10 Z0)"
-                         onclick="cnc.setAxis('Z0', 'wpos-z')"
-		      >
+                      <button type="button" class="btn btn-default" title="Set Z (G10 Z0)" onclick="cnc.setAxis('Z0', 'wpos-z')">
                         Set
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
-                      <button type="button"
-                         class="btn btn-default move-z"
-                         title="Move to Z (G0 Z0)"
-                         onclick="cnc.moveAxis('Z', 'wpos-z')"
-                      >
+                      <button type="button" class="btn btn-default" title="Move to Z (G0 Z0)" onclick="cnc.moveAxis('Z', 'wpos-z')">
                          Go
                       </button>
-		    </div>
+                    </div>
                     <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Set Z to 0" onclick="cnc.zeroAxis('Z')">
+                        Set0
+                      </button>
                     </div>
                 </div>
             </div>
@@ -342,26 +301,6 @@
                 <div class="col-xs-2">
                     <button
                         type="button"
-                        class="btn btn-default"
-                        title="Inches"
-                        onclick="cnc.controller.command('gcode', 'G20')"
-                    >
-                        Inches
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button
-                        type="button"
-                        class="btn btn-default"
-		        title='mm'
-                        onclick="cnc.controller.command('gcode', 'G21')"
-                    >
-                        mm
-                    </button>
-                </div>
-                <div class="col-xs-2">
-                    <button
-                        type="button"
                         class="btn btn-default jog-z-plus"
                         title="Move Z+"
                         onclick="cnc.sendMove('Z+')"
@@ -369,9 +308,49 @@
                         Z+
                     </button>
                 </div>
+
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.001"
+                        onclick="cnc.setDistance('0.001')"
+                    >
+                        0.001
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.01"
+                        onclick="cnc.setDistance('0.01')"
+                    >
+                        0.01
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.1"
+                        onclick="cnc.setDistance('0.1')"
+                    >
+                        0.1
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 1"
+                        onclick="cnc.setDistance('1')"
+                    >
+                        1
+                    </button>
+		</div>
             </div>
-	    <div class="row no-gutter">
-	    </div>
+
             <div class="row no-gutter">
                 <div class="col-xs-2">
                     <button
@@ -384,6 +363,7 @@
                     </button>
                 </div>
                 <div class="col-xs-2">
+<!--
                     <button
                         type="button"
                         class="btn btn-default jog-xy-zero"
@@ -392,6 +372,7 @@
                     >
                         <i class="fa fa-circle-o"></i>
                     </button>
+-->
                 </div>
                 <div class="col-xs-2">
                     <button
@@ -403,39 +384,71 @@
                         X+
                     </button>
                 </div>
+
                 <div class="col-xs-2">
+                    <select class="form-control" id="jog-distance" data-name="select-distance">
+                        <option>0.001</option>
+                        <option>0.003</option>
+                        <option>0.005</option>
+                        <option>0.01</option>
+                        <option>0.03</option>
+                        <option>0.05</option>
+                        <option>0.1</option>
+                        <option>0.3</option>
+                        <option>0.5</option>
+                        <option>1</option>
+                        <option>3</option>
+                        <option>5</option>
+                        <option>10</option>
+                        <option>30</option>
+                    </select>
+                </div>
+
+                <div class="col-xs-1">
                     <button
                         type="button"
-                        class="btn btn-default jog-x-zero"
-                        title="Move To X Zero (G0 X0)"
-                        onclick="cnc.sendMove('X0')"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.003"
+                        onclick="cnc.setDistance('0.003')"
                     >
-                        X0
+                        0.003
                     </button>
-                </div>
-                <div class="col-xs-2">
+		</div>
+                <div class="col-xs-1">
                     <button
                         type="button"
-                        class="btn btn-default jog-y-zero"
-                        title="Move To Y Zero (G0 Y0)"
-                        onclick="cnc.sendMove('Y0')"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.03"
+                        onclick="cnc.setDistance('0.03')"
                     >
-                        Y0
+                        0.03
                     </button>
-                </div>
-                <div class="col-xs-2">
+		</div>
+                <div class="col-xs-1">
                     <button
                         type="button"
-                        class="btn btn-default jog-z-zero"
-                        title="Move To Z Zero (G0 Z0)"
-                        onclick="cnc.sendMove('Z0')"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.3"
+                        onclick="cnc.setDistance('0.3')"
                     >
-                        Z0
+                        0.3
                     </button>
-                </div>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 3"
+                        onclick="cnc.setDistance('3')"
+                    >
+                        3
+                    </button>
+		</div>
             </div>
+
             <div class="row no-gutter">
                 <div class="col-xs-2">
+<!--
                     <button
                         type="button"
                         class="btn btn-default jog-x-minus jog-y-minus"
@@ -444,6 +457,7 @@
                     >
                         <i class="fa fa-arrow-circle-down rotate-45deg"></i>
                     </button>
+-->
                 </div>
                 <div class="col-xs-2">
                     <button
@@ -465,22 +479,6 @@
                         <i class="fa fa-arrow-circle-down rotate--45deg"></i>
                     </button>
                 </div>
-                <div class="col-xs-4">
-                    <select class="form-control" data-name="select-distance">
-                        <option>0.001</option>
-                        <option>0.005</option>
-                        <option>0.01</option>
-                        <option>0.05</option>
-                        <option>0.1</option>
-                        <option>0.5</option>
-                        <option>1</option>
-                        <option>5</option>
-                        <option>10</option>
-                        <option>50</option>
-                        <option>100</option>
-                        <option>500</option>
-                    </select>
-                </div>
                 <div class="col-xs-2">
                     <button
                         type="button"
@@ -491,8 +489,124 @@
                         Z-
                     </button>
                 </div>
-	    </div>
+
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.005"
+                        onclick="cnc.setDistance('0.005')"
+                    >
+                        0.005
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.05"
+                        onclick="cnc.setDistance('0.05')"
+                    >
+                        0.05
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 0.5"
+                        onclick="cnc.setDistance('0.5')"
+                    >
+                        0.5
+                    </button>
+		</div>
+                <div class="col-xs-1">
+                    <button
+                        type="button"
+                        class="btn btn-default set-distance"
+                        title="Jog by 5"
+                        onclick="cnc.setDistance('5')"
+                    >
+                        5
+                    </button>
+		</div>
+            </div>
         </div>
+        <div class="mdi">
+            <div class="container-fluid">
+                <div class="row no-gutter">
+                    <div class="col-xs-6">
+                        <div class="container-fluid">
+                            <div class="row no-gutter">
+                                <div class="col-xs-10">
+                                    <input type="text" class="form-control" id="mditext0" placeholder="GCode Command">
+                                </div>
+                                <div class="col-xs-2">
+                                    <button
+                                         type="button"
+                                         class="btn btn-default mdi-go"
+                                         title="Submit GCode Command"
+                                         onclick="cnc.MDI('mditext0')"
+                                         >
+                                        MDI
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row no-gutter">
+                                <div class="col-xs-10">
+                                    <input type="text" class="form-control" id="mditext1" placeholder="GCode Command">
+                                </div>
+                                <div class="col-xs-2">
+                                    <button
+                                         type="button"
+                                         class="btn btn-default mdi-go"
+                                         title="Submit GCode Command"
+                                         onclick="cnc.MDI('mditext1')"
+                                         >
+                                        MDI
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <select class="form-control" id="filelist" data-name="select-file">
+		                        <option>Load GCode File</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-2">
+                                    <button
+                                         type="button"
+                                         class="btn btn-default refresh"
+                                         title="Refresh File List"
+                                         onclick="cnc.getFileList()"
+                                         >
+                                        Rfrsh
+                                    </button>
+	                        </div>
+                                <div class="col-xs-2">
+                                    <button
+                                         type="button"
+                                         class="btn btn-default load"
+                                         title="Reload File"
+                                         onclick="cnc.loadGCode()"
+                                         >
+                                        Load
+                                    </button>
+	                        </div>
+                                <div class="col-xs-2" id="line-number">
+                                    0
+	                        </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6" id="gcode">
+                        GCode File Display
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="load-panel">
     </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
@@ -511,14 +625,16 @@ $('document').ready(function() {
         controllerType: Cookies.get('cnc.controllerType'),
         port: Cookies.get('cnc.port'),
         baudrate: Cookies.get('cnc.baudrate'),
-        connected: false
+        connected: false,
+        filename: null,
+        line: 0,
     };
     root.cnc.router = window.Router({
         '/': function() {
             if (root.cnc.connected) {
                 window.location = '#/workspace';
             } else {
-                window.location = '#/connection';
+                window.location = cnc.reConnect() ? '#/axes' : '#/connection';
             }
         },
         '/workspace': function() {

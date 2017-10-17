@@ -71,7 +71,7 @@ controller.on('serialport:close', function(options) {
     cnc.baudrate = 0;
 
     $('[data-route="workspace"] [data-name="port"]').val('');
-    $('[data-route="axes"] [data-name="active-state"]').text('Not connected');
+    $('[data-route="axes"] [data-name="active-state"]').text('NoConnect');
 
     root.location = '#/connection';
 });
@@ -90,18 +90,40 @@ cnc.loadFile = function() {
     controller.command('watchdir:load', filename);
 }
 
+cnc.goAxis = function(axis, coordinate) {
+    controller.command('gcode', 'G0 ' + axis + coordinate);
+}
+
 cnc.moveAxis = function(axis, field) {
     coordinate = document.getElementById(field).value;
-    controller.command('gcode', 'G0 ' + axis + coordinate);
+    cnc.goAxis(axis, coordinate)
 }
 
 cnc.setAxis = function(axis, field) {
     coordinate = document.getElementById(field).value;
     controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
 }
+cnc.MDI = function(field) {
+    mdicmd = document.getElementById(field).value;
+    controller.command('gcode', mdicmd);
+}
 
 cnc.zeroAxis = function(axis) {
     controller.command('gcode', 'G10 L20 P1 ' + axis + '0');
+}
+
+cnc.toggleUnits = function() {
+    button = document.getElementById('units');
+    if (button.innerText == 'mm') {
+	controller.command('gcode', 'G20');
+    } else {
+	controller.command('gcode', 'G21');
+    }	
+    // No need to fix the button label, as that will be done by the status watcher
+}
+
+cnc.setDistance = function(distance) {
+    $('[data-route="axes"] select[data-name="select-distance"]').val(distance);
 }
 
 cnc.sendMove = function(cmd) {
@@ -179,6 +201,10 @@ cnc.sendMove = function(cmd) {
 controller.on('serialport:read', function(data) {
     var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #222; background: #F5F5F5';
     console.log('%cR%c', style, '', data);
+    if (data.r) {
+	cnc.line++;
+	console.log('It is r');
+    }
 });
 
 // GRBL reports position in units according to the $13 setting,
@@ -309,11 +335,11 @@ controller.on('TinyG:state', function(data) {
     var sr = data.sr || {};
     var machineState = sr.machineState;
     var stateText = {
-        0: 'Initializing',
+        0: 'Init',
         1: 'Ready',
         2: 'Alarm',
-        3: 'Program Stop',
-        4: 'Program End',
+        3: 'Pgm Stop',
+        4: 'Pgm End',
         5: 'Run',
         6: 'Hold',
         7: 'Probe',
@@ -330,12 +356,13 @@ controller.on('TinyG:state', function(data) {
     var canPause = [RUN].indexOf(machineState) >= 0;
     var canResume = [HOLD].indexOf(machineState) >= 0;
     var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
-    var mlabel = 'MPos:';
-    var wlabel = 'WPos:';
+//    var mlabel = 'MPos:';
+//    var wlabel = 'WPos:';
     switch (sr.modal.units) {
     case 'G20':
-        mlabel = 'MPos (in):';
-        wlabel = 'WPos (in):';
+	$('[data-route="axes"] [id="units"]').text('Inch');
+//        mlabel = 'MPos (in):';
+//        wlabel = 'WPos (in):';
         // TinyG reports machine coordinates in mm regardless of the in/mm mode
         mpos.x = (mpos.x / 25.4).toFixed(4);
         mpos.y = (mpos.y / 25.4).toFixed(4);
@@ -346,8 +373,9 @@ controller.on('TinyG:state', function(data) {
         wpos.z = Number(wpos.z).toFixed(4);
         break;
     case 'G21':
-        mlabel = 'MPos (mm):';
-        wlabel = 'WPos (mm):';
+	$('[data-route="axes"] [id="units"]').text('mm');
+//        mlabel = 'MPos (mm):';
+//        wlabel = 'WPos (mm):';
         mpos.x = Number(mpos.x).toFixed(3);
         mpos.y = Number(mpos.y).toFixed(3);
         mpos.z = Number(mpos.z).toFixed(3);
@@ -357,6 +385,7 @@ controller.on('TinyG:state', function(data) {
     }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
+    $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
 
     $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !canStart);
@@ -369,15 +398,25 @@ controller.on('TinyG:state', function(data) {
     $('[data-route="axes"] .nav-panel .btn-stop').prop('disabled', !canStop);
     $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
 
-    $('[data-route="axes"] [data-name="active-state"]').text('State: ' + stateText);
+    $('[data-route="axes"] [data-name="active-state"]').text(stateText);
 //    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
 //    $('[data-route="axes"] [id="mpos-x"]').prop('value', mpos.x);
 //    $('[data-route="axes"] [id="mpos-y"]').prop('value', mpos.y);
 //    $('[data-route="axes"] [id="mpos-z"]').prop('value', mpos.z);
-    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
+//    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
     $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
     $('[data-route="axes"] [id="wpos-z"]').prop('value', wpos.z);
+});
+
+controller.on('gcode:load', function(name, gcode) {
+    cnc.showGCode(name, gcode);
+});
+
+controller.on('workflow:state', function(state) {
+    if (state == 'idle') {
+	cnc.line = 0;
+    }
 });
 
 controller.listAllPorts();
@@ -388,6 +427,60 @@ $('[data-route="workspace"] [data-name="btn-close"]').on('click', function() {
     controller.closePort();
 });
 
+cnc.reConnect = function() {
+    if (cnc.controllerType && cnc.port && cnc.baudrate) {
+	controller.openPort(cnc.port, {
+            controllerType: cnc.controllerType,
+            baudrate: Number(cnc.baudrate)
+	});
+	return true;
+    }
+    return false;
+};
+
+cnc.getFileList = function() {
+    jQuery.get("../api/watch/files", function(data) {
+        var selector = $('[data-route="axes"] select[data-name="select-file"]');
+        selector.empty();
+        $.each(data.files, function(index, file) {
+	    if (!file.name.endsWith("~")) {
+		selector.append($("<option/>").text(file.name));
+	    }
+	});
+        if (cnc.filename) {
+	    $('[data-route="axes"] select[data-name="select-file"]').val(cnc.filename);
+	}
+    }, "json");
+}
+
+cnc.showGCode = function(name, gcode) {
+    if (gcode == "") {
+	gcode = "(No GCode loaded)";
+    } else {
+	gcode = gcode.replace(/\r\n|\n|\r/g, '<br />');
+    }
+    cnc.filename = name;
+    if (name != "") {
+	// gcode = "(" + name + ")<br />" + gcode;
+	$('[data-route="axes"] select[data-name="select-file"]').val(name);
+    }
+    $('[data-route="axes"] [id="gcode"]').html(gcode);
+}
+
+cnc.getGCode = function() {
+    jQuery.get("../api/gcode", {port: cnc.port}, function(res) {
+        var gcode = res.data;
+        cnc.showGCode("", gcode);
+    });
+}
+
+cnc.loadGCode = function() {
+    var filename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
+    controller.command('watchdir:load', filename);
+}
+
+$('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
+
 //
 // Connection
 //
@@ -396,18 +489,19 @@ $('[data-route="connection"] [data-name="btn-open"]').on('click', function() {
     var port = $('[data-route="connection"] [data-name="port"]').val();
     var baudrate = $('[data-route="connection"] [data-name="baudrate"]').val();
 
-    $('[data-route="connection"] [data-name="msg"]').val('');
+    $('[data-route="connection"] [data-name="msg"]').html('Trying');
     controller.openPort(port, {
         controllerType: controllerType,
         baudrate: Number(baudrate)
     });
-});
+}
+);
 
 //
 // Axes
 //
 $('[data-route="axes"] [data-name="btn-dropdown"]').dropdown();
-$('[data-route="axes"] [data-name="active-state"]').text('Not connected');
+$('[data-route="axes"] [data-name="active-state"]').text('NoConnect');
 $('[data-route="axes"] select[data-name="select-distance"]').val('1');
 
 });

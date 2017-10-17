@@ -20,23 +20,32 @@
 [data-route="axes"] .dropdown-menu>li>a .fa {
   width: 16px;
 }
-[data-route="axes"] .coordinate-entry {
-  padding-top: 25px;
-}
-[data-route="axes"] .load-panel .row {
-  padding-bottom: 25px;
-}
-[data-route="axes"] .axis-position .container-fluid {
-  padding-bottom: 25px;
+[data-route="axes"] .axis-position .row {
+  padding-bottom: 5px;
 }
 [data-route="axes"] .load-panel .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
 }
-[data-route="axes"] .nav-panel .row {
-  padding-bottom: 25px;
+
+[data-route="axes"] .nav-panel .container-fluid {
+  padding-bottom: 12px;
 }
+[data-route="axes"] .axis-position .container-fluid {
+  background-color: azure;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+[data-route="axes"] .control-pad .container-fluid {
+  background-color: lightyellow;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+[data-route="axes"] .load-panel .container-fluid {
+  padding-bottom: 12px;
+}
+
 [data-route="axes"] .nav-panel .btn {
   width: 100%;
   padding-left: 0;
@@ -54,21 +63,34 @@
 [data-route="axes"] .active-state {
 #  border: 1px solid #ccc;
 #  border-radius: 4px;
-  background-color: #f6f686;
+#  background-color: #f6f686;
   padding: 5px 10px;
-  text-align: left;
+  text-align: center;
 }
 [data-route="axes"] .pos-name {
-  text-align: left;
+  text-align: center;
 }
 [data-route="axes"] .axis-label {
   text-align: left;
   font-size: 20px;
   padding: 0 8px;
 }
-[data-route="axes"] .axis-position {
+[data-route="axes"] .position {
+  width: 95%;
   text-align: right;
 }
+[data-route="axes"] #gcode {
+  font-size: 16px;
+}
+[data-route="axes"] .axis-position .btn {
+  width: 90%;
+  text-align: center;
+}
+
+[data-route="axes"] .btn-units {
+   text-align: left;
+}
+
 [data-route="axes"] .rotate-45deg {
   transform: rotate(45deg);
 }
@@ -121,6 +143,13 @@
   padding-left: 0;
   padding-right: 0;
 }
+
+[data-route="axes"] .mdi .container-fluid {
+  background-color: lavenderblush;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 @media (min-width: 768px) {
   [data-route="axes"] {
     font-size: 20px;
@@ -133,6 +162,7 @@
   }
   [data-route="axes"] .axis-label {
     font-size: 24px;
+    text-align: right;
   }
   [data-route="axes"] .dropdown-menu {
     font-size: 20px;
@@ -141,6 +171,9 @@
   [data-route="axes"] .form-control {
     font-size: 20px;
     height: 40px;
+  }
+  [data-route="axes"] #jog-distance {
+    text-align-last: right;
   }
 }
 @media (min-width: 992px) {

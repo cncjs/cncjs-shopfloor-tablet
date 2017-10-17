@@ -38,6 +38,8 @@ socket.on('connect', function() {
     $('#loading').remove(); // Remove loading message
     root.cnc.router.init();
     window.location = '#/';
+    $('[data-route="connection"] [data-name="btn-open"]').trigger('click');
+    root.cnc.getFileList();
 });
 
 socket.on('error', function() {
