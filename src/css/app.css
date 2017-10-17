@@ -23,12 +23,6 @@
 [data-route="axes"] .axis-position .row {
   padding-bottom: 5px;
 }
-[data-route="axes"] .load-panel .btn {
-  width: 100%;
-  padding-left: 0;
-  padding-right: 0;
-}
-
 [data-route="axes"] .nav-panel .container-fluid {
   padding-bottom: 12px;
 }
@@ -42,10 +36,6 @@
   padding-top: 12px;
   padding-bottom: 12px;
 }
-[data-route="axes"] .load-panel .container-fluid {
-  padding-bottom: 12px;
-}
-
 [data-route="axes"] .nav-panel .btn {
   width: 100%;
   padding-left: 0;
@@ -79,8 +69,18 @@
   width: 95%;
   text-align: right;
 }
-[data-route="axes"] #gcode {
-  font-size: 16px;
+[data-route="axes"] .load {
+  font-size: 12px;
+  width: 99%;
+  resize: none;
+}
+[data-route="axes"] .fileslist {
+    padding-top: 20px;
+}
+[data-route="axes"] textarea {
+  font-size: 12px;
+  width: 99%;
+  resize: none;
 }
 [data-route="axes"] .axis-position .btn {
   width: 90%;
@@ -114,14 +114,6 @@
 }
 [data-route="axes"] .rotate--90deg:before {
   transform: rotate(-90deg);
-}
-[data-route="axes"] .load-panel .row [class^="col-"],
-[data-route="axes"] .load-panel .row [class*=" col-"] {
-  padding-right: 5px;
-}
-[data-route="axes"] .load-panel .row [class^="col-"]:last-child,
-[data-route="axes"] .load-panel .row [class*=" col-"]:last-child {
-  padding-right: 0;
 }
 
 [data-route="axes"] .control-pad .row [class^="col-"],
@@ -175,6 +167,9 @@
   [data-route="axes"] #jog-distance {
     text-align-last: right;
   }
+  [data-route="axes"] textarea {
+    font-size: 12px;
+  }
 }
 @media (min-width: 992px) {
   [data-route="axes"] {
@@ -197,6 +192,9 @@
     font-size: 24px;
     height: 46px;
   }
+  [data-route="axes"] textarea {
+    font-size: 14px;
+  }
 }
 @media (min-width: 1200px) {
   [data-route="axes"] {
@@ -218,5 +216,8 @@
   [data-route="axes"] .form-control {
     font-size: 28px;
     height: 52px;
+  }
+  [data-route="axes"] textarea {
+    font-size: 14px;
   }
 }

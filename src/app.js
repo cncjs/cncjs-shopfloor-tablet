@@ -453,8 +453,6 @@ cnc.getFileList = function() {
 cnc.showGCode = function(name, gcode) {
     if (gcode == "") {
 	gcode = "(No GCode loaded)";
-    } else {
-	gcode = gcode.replace(/\r\n|\n|\r/g, '<br />');
     }
     cnc.filename = name;
     if (name != "") {

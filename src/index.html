@@ -269,6 +269,7 @@
         <div class="container-fluid">
             <div class="row no-gutter">
                 <div class="col-xs-2">
+<!-- Diagonal jogging can be dangerous - operator information overload
                     <button
                         type="button"
                         class="btn btn-default jog-x-minus jog-y-plus"
@@ -277,6 +278,7 @@
                     >
                         <i class="fa fa-arrow-circle-up rotate--45deg"></i>
                     </button>
+-->
                 </div>
                 <div class="col-xs-2">
                     <button
@@ -289,6 +291,7 @@
                     </button>
                 </div>
                 <div class="col-xs-2">
+<!-- Diagonal jogging can be dangerous - operator information overload
                     <button
                         type="button"
                         class="btn btn-default jog-x-plus jog-y-plus"
@@ -297,6 +300,7 @@
                     >
                         <i class="fa fa-arrow-circle-up rotate-45deg"></i>
                     </button>
+-->
                 </div>
                 <div class="col-xs-2">
                     <button
@@ -363,7 +367,7 @@
                     </button>
                 </div>
                 <div class="col-xs-2">
-<!--
+<!-- This is not a relative jog; it is too easy to accidentally touch in the middle of the jog pad
                     <button
                         type="button"
                         class="btn btn-default jog-xy-zero"
@@ -448,7 +452,7 @@
 
             <div class="row no-gutter">
                 <div class="col-xs-2">
-<!--
+<!-- Diagonal jogging can be dangerous - operator information overload
                     <button
                         type="button"
                         class="btn btn-default jog-x-minus jog-y-minus"
@@ -470,6 +474,7 @@
                     </button>
                 </div>
                 <div class="col-xs-2">
+<!-- Diagonal jogging can be dangerous - operator information overload
                     <button
                         type="button"
                         class="btn btn-default jog-x-plus jog-y-minus"
@@ -478,6 +483,7 @@
                     >
                         <i class="fa fa-arrow-circle-down rotate--45deg"></i>
                     </button>
+-->
                 </div>
                 <div class="col-xs-2">
                     <button
@@ -536,77 +542,69 @@
             <div class="container-fluid">
                 <div class="row no-gutter">
                     <div class="col-xs-6">
-                        <div class="container-fluid">
-                            <div class="row no-gutter">
-                                <div class="col-xs-10">
-                                    <input type="text" class="form-control" id="mditext0" placeholder="GCode Command">
-                                </div>
-                                <div class="col-xs-2">
-                                    <button
-                                         type="button"
-                                         class="btn btn-default mdi-go"
-                                         title="Submit GCode Command"
-                                         onclick="cnc.MDI('mditext0')"
-                                         >
-                                        MDI
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="row no-gutter">
-                                <div class="col-xs-10">
-                                    <input type="text" class="form-control" id="mditext1" placeholder="GCode Command">
-                                </div>
-                                <div class="col-xs-2">
-                                    <button
-                                         type="button"
-                                         class="btn btn-default mdi-go"
-                                         title="Submit GCode Command"
-                                         onclick="cnc.MDI('mditext1')"
-                                         >
-                                        MDI
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <select class="form-control" id="filelist" data-name="select-file">
-		                        <option>Load GCode File</option>
-                                    </select>
-                                </div>
-                                <div class="col-xs-2">
-                                    <button
-                                         type="button"
-                                         class="btn btn-default refresh"
-                                         title="Refresh File List"
-                                         onclick="cnc.getFileList()"
-                                         >
-                                        Rfrsh
-                                    </button>
-	                        </div>
-                                <div class="col-xs-2">
-                                    <button
-                                         type="button"
-                                         class="btn btn-default load"
-                                         title="Reload File"
-                                         onclick="cnc.loadGCode()"
-                                         >
-                                        Load
-                                    </button>
-	                        </div>
-                                <div class="col-xs-2" id="line-number">
-                                    0
-	                        </div>
-                            </div>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="mditext0" placeholder="GCode Command">
+                        </div>
+                        <div class="col-xs-2">
+                            <button
+                                 type="button"
+                                 class="btn btn-default mdi-go"
+                                 title="Submit GCode Command"
+                                 onclick="cnc.MDI('mditext0')"
+                                 >
+                                MDI
+                            </button>
+                        </div>
+                        <div class="col-xs-10">
+                            <input type="text" class="form-control" id="mditext1" placeholder="GCode Command">
+                        </div>
+                        <div class="col-xs-2">
+                            <button
+                                 type="button"
+                                 class="btn btn-default mdi-go"
+                                 title="Submit GCode Command"
+                                 onclick="cnc.MDI('mditext1')"
+                                 >
+                                MDI
+                            </button>
+                        </div>
+                        <div class="row no-gutter">
+                            <!-- this creates some vertical space above the file selector -->
+                        </div>
+                        <div class="col-xs-8">
+                            <select class="form-control" id="filelist" data-name="select-file">
+		                <option>Load GCode File</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-2">
+                            <button
+                                 type="button"
+                                 class="btn btn-default refresh"
+                                 title="Refresh File List"
+                                 onclick="cnc.getFileList()"
+                                 >
+                                Rfrsh
+                            </button>
+	                </div>
+                        <div class="col-xs-2">
+                            <button
+                                 type="button"
+                                 class="btn btn-default load"
+                                 title="Reload File"
+                                 onclick="cnc.loadGCode()"
+                                 >
+                                Load
+                            </button>
                         </div>
                     </div>
-                    <div class="col-xs-6" id="gcode">
-                        GCode File Display
+                    <div class="col-xs-6">
+                        <textarea class="gcode" id="gcode" rows="8">
+                            GCode File Display
+                        </textarea>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="load-panel">
     </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
