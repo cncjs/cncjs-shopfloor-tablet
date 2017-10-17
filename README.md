@@ -40,3 +40,37 @@ $ cnc -m /tablet:/home/pi/cncjs-shopfloor-table
 ```
 
 Then browse to the url 'http://<host>:8000/tablet/', where <host> is the name or IP address of the cncjs server.
+
+### Bugs/Workarounds
+
+In order to list files in the watch directory, I had to modify the main cncjs code to unprotect the 'api/watch/files' feature.  I did that by editing cncjs/dist/cnc/app/index.js, moving the line:
+
+        app.get((0, _urljoin2.default)(_settings2.default.route, 'api/watch/files'), api.watch.getFiles);
+
+from the section "// Register API routes with authorized access"
+to the section "// Register API routes with public access".
+
+There is almost certainly a better way to solve this problem, but I haven't figured out the authorization logic yet.
+
+### Usage
+
+![cncjs-tablet](https://user-images.githubusercontent.com/4861133/31691360-8fed97fe-b331-11e7-9df1-5b880b51cb3a.png)
+
+* **Start/Pause/Resume/Stop** are highlighted and colored according to the program state
+** **Start** is green when it is possible to start running a program
+** **Pause** is red when the program is running
+** **Stop** is red when the program is running or paused
+** **Resume** is green when the program is paused
+* The "Inch" (or "mm") button shows the currently-active units, and toggles them if clicked.
+* **Set** sets the axis work coordinate to the value in the number box above
+* **Go** rapids to the axis work coordinate to the value in the number box above
+* **Set0** sets the axis work coordinate to 0
+* **Go0** rapids to work 0 for that axis
+* The button group **0.001** .. **5** sets the jog increment.
+* The selector box between **Z+** and **Z-** shows the current jog increment, and, when clicked, permits the choice of some additional jog increments.
+* You can do continuous jogging by selecting a large increment, starting the jog, then hitting **Stop** when it has gone far enough.
+* To perform arbitrary GCode commands, enter the command in one of the GCode Command boxes, then click the nearby **MDI** button.  To re-execute that command, click **MDI** again.  There are two of them so you can have two different GCode commands "queued up" for easy execution.
+* To load a GCode file from the cncjs server's watch directory, select it from the file selector at the lower left.  Its GCode text will be displayed in the scrollable textarea to the right.
+* If additional files are added to the watch directory, you can refresh the selector list with the **Rfrsh** button, or you can reload the page.
+* **Load** reloads the GCode program from the currently selected file.  That is useful if you edit the file from another computer and want to pick up the new version.  You cannot reload it from the file selector, unless you first select a different file and then re-select the edited one (because of the way selector ".change" events work).
+* If the name in the file selector is blank, but there is text in the GCode display text area, the GCode is probably macro loaded from a different cncjs session.

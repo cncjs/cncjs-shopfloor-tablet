@@ -459,7 +459,7 @@ cnc.showGCode = function(name, gcode) {
 	// gcode = "(" + name + ")<br />" + gcode;
 	$('[data-route="axes"] select[data-name="select-file"]').val(name);
     }
-    $('[data-route="axes"] [id="gcode"]').html(gcode);
+    $('[data-route="axes"] [id="gcode"]').text(gcode);
 }
 
 cnc.getGCode = function() {
