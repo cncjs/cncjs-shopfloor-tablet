@@ -57,11 +57,11 @@ There is almost certainly a better way to solve this problem, but I haven't figu
 ![cncjs-tablet 2](https://user-images.githubusercontent.com/4861133/31739207-eb6da2c4-b3e8-11e7-9850-2fb737aadf70.png)
 
 * **Start/Pause/Resume/Stop** are highlighted and colored according to the program state
-** **Start** is green when it is possible to start running a program
-** **Pause** is red when the program is running
-** **Stop** is red when the program is running or paused
-** **Resume** is green when the program is paused
-* The "Inch" (or "mm") button shows the currently-active units, and toggles them if clicked.
+    * **Start** is green when it is possible to start running a program
+    * **Pause** is red when the program is running
+    * **Stop** is red when the program is running or paused
+    * **Resume** is green when the program is paused
+* The **Inch** or **mm** button shows the currently-active units, and toggles them if clicked.
 * **X=** **Y=** **Z=** set the axis work coordinate to the value in the number box above
 * **GoX** **GoY** **GoZ** rapid to the axis work coordinate to the value in the number box above
 * **X=0** **Y=0** **Z=0** set the axis work coordinate to 0
