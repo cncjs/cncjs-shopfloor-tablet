@@ -439,14 +439,13 @@ cnc.getFileList = function() {
     jQuery.get("../api/watch/files", {token: cnc.token}, function(data) {
         var selector = $('[data-route="axes"] select[data-name="select-file"]');
         selector.empty();
+        selector.append($("<option disabled />").text('Load GCode File'));
         $.each(data.files, function(index, file) {
 	    if (!file.name.endsWith("~")) {
 		selector.append($("<option/>").text(file.name));
 	    }
 	});
-        if (cnc.filename) {
-	    $('[data-route="axes"] select[data-name="select-file"]').val(cnc.filename);
-	}
+        $('[data-route="axes"] select[data-name="select-file"]').val(cnc.filename || 'Load GCode File');
     }, "json");
 }
 
