@@ -54,7 +54,7 @@ There is almost certainly a better way to solve this problem, but I haven't figu
 
 ### Usage
 
-![cncjs-tablet](https://user-images.githubusercontent.com/4861133/31691360-8fed97fe-b331-11e7-9df1-5b880b51cb3a.png)
+![cncjs-tablet 2](https://user-images.githubusercontent.com/4861133/31739207-eb6da2c4-b3e8-11e7-9850-2fb737aadf70.png)
 
 * **Start/Pause/Resume/Stop** are highlighted and colored according to the program state
 ** **Start** is green when it is possible to start running a program
@@ -62,15 +62,15 @@ There is almost certainly a better way to solve this problem, but I haven't figu
 ** **Stop** is red when the program is running or paused
 ** **Resume** is green when the program is paused
 * The "Inch" (or "mm") button shows the currently-active units, and toggles them if clicked.
-* **Set** sets the axis work coordinate to the value in the number box above
-* **Go** rapids to the axis work coordinate to the value in the number box above
-* **Set0** sets the axis work coordinate to 0
-* **Go0** rapids to work 0 for that axis
-* The button group **0.001** .. **5** sets the jog increment.
+* **X=** **Y=** **Z=** set the axis work coordinate to the value in the number box above
+* **GoX** **GoY** **GoZ** rapid to the axis work coordinate to the value in the number box above
+* **X=0** **Y=0** **Z=0** set the axis work coordinate to 0
+* **GoX0** **GoY0** **GoZ0** rapid to work 0 for that axis
+* **0.001** .. **5** set the jog increment.
 * The selector box between **Z+** and **Z-** shows the current jog increment, and, when clicked, permits the choice of some additional jog increments.
-* You can do continuous jogging by selecting a large increment, starting the jog, then hitting **Stop** when it has gone far enough.
-* To perform arbitrary GCode commands, enter the command in one of the GCode Command boxes, then click the nearby **MDI** button.  To re-execute that command, click **MDI** again.  There are two of them so you can have two different GCode commands "queued up" for easy execution.
+* **X-** **X+** **Y-** **Y+** **Z-** **Z+** jog by the current increment.  You can jog continuously by selecting a large increment, starting the jog, then hitting **Stop** when it has gone far enough.
+* **MDI** sends the GCode command entered in the box to its left.  To resend that command, click **MDI** again.  There are MDI blocks so you can have two different GCode commands "queued up" for easy execution.
 * To load a GCode file from the cncjs server's watch directory, select it from the file selector at the lower left.  Its GCode text will be displayed in the scrollable textarea to the right.
-* If additional files are added to the watch directory, you can refresh the selector list with the **Rfrsh** button, or you can reload the page.
-* **Load** reloads the GCode program from the currently selected file.  That is useful if you edit the file from another computer and want to pick up the new version.  You cannot reload it from the file selector, unless you first select a different file and then re-select the edited one (because of the way selector ".change" events work).
-* If the name in the file selector is blank, but there is text in the GCode display text area, the GCode is probably macro loaded from a different cncjs session.
+* **Rfrsh** refreshes the file selector list.  That is useful if additional files are added to the watch directory.  Another way to refresh the file list is to reload the page.
+* **Load** reloads the GCode program from the currently selected file.  That is useful if you edit the file from another computer and want to pick up the new version.  To reload it directly from the file selector, you would have to first select a different file and then re-select the edited one (because of the way selector ".change" events work).
+* If the file selector is blank and there is GCode text in the GCode display text area, the GCode is probably a macro loaded by a different cncjs session.
