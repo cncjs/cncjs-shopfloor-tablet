@@ -39,18 +39,7 @@ Use cnc's -m option to set up a static mount.  Assuming that the cncjs-shopfloor
 $ cnc -m /tablet:/home/pi/cncjs-shopfloor-table
 ```
 
-Then browse to the url 'http://<host>:8000/tablet/', where <host> is the name or IP address of the cncjs server.
-
-### Bugs/Workarounds
-
-In order to list files in the watch directory, I had to modify the main cncjs code to unprotect the 'api/watch/files' feature.  I did that by editing cncjs/dist/cnc/app/index.js, moving the line:
-
-        app.get((0, _urljoin2.default)(_settings2.default.route, 'api/watch/files'), api.watch.getFiles);
-
-from the section "// Register API routes with authorized access"
-to the section "// Register API routes with public access".
-
-There is almost certainly a better way to solve this problem, but I haven't figured out the authorization logic yet.
+Then browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
 
 ### Usage
 
