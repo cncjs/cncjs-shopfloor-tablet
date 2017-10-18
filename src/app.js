@@ -436,7 +436,7 @@ cnc.reConnect = function() {
 };
 
 cnc.getFileList = function() {
-    jQuery.get("../api/watch/files", function(data) {
+    jQuery.get("../api/watch/files", {token: cnc.token}, function(data) {
         var selector = $('[data-route="axes"] select[data-name="select-file"]');
         selector.empty();
         $.each(data.files, function(index, file) {

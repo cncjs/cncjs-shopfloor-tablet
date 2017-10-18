@@ -24,6 +24,7 @@ if (!token) {
         cnc.state = cnc.state || {};
         cnc.state.session = cnc.state.session || {};
         token = cnc.state.session.token || '';
+        root.cnc.token = token;
     } catch (err) {
         // Ignore error
     }
