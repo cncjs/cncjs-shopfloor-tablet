@@ -236,8 +236,12 @@ function renderGrblState(data) {
     var activeState = status.activeState;
     var mpos = status.mpos;
     var wpos = status.wpos;
-    var IDLE = 'Idle', RUN = 'Run';
+    var IDLE = 'Idle', RUN = 'Run', JOG = 'Jog', HOLD = 'Hold';
     var canClick = [IDLE, RUN].indexOf(activeState) >= 0;
+    var canStart = [IDLE].indexOf(activeState) >= 0;
+    var canPause = [RUN, JOG].indexOf(activeState) >= 0;
+    var canResume = [HOLD].indexOf(activeState) >= 0;
+    var canStop = [RUN, JOG, HOLD].indexOf(activeState) >= 0;
 
     var parserstate = data.parserstate || {};
 
@@ -246,19 +250,14 @@ function renderGrblState(data) {
     // Number of postdecimal digits to display; 3 for in, 4 for mm
     var digits = 4;
 
-    var mlabel = 'MPos:';
-    var wlabel = 'WPos:';
-
     switch (parserstate.modal.units) {
     case 'G20':
-        mlabel = 'MPos (in):';
-        wlabel = 'WPos (in):';
+	$('[data-route="axes"] [id="units"]').text('Inch');
         digits = 4;
         factor = grblReportingUnits === 0 ? 1/25.4 : 1.0 ;
         break;
     case 'G21':
-        mlabel = 'MPos (mm):';
-        wlabel = 'WPos (mm):';
+	$('[data-route="axes"] [id="units"]').text('mm');
         digits = 3;
         factor = grblReportingUnits === 0 ? 1.0 : 25.4;
         break;
@@ -274,16 +273,7 @@ function renderGrblState(data) {
     wpos.y = (wpos.y * factor).toFixed(digits);
     wpos.z = (wpos.y * factor).toFixed(digits);
 
-    $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] [data-name="active-state"]').text(activeState);
-    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
-    $('[data-route="axes"] [id="mpos-x"]').text(mpos.x);
-    $('[data-route="axes"] [id="mpos-y"]').text(mpos.y);
-    $('[data-route="axes"] [id="mpos-z"]').text(mpos.z);
-    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
-    $('[data-route="axes"] [id="wpos-x"]').text(wpos.x);
-    $('[data-route="axes"] [id="wpos-y"]').text(wpos.y);
-    $('[data-route="axes"] [id="wpos-z"]').text(wpos.z);
+    cnc.updateState(canClick, canStart, canPause, canResume, canStop, activeState, wpos, mpos);
 }
 
 controller.on('Grbl:state', function(data) {
@@ -353,13 +343,9 @@ controller.on('TinyG:state', function(data) {
     var canPause = [RUN].indexOf(machineState) >= 0;
     var canResume = [HOLD].indexOf(machineState) >= 0;
     var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
-//    var mlabel = 'MPos:';
-//    var wlabel = 'WPos:';
     switch (sr.modal.units) {
     case 'G20':
 	$('[data-route="axes"] [id="units"]').text('Inch');
-//        mlabel = 'MPos (in):';
-//        wlabel = 'WPos (in):';
         // TinyG reports machine coordinates in mm regardless of the in/mm mode
         mpos.x = (mpos.x / 25.4).toFixed(4);
         mpos.y = (mpos.y / 25.4).toFixed(4);
@@ -371,8 +357,6 @@ controller.on('TinyG:state', function(data) {
         break;
     case 'G21':
 	$('[data-route="axes"] [id="units"]').text('mm');
-//        mlabel = 'MPos (mm):';
-//        wlabel = 'WPos (mm):';
         mpos.x = Number(mpos.x).toFixed(3);
         mpos.y = Number(mpos.y).toFixed(3);
         mpos.z = Number(mpos.z).toFixed(3);
@@ -380,7 +364,10 @@ controller.on('TinyG:state', function(data) {
         wpos.y = Number(wpos.y).toFixed(3);
         wpos.z = Number(wpos.z).toFixed(3);
     }
+    cnc.updateState(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos);
+});
 
+cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos) {
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
@@ -396,15 +383,11 @@ controller.on('TinyG:state', function(data) {
     $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
 
     $('[data-route="axes"] [data-name="active-state"]').text(stateText);
-//    $('[data-route="axes"] [data-name="mpos-label"]').text(mlabel);
-//    $('[data-route="axes"] [id="mpos-x"]').prop('value', mpos.x);
-//    $('[data-route="axes"] [id="mpos-y"]').prop('value', mpos.y);
-//    $('[data-route="axes"] [id="mpos-z"]').prop('value', mpos.z);
-//    $('[data-route="axes"] [data-name="wpos-label"]').text(wlabel);
     $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
     $('[data-route="axes"] [id="wpos-z"]').prop('value', wpos.z);
-});
+
+}
 
 controller.on('gcode:load', function(name, gcode) {
     cnc.showGCode(name, gcode);
