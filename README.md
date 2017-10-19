@@ -27,7 +27,7 @@ The full cncjs UI can still be used, perhaps on a different computer or in a dif
 
 ### Limitations
 
-It has only been tested with TinyG.  It may work, for the most part, with GRBL and Smoothie, but the state-driven highlighting of program-control buttons has not yet been ported to GRBL and Smoothie.
+It works with TinyG and Grbl.  It probably does not work with Smoothie.  Smoothie support is probably easy to add but I have no way to test it.
 
 ### Setup
 
