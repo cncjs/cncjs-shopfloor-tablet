@@ -27,7 +27,7 @@ The full cncjs UI can still be used, perhaps on a different computer or in a dif
 
 ### Limitations
 
-It works with TinyG and Grbl.  It probably does not work with Smoothie.  Smoothie support is probably easy to add but I have no way to test it.
+It works with TinyG and Grbl.  It might work with Smoothie but that is untested.
 
 ### Setup
 
