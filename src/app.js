@@ -263,8 +263,6 @@ function renderGrblState(data) {
         break;
     }
 
-    //console.log(grblReportingUnits, factor);
-
     mpos.x = (mpos.x * factor).toFixed(digits);
     mpos.y = (mpos.y * factor).toFixed(digits);
     mpos.z = (mpos.z * factor).toFixed(digits);
@@ -305,17 +303,39 @@ controller.on('Smoothie:state', function(data) {
     var activeState = status.activeState;
     var mpos = status.mpos;
     var wpos = status.wpos;
-    var IDLE = 'Idle', RUN = 'Run';
-    var canClick = [IDLE, RUN].indexOf(activeState) >= 0;
+    var IDLE = 'Idle', RUN = 'Run', HOLD = 'Hold';
+    var canClick = [IDLE].indexOf(activeState) >= 0;
+    var canStart = [IDLE].indexOf(activeState) >= 0;
+    var canPause = [RUN].indexOf(activeState) >= 0;
+    var canResume = [HOLD].indexOf(activeState) >= 0;
+    var canStop = [RUN, HOLD].indexOf(activeState) >= 0;
 
-    $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] [data-name="active-state"]').text(activeState);
-    $('[data-route="axes"] [id="mpos-x"]').text(mpos.x);
-    $('[data-route="axes"] [id="mpos-y"]').text(mpos.y);
-    $('[data-route="axes"] [id="mpos-z"]').text(mpos.z);
-    $('[data-route="axes"] [id="wpos-x"]').text(wpos.x);
-    $('[data-route="axes"] [id="wpos-y"]').text(wpos.y);
-    $('[data-route="axes"] [id="wpos-z"]').text(wpos.z);
+    var parserstate = data.parserstate || {};
+
+    // Number of postdecimal digits to display; 3 for in, 4 for mm
+    var digits = 4;
+
+    // Smoothie reports both mpos and wpos in the current units
+    switch (parserstate.modal.units) {
+    case 'G20':
+	$('[data-route="axes"] [id="units"]').text('Inch');
+        digits = 4;
+        break;
+    case 'G21':
+	$('[data-route="axes"] [id="units"]').text('mm');
+        digits = 3;
+        break;
+    }
+
+    mpos.x = mpos.x.toFixed(digits);
+    mpos.y = mpos.y.toFixed(digits);
+    mpos.z = mpos.z.toFixed(digits);
+
+    wpos.x = wpos.x.toFixed(digits);
+    wpos.y = wpos.y.toFixed(digits);
+    wpos.z = wpos.y.toFixed(digits);
+
+    cnc.updateState(canClick, canStart, canPause, canResume, canStop, activeState, wpos, mpos);
 });
 
 controller.on('TinyG:state', function(data) {
