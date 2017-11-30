@@ -14,7 +14,7 @@ node_js:
 
 env:
   global:
-    - secure: "V2zxBxm8+Fpq4AJ78L7k8RMqRTEYwmZrA3Xbd8sg/m9e+BPyK2P0fBLyT0t2ixLAEzROhihr7JBXLydmI7f2DYcjczkhRVewYPhhqUsee1IGgV9eEJTQLWPpT5SFMo7QOHxXozxy+IajOj9pzv5rIpMy9wQLD5/DujMPPn9DzbNr2t+KxBnMoQLfRBivPXrlgXDPEQEP16/hZE+/oKLetEosfiK2pjaCHP3qDHgYww3BDpC16n2uuXwneDNwM7+UGymIoolH5b8bSJtZPHo8sP753OtKj32IiID2TsPnv9YgMgE36y0R9bV2CvSzSSp9bE/nVt5G/cWbyvKsapTpH26cougbfNYNOwfFQVrzQiK+lhMT76Tf2R8SpTXjNDjGmKqEscSDMNUVkDIgxb7f2XB3Tjk5PTMoi9Gmxx3lgZ/rkBX8dgOhPczTjsBp+cO66uuqdNlZJoJhioNeJVKuVch7zzrQnPiQ2RMGCijaaPbpH6jFaf5zYh9xrFNyDq+4EqLfmKI44Zrbi9U5qdmTYDq2Vz69OKbcASPt9v60XcrOq4Xr+IMFNUOLuOvFau1u++WzEEcSCfo57kbDdvS+x9fYzZDUXwEto6Y1DkgxUGTmT6MSTrvy87KiVYXCEbtE0sCcG002Ujmf9HqTOVg1BJk40ccUibuq5cL/Xgb1MCA=" # GITHUB_TOKEN
+    - secure: "NIUdt5dET7v1C7rWLN/I77EXe7kSUuTg7Za0m09R8ztG8QVx8lCa8n6v8XyjtS21Lm5b32DAAs4hV8/jTFp7IKRTP1M2vRUbwMTrUnObKILC0CmUQs+A0dTzgyhyBa35UVFbR9+Qh4abdzAYyS/OX1cYt7B5iO5QNDB4MQ5i565wY4LS8HDL6KsgxMDIeb5bzjVbz+OicpZVvyXj8lOmtTIs81MkOdRJ8PnwAbS79I1LpqPGoIw1zBfArjMEzyuQzOunNWTUPb7SwAJtUqkQqP8+GaLOehYWdJxQXboSHZqOJgMaqHCVVP9Pw8nWLi6N61xRVqoQg1TnWRjQFy5l4ikddxvhl1JWMQhse6z6BbDPLkDZvgyNEvb1MnWmEe9qmSuqAzfx2PzbVPbNyRcPRHFzSS2gNFlINNPurykE8g79bHvWtTzY9uHJ2ICKR92DlCG36tsVlq1ZSBw3GNqgXJEN+iR+iQk1Y4m9GhdLgJxvpAMgyiHMZV6ncXQNavOFEs5UlLprdybVxAs9rG2RevWQq1QmsAwi1sMO8OfePmyKuYxuuFOjWPmvxfCDdARmMxHK17ZduMw4SDlmnyDzA27GQ4m21gg8Fl0Xt047DpgiIcFFjsLbDfIoCD91STLLlWQDGeGQHJDgs7GRyyRTme8+uAgMqD5u5/GnzKBBBIs=" # GITHUB_TOKEN
 
 before_install:
   - npm install -g npm
@@ -41,13 +41,13 @@ after_success:
         mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
         npm run github-release -- delete \
           --owner=cncjs \
-          --repo=cncjs-pendant-tinyweb \
+          --repo=cncjs-shopfloor-tablet \
           --tag="latest" \
           --name="${TRAVIS_BRANCH}" \
           "*.zip";
         npm run github-release -- upload \
           --owner=cncjs \
-          --repo=cncjs-pendant-tinyweb \
+          --repo=cncjs-shopfloor-tablet \
           --tag="latest" \
           --name="${TRAVIS_BRANCH}" \
           --body="${COMMIT_LOG}" \
@@ -62,7 +62,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: "fBupQEzgrtyj1zr/Cz8PY54CsBB3YgToASh4z15d6Sg66D1FzR5deIj289v4MFdw1mH+/5dFWQOzvG2xn0X88TsBgpGz6hPj/u8hxLptw2F2Wf6cLQXaydBAvuTga3oxhz7MihBDH5DcWhvZ6L6HUgy11WxvaReOJns4ujfepdTBUocgrmrv4gVnIqKYG1aGBpEF4nXD+055m1OzSN2A/zmDHlKSFj3RvMAc1ehHrmvSTlpECGfRIjbx5MSfBVZSql0bkMVyH3uEfWhvnK7La386eo66sWziSNKSgMuWiX6ehiDoIdlNgKFEuXddnymPAn5RZ2RYNYUCf9yi2J8ugyZhPIQ7B+U99UOJgSIze+Bj80OAy/2Po7BkzFsdPT5bCYuzCzQtQl7g6JMJhErn/KSr1VkCynloUDkT+ho3W2CaoUD2xULfRTY+6t0dWqWugHBwJrCUqrVVw6MhHapinluf+oqsCqXb0sI9Zpj4tdtZmmD0QjATPqykPE1X+yG61GPa7zzynqNKc3XaXksBPG1uZ6Q95QLyj/j69xQVwhfVosmTdUeHNhPv2kWGpVFnIyy/rPsCQzhgUJ4QEc6nR4wEnB+uJcIOacGW/D213pOIs9GEIGmhnZZNBxVtKfIJb3dhZLTG+kL9xDO/lZW1ZEx4pbWwiZd5WHIGstzTI+Q="
+    secure: "pQINRWiGWO7aDHyoSL42m4wrICKzGxS1C9BLK+gc9L9PO1Wjx9NYIdF4q20L1BhGY27QPdqTGc/ODPU9zzec5yp2om/V0n7BhrkPGHDJJk99m36YIREfxR0yq0fJJv50oFB84V13pCu4u/ZD++DopVr6mHRaGSuSM8QquviWmwrj7gtFvsIegjSHmNijp/R9KI3Ogd28NbA1sR23e3YxxFH7GDvDrsXCUc+k9JxILktXwMF6jzCxA0AFFXBdkw4PLy0M45/6aiUbq7I8giFfLq6WLTzUzJSDHnuWC3FmjHObKZIZZ5ugDgQvREZL1OUUIVaIi5h6EHJOiil79CD6s2Lh1EvrCCkdEfkQjSnzO4WZ7cuuAJE8v2nPMb8Oc0Miz0turzHNNsuKJhIf/g9lCCEsbLJz1uGDrgdrQyB171/3TiVTC9a9PFb4dgzfoum8XNeNqBtJd3a3DCM70iZDvSpL9A/sYmA1298eD5v+UGk7HpncjhUtPICecSdvYtdUXuqu+/0zHSasZIGvSZuiJVh0DM+gTeEAm8kUB1cD2vICHMSzlDFyMVB9S1KgLsEUawKq2v6C6Cs6J1YASQIx09LfMZBcJLxShjwqtgwlJ4iuSJt/AoLCm/95LDet2g7D8+iAUzTWshVjsn8TW0GafAxiQ2wxReUjzjBmvIDFykQ="
   file_glob: true
   file:
     - 'releases/*.*'
