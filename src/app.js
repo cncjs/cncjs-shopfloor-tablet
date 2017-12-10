@@ -109,8 +109,7 @@ cnc.zeroAxis = function(axis) {
 }
 
 cnc.toggleUnits = function() {
-    button = document.getElementById('units');
-    if (button.innerText == 'mm') {
+    if (document.getElementById('units').innerText == 'mm') {
 	controller.command('gcode', 'G20');
     } else {
 	controller.command('gcode', 'G21');
@@ -401,7 +400,11 @@ cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, sta
     $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
     $('[data-route="axes"] [id="wpos-z"]').prop('value', wpos.z);
-
+    if (document.getElementById('units').innerText == 'mm') {
+	root.displayer.reDrawTool(wpos.x, wpos.y);
+    } else {
+	root.displayer.reDrawTool(wpos.x * 25.4, wpos.y * 25.4);
+    }
 }
 
 controller.on('gcode:load', function(name, gcode) {
@@ -457,6 +460,7 @@ cnc.showGCode = function(name, gcode) {
 	$('[data-route="axes"] select[data-name="select-file"]').val(name);
     }
     $('[data-route="axes"] [id="gcode"]').text(gcode);
+    root.displayer.showToolpath(gcode);
 }
 
 cnc.getGCode = function() {

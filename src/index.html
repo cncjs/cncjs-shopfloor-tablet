@@ -543,7 +543,7 @@
         <div class="mdi">
             <div class="container-fluid">
                 <div class="row no-gutter">
-                    <div class="col-xs-6">
+                    <div class="col-xs-5">
                         <div class="col-xs-10">
                             <input type="text" class="form-control" id="mditext0" placeholder="GCode Command">
                         </div>
@@ -599,15 +599,20 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-xs-6">
+                    <div class="col-xs-4">
                         <textarea class="gcode" id="gcode" rows="8">
                             GCode File Display
                         </textarea>
+                    </div>
+                    <div class="col-xs-3">
+		      <canvas id="small-toolpath" class="previewer"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<div class="hidden" data-route="toolpath" id="toolpath">
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="vendor/director/director.min.js"></script>
@@ -643,6 +648,8 @@ $('document').ready(function() {
         '/connection': function() {
         },
         '/axes': function() {
+        },
+        '/toolpath': function() {
         }
     });
     root.cnc.router.configure({
@@ -661,5 +668,9 @@ $('document').ready(function() {
 </script>
 <script src="controller.js"></script>
 <script src="app.js"></script>
+<script src="simple-parser.js"></script>
+<script src="simple-interpreter.js"></script>
+<script src="simple-toolpath.js"></script>
+<script src="toolpath-displayer.js"></script>
 </body>
 </html>
