@@ -33,8 +33,6 @@ controller.on('serialport:open', function(options) {
     var port = options.port;
     var baudrate = options.baudrate;
 
-    console.log('Connected to \'' + port + '\' at ' + baudrate + '.');
-
     cnc.connected = true;
     cnc.controllerType = controllerType;
     cnc.port = port;
@@ -62,8 +60,6 @@ controller.on('serialport:open', function(options) {
 
 controller.on('serialport:close', function(options) {
     var port = options.port;
-
-    console.log('Disconnected from \'' + port + '\'.');
 
     cnc.connected = false;
     cnc.controllerType = '';
@@ -199,11 +195,10 @@ cnc.sendMove = function(cmd) {
 };
 
 controller.on('serialport:read', function(data) {
-    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #222; background: #F5F5F5';
-    console.log('%cR%c', style, '', data);
+//    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #222; background: #F5F5F5';
+//    console.log('%cR%c', style, '', data);
     if (data.r) {
 	cnc.line++;
-	console.log('It is r');
     }
 });
 
@@ -215,8 +210,8 @@ controller.on('serialport:read', function(data) {
 var grblReportingUnits;  // initially undefined
 
 controller.on('serialport:write', function(data) {
-    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #00529B; background: #BDE5F8';
-    console.log('%cW%c', style, '', data);
+//    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #00529B; background: #BDE5F8';
+//    console.log('%cW%c', style, '', data);
 
     // Track manual changes to the Grbl position reporting units setting
     // We are looking for either $13=0 or $13=1
