@@ -45,7 +45,9 @@ socket.on('connect', function() {
 
 socket.on('error', function() {
     socket.destroy();
-    window.location = '/'; // Redirect to webroot
+
+    // Redirect to login page
+    window.location = '/?continue=' + encodeURIComponent(window.location.pathname);
 });
 
 socket.on('close', function() {
