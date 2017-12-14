@@ -44,7 +44,7 @@ Then browse to the url 'http://*host*:8000/tablet/', where *host* is the name or
 
 ### Usage
 
-![cncjs-tablet 2](https://user-images.githubusercontent.com/4861133/31739207-eb6da2c4-b3e8-11e7-9850-2fb737aadf70.png)
+![cncjs-tablet 2](https://user-images.githubusercontent.com/4861133/33970662-4a8244b2-e018-11e7-92ab-5a379e3de461.PNG)
 
 * **Start/Pause/Resume/Stop** are highlighted and colored according to the program state
     * **Start** is green when it is possible to start running a program
