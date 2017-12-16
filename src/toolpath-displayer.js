@@ -251,10 +251,10 @@ $(function() {
 		    }
 		}
 	    }
-	    var maxX = px ? center.x + radius : Math.max(sx, ex);
-	    var maxY = py ? center.y + radius : Math.max(sy, ey);
-	    var minX = mx ? center.x - radius : Math.min(sx, ex);
-	    var minY = my ? center.y - radius : Math.min(sy, ey);
+	    var maxX = px ? center.x + radius : Math.max(start.x, end.x);
+	    var maxY = py ? center.y + radius : Math.max(start.y, end.y);
+	    var minX = mx ? center.x - radius : Math.min(start.x, end.x);
+	    var minY = my ? center.y - radius : Math.min(start.y, end.y);
 
 	    bbox.min.x = Math.min(bbox.min.x, minX);
 	    bbox.min.y = Math.min(bbox.min.y, minY);
