@@ -263,7 +263,7 @@ function renderGrblState(data) {
 
     wpos.x = (wpos.x * factor).toFixed(digits);
     wpos.y = (wpos.y * factor).toFixed(digits);
-    wpos.z = (wpos.y * factor).toFixed(digits);
+    wpos.z = (wpos.z * factor).toFixed(digits);
 
     cnc.updateState(canClick, canStart, canPause, canResume, canStop, activeState, wpos, mpos);
 }
@@ -327,7 +327,7 @@ controller.on('Smoothie:state', function(data) {
 
     wpos.x = wpos.x.toFixed(digits);
     wpos.y = wpos.y.toFixed(digits);
-    wpos.z = wpos.y.toFixed(digits);
+    wpos.z = wpos.z.toFixed(digits);
 
     cnc.updateState(canClick, canStart, canPause, canResume, canStop, activeState, wpos, mpos);
 });
