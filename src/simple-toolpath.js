@@ -43,13 +43,31 @@ var Toolpath = function () {
 
         _classCallCheck(this, Toolpath);
 
+        this.g92offset = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+        function offsetG92(pos) {
+            return {
+                x: pos.x + _this.g92offset.x,
+                y: pos.y + _this.g92offset.y,
+                z: pos.z + _this.g92offset.z,
+            }
+        }
+        function offsetAddLine(start, end) {
+            _this.fn.addLine(_this.modal, offsetG92(start), offsetG92(end));
+        }
+        function offsetAddArcCurve(start, end, center) {
+            _this.fn.addArcCurve(_this.modal, offsetG92(start), offsetG92(end), offsetG92(center));
+        }
         this.position = {
             x: 0,
             y: 0,
             z: 0
         };
         this.modal = {
-            // Moton Mode
+            // Motion Mode
             // G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
             motion: 'G0',
 
@@ -117,7 +135,7 @@ var Toolpath = function () {
                 };
                 var targetPosition = { x: v2.x, y: v2.y, z: v2.z };
 
-                _this.fn.addLine(_this.modal, v1, v2);
+                offsetAddLine(v1, v2);
 
                 // Update position
                 _this.setPosition(targetPosition.x, targetPosition.y, targetPosition.z);
@@ -153,7 +171,7 @@ var Toolpath = function () {
                 };
                 var targetPosition = { x: v2.x, y: v2.y, z: v2.z };
 
-                _this.fn.addLine(_this.modal, v1, v2);
+                offsetAddLine(v1, v2);
 
                 // Update position
                 _this.setPosition(targetPosition.x, targetPosition.y, targetPosition.z);
@@ -267,7 +285,7 @@ var Toolpath = function () {
                     v0.y = v1.y + offsetY;
                 }
 
-                _this.fn.addArcCurve(_this.modal, v1, v2, v0);
+                offsetAddArcCurve(v1, v2, v0);
 
                 // Update position
                 _this.setPosition(targetPosition.x, targetPosition.y, targetPosition.z);
@@ -363,7 +381,7 @@ var Toolpath = function () {
                     v0.y = v1.y + offsetY;
                 }
 
-                _this.fn.addArcCurve(_this.modal, v1, v2, v0);
+                offsetAddArcCurve(v1, v2, v0);
 
                 // Update position
                 _this.setPosition(targetPosition.x, targetPosition.y, targetPosition.z);
@@ -512,21 +530,44 @@ var Toolpath = function () {
             // This would set the machine's X coordinate to 10. No physical motion will occur.
             // A G92 without coordinates will reset all axes to zero.
             'G92': function G92(params) {
-                var v2 = {
-                    x: _this.translateX(params.X, false),
-                    y: _this.translateY(params.Y, false),
-                    z: _this.translateZ(params.Z, false)
-                };
-
                 // A G92 without coordinates will reset all axes to zero.
                 if (params.X === undefined && params.Y === undefined && params.Z === undefined) {
-                    v2.x = 0;
-                    v2.y = 0;
-                    v2.z = 0;
+                    _this.position.x += _this.g92offset.x;
+                    _this.g92offset.x = 0;
+                    _this.position.y += _this.g92offset.y;
+                    _this.g92offset.y = 0;
+                    _this.position.z += _this.g92offset.z;
+                    _this.g92offset.z = 0;
+                } else {
+		    // The calls to translateX/Y/Z() below are necessary for inch/mm conversion
+		    // params.X/Y/Z must be interpreted as absolute positions, hence the "false"
+                    if (params.X != undefined) {
+			var xmm = _this.translateX(params.X, false);
+                        _this.g92offset.x += _this.position.x - xmm;
+                        _this.position.x = xmm;
+                    }
+                    if (params.Y != undefined) {
+			var ymm = _this.translateY(params.Y, false);
+                        _this.g92offset.y += _this.position.y - ymm;
+                        _this.position.y = ymm;
+                    }
+                    if (params.Z != undefined) {
+			var zmm = _this.translateX(params.Z, false);
+                        _this.g92offset.z += _this.position.z - zmm;
+                        _this.position.z = zmm;
+                    }
                 }
-
-                // Update position
-                _this.setPosition(v2.x, v2.y, v2.z);
+            },
+            // G92.1: Cancel G92 offsets
+            // Parameters
+            //   none
+            'G92.1': function G921(params) {
+                    _this.position.x += _this.g92offset.x;
+                    _this.g92offset.x = 0;
+                    _this.position.y += _this.g92offset.y;
+                    _this.g92offset.y = 0;
+                    _this.position.z += _this.g92offset.z;
+                    _this.g92offset.z = 0;
             },
             // G93: Inverse Time Mode
             // In inverse time feed rate mode, an F word means the move should be completed in
@@ -661,6 +702,7 @@ var Toolpath = function () {
 
             this.setPosition(x, y, z);
         }
+        this.g92offset.x = this.g92offset.y = this.g92offset.z = 0;
 
         // Modal
         var nextModal = {};
