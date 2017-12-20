@@ -128,7 +128,7 @@ $(function() {
         yOffset = (canvas.height-inset) - bbox.min.y * (-scaler);
         tp.setTransform(scaler, 0, 0, -scaler, xOffset, yOffset);
 
-        tp.lineWidth = 0.1 * scaler;
+        tp.lineWidth = 0.5 / scaler;
 
         drawOrigin(imageWidth * 0.04);
 
