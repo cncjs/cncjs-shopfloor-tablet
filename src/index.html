@@ -621,8 +621,24 @@
 <script src="vendor/iframe-resizer/iframeResizer.contentWindow.min.js"></script>
 <script src="vendor/js-cookie/js.cookie.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="jquery.numpad.js"></script>
+<link rel="stylesheet" href="jquery.numpad.css">
 <script>
+  // Set NumPad defaults for jQuery mobile.
+  // These defaults will be applied to all NumPads within this document!
+  $.fn.numpad.defaults.gridTpl = '<table class="table modal-content"></table>';
+  $.fn.numpad.defaults.backgroundTpl = '<div class="modal-backdrop in"></div>';
+  $.fn.numpad.defaults.displayTpl = '<input type="text" class="form-control" />';
+  $.fn.numpad.defaults.buttonNumberTpl =  '<button type="button" class="btn btn-default" style="width: 100%"></button>';
+  $.fn.numpad.defaults.buttonFunctionTpl = '<button type="button" class="btn" style="width: 100%;"></button>';
+  $.fn.numpad.defaults.onKeypadCreate = function(){$(this).find('.done').addClass('btn-primary');};
+  $.fn.numpad.defaults.decimalSeparator = '.';
+  $.fn.numpad.defaults.precision = 4;
+
 $('document').ready(function() {
+    $('#wpos-x').numpad();
+    $('#wpos-y').numpad();
+    $('#wpos-z').numpad();
     var root = window;
     root.cnc = {
         router: null,
