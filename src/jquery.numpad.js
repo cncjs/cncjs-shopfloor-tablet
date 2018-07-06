@@ -57,7 +57,7 @@
 				nmpd.s1 =  $(options.displayTpl).addClass('nmpd-display');
 				nmpd.s2 =  $(options.displayTpl).addClass('nmpd-display');
 				nmpd.display = $(options.displayTpl).addClass('nmpd-display');
-				nmpd.autopush = 0;
+				nmpd.autopush = 1;
 				/** @var grid jQuery object containing the grid for the numpad: the display, the buttons, etc. */
 				var table = $(options.gridTpl).addClass('nmpd-grid');
 				nmpd.grid = table;
@@ -135,11 +135,19 @@
 					).append(
 					$(options.rowTpl)
 						.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&plusmn;').addClass('neg').click(function(){
+							nmpd.autopush = 0;
 							nmpd.setValue(nmpd.getValue() * (-1));
 						})))
 						.append($(options.cellTpl).append($(options.buttonNumberTpl).html(0).addClass('numero')))
 						.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.decimalSeparator).addClass('sep').click(function(){
-							nmpd.setValue(nmpd.getValue().toString() + options.decimalSeparator);
+							var val;
+							if ($('#'+id+' .dirty').val() == '0'){
+								val = '0';
+							} else {
+								val = nmpd.getValue() ? nmpd.getValue().toString() : '0';
+							}
+
+							nmpd.setValue(val + options.decimalSeparator);
 						})))
 						.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textDone).addClass('done')))
 						.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('/').addClass('divide').click(function(){
@@ -228,7 +236,6 @@
 			nmpd.setValue = function(value){
 				if (nmpd.display.attr('maxLength') < value.toString().length) value = value.toString().substr(0, nmpd.display.attr('maxLength'));
 				if (nmpd.autopush) {
-					nmpd.autopush = 0;
 					nmpd.push();
 				}
 				nmpd.display.val(value);
@@ -246,6 +253,8 @@
 				nmpd.s1.val(nmpd.s0.val());
 				nmpd.s0.val(nmpd.getValue());
 				nmpd.clean();
+				nmpd.autopush = 0;
+				nmpd.display.val('');
 				return nmpd;
 			};
 

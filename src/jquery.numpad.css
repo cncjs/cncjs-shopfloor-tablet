@@ -1,5 +1,7 @@
 .nmpd-wrapper {display: none;}
 .nmpd-target {cursor: pointer;}
-.nmpd-grid {position:absolute; left:50px; top:50px; z-index:5000; -khtml-user-select: none; padding:10px; width: 50%;}
+.nmpd-grid {position:absolute; left:50px; top:50px; z-index:5000; -khtml-user-select: none; padding:10px; width: 80%; height:80%; }
 .nmpd-overlay {z-index:4999;}
-input.nmpd-display {text-align: right;}
+input.nmpd-display {text-align: right; font-size: 40px; }
+.nmpd-btn {font-size: 30px; }
+.form-control { height: 80%; }
