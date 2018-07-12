@@ -9,11 +9,13 @@ controller.on('serialport:list', function(list) {
 
     $el.empty();
     $.each(list, function(key, value) {
-        var $option = $('<option></option>')
-            .attr('value', value.port)
-            .attr('data-inuse', value.inuse)
-            .text(value.port);
-        $el.append($option);
+	if (value.manufacturer == 'Synthetos') {
+            var $option = $('<option></option>')
+		.attr('value', value.port)
+		.attr('data-inuse', value.inuse)
+		.text(value.port);
+            $el.append($option);
+	}
     });
 
     if (cnc.controllerType) {
