@@ -4,6 +4,7 @@ var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
 var oldFilename = null;
+var running = false;
 
 controller.on('serialport:list', function(list) {
     var $el = $('[data-route="connection"] select[data-name="port"]');
@@ -360,6 +361,15 @@ controller.on('TinyG:state', function(data) {
     var canPause = [RUN].indexOf(machineState) >= 0;
     var canResume = [HOLD].indexOf(machineState) >= 0;
     var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
+    if (running) {
+	if (machineState == STOP) {
+	    canResume = true;
+	    canStart = false;
+	}
+	if (machineState == END) {
+	    running = false;
+	}
+    }
     switch (sr.modal.units) {
     case 'G20':
 	$('[data-route="axes"] [id="units"]').text('Inch');
@@ -497,6 +507,11 @@ cnc.loadGCode = function() {
 }
 
 $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
+
+cnc.runGCode = function() {
+    cnc.controller.command('gcode:start')
+    running = true;
+}
 
 cnc.probe = function() {
     oldFilename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
