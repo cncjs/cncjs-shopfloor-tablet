@@ -486,10 +486,12 @@ $('[data-route="connection"] [data-name="btn-open"]').on('click', function() {
     var baudrate = $('[data-route="connection"] [data-name="baudrate"]').val();
 
     $('[data-route="connection"] [data-name="msg"]').html('Trying');
-    controller.openPort(port, {
-        controllerType: controllerType,
-        baudrate: Number(baudrate)
-    });
+    if (port) {
+	controller.openPort(port, {
+            controllerType: controllerType,
+            baudrate: Number(baudrate)
+	});
+    }
 }
 );
 
