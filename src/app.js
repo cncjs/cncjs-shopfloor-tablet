@@ -3,6 +3,7 @@ $(function() {
 var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
+var oldFilename = null;
 
 controller.on('serialport:list', function(list) {
     var $el = $('[data-route="connection"] select[data-name="port"]');
@@ -384,6 +385,11 @@ controller.on('TinyG:state', function(data) {
 });
 
 cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos) {
+    if (canStart && oldFilename) {
+	controller.command('watchdir:load', oldFilename);
+	oldFilename = null;
+    }
+
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
@@ -438,6 +444,19 @@ cnc.reConnect = function() {
     return false;
 };
 
+cnc.runUserCommand = function(name) {
+    jQuery.get("../api/commands", {token: cnc.token, paging: false}, function(data) {
+	var cmd = data.records.find(function(record) {
+	    return record.enabled && record.title == name;
+	});
+	if (cmd) {
+	    //jQuery.post("../api/commands/run/" + cmd.id, {token: cnc.token});
+	    jQuery.post("../api/commands/run/" + cmd.id + "?token=" + cnc.token);
+	}
+    });
+}
+
+
 cnc.getFileList = function() {
     jQuery.get("../api/watch/files", {token: cnc.token}, function(data) {
         var selector = $('[data-route="axes"] select[data-name="select-file"]');
@@ -478,6 +497,12 @@ cnc.loadGCode = function() {
 }
 
 $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
+
+cnc.probe = function() {
+    oldFilename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
+    controller.command('watchdir:load', "Probe.nc");
+    controller.command('gcode:start');
+}
 
 //
 // Connection
