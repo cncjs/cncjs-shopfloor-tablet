@@ -57,7 +57,7 @@
 				nmpd.s1 =  $(options.displayTpl).addClass('nmpd-display');
 				nmpd.s2 =  $(options.displayTpl).addClass('nmpd-display');
 				nmpd.display = $(options.displayTpl).addClass('nmpd-display');
-				nmpd.autopush = 1;
+				nmpd.autopush = true;
 				/** @var grid jQuery object containing the grid for the numpad: the display, the buttons, etc. */
 				var table = $(options.gridTpl).addClass('nmpd-grid');
 				nmpd.grid = table;
@@ -135,7 +135,7 @@
 					).append(
 					$(options.rowTpl)
 						.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&plusmn;').addClass('neg').click(function(){
-							nmpd.autopush = 0;
+							nmpd.autopush = false;
 							nmpd.setValue(nmpd.getValue() * (-1));
 						})))
 						.append($(options.cellTpl).append($(options.buttonNumberTpl).html(0).addClass('numero')))
@@ -253,7 +253,7 @@
 				nmpd.s1.val(nmpd.s0.val());
 				nmpd.s0.val(nmpd.getValue());
 				nmpd.clean();
-				nmpd.autopush = 0;
+				nmpd.autopush = false;
 				nmpd.display.val('');
 				return nmpd;
 			};
@@ -288,10 +288,10 @@
 			nmpd.swap = function(){
 				var tmp = nmpd.s0.val();
 				nmpd.s0.val(nmpd.getValue());
-				nmpd.autopush = 0;
+				nmpd.autopush = false;
 				nmpd.setValue(tmp);
 				nmpd.clean();
-				nmpd.autopush = 1;
+				nmpd.autopush = true;
 				return nmpd;
 			}
 
@@ -300,10 +300,10 @@
 			* @return jQuery object nmpd
 			*/
 			nmpd.drop = function(){
-				nmpd.autopush = 0;
+				nmpd.autopush = false;
 				nmpd.setValue(nmpd.pop());
 				nmpd.clean();
-				nmpd.autopush = 1;
+				nmpd.autopush = true;
 				return nmpd;
 			}
 
@@ -327,10 +327,10 @@
 			* @return jQuery object nmpd
 			*/
 			nmpd.calcValue = function(value) {
-				nmpd.autopush = 0;
+				nmpd.autopush = false;
 				nmpd.setValue(nmpd.round(value, nmpd.options.precision));
 				nmpd.clean();
-				nmpd.autopush = 1;
+				nmpd.autopush = true;
 				return nmpd;
 			};
 
@@ -463,6 +463,7 @@
 				$('#'+id+' .done').one('click', function(){ nmpd.close(target); });
 				// Finally trigger numpad.open
 				nmpd.trigger('numpad.open');
+				nmpd.autopush = true;
 				return nmpd;
 			};		  
 		});
