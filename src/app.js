@@ -3,8 +3,10 @@ $(function() {
 var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
-var oldFilename = null;
+var oldFilename = '';
 var running = false;
+var userStopped = false;
+var probing = false;
 
 controller.on('serialport:list', function(list) {
     var $el = $('[data-route="connection"] select[data-name="port"]');
@@ -361,13 +363,28 @@ controller.on('TinyG:state', function(data) {
     var canPause = [RUN].indexOf(machineState) >= 0;
     var canResume = [HOLD].indexOf(machineState) >= 0;
     var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
+
     if (running) {
 	if (machineState == STOP) {
-	    canResume = true;
-	    canStart = false;
+	    if (userStopped) {
+		// Manual stop
+		userStopped = false;
+		running = false;
+	    } else {
+		// Stop via M0
+		canResume = true;
+		canStart = false;
+	    }
 	}
 	if (machineState == END) {
 	    running = false;
+	    if (probing) {
+		probing = false;
+		if (oldFilename) {
+		    controller.command('watchdir:load', oldFilename);
+		    oldFilename = null;
+		}
+	    }
 	}
     }
     switch (sr.modal.units) {
@@ -395,9 +412,8 @@ controller.on('TinyG:state', function(data) {
 });
 
 cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos) {
-    if (canStart && oldFilename) {
-	controller.command('watchdir:load', oldFilename);
-	oldFilename = null;
+    if (cnc.filename == '') {
+	canStart = false;
     }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
@@ -427,6 +443,9 @@ cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, sta
 
 controller.on('gcode:load', function(name, gcode) {
     cnc.showGCode(name, gcode);
+    if (probing) {
+	cnc.runGCode();
+    }
 });
 
 controller.on('workflow:state', function(state) {
@@ -482,9 +501,13 @@ cnc.getFileList = function() {
 }
 
 cnc.showGCode = function(name, gcode) {
-    if (gcode == "") {
+    var gcodeLoaded = gcode != '';
+    if (!gcodeLoaded) {
 	gcode = "(No GCode loaded)";
     }
+    $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !gcodeLoaded);
+    $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = gcodeLoaded ? '#86f686' : '#f6f6f6';
+
     cnc.filename = name;
     if (name != "") {
 	// gcode = "(" + name + ")<br />" + gcode;
@@ -509,14 +532,19 @@ cnc.loadGCode = function() {
 $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
 
 cnc.runGCode = function() {
-    cnc.controller.command('gcode:start')
     running = true;
+    cnc.controller.command('gcode:start')
+}
+
+cnc.stopGCode = function() {
+    userStopped = true;
+    cnc.controller.command('gcode:stop', { force: true })
 }
 
 cnc.probe = function() {
-    oldFilename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
+    oldFilename = cnc.filename;
+    probing = true;
     controller.command('watchdir:load', "Probe.nc");
-    controller.command('gcode:start');
 }
 
 //
