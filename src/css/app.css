@@ -11,6 +11,9 @@
 [data-route="axes"] .btn[disabled] {
   opacity: .4;
 }
+[data-route="axes"] .control-pad .form-control[disabled] {
+  opacity: .4;
+}
 [data-route="axes"] > * {
   margin-bottom: 5px;
 }

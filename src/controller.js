@@ -100,6 +100,7 @@ var CNCController = function() {
     this.type = '';
     this.state = {};
     this.settings = {};
+    this.status = {};
     this.workflowState = WORKFLOW_STATE_IDLE;
 
     Object.keys(this.callbacks).forEach(function(eventName) {
@@ -112,7 +113,6 @@ var CNCController = function() {
             }
             if (eventName === 'serialport:close') {
                 this.port = '';
-                this.type = '';
                 this.state = {};
                 this.settings = {};
                 this.workflowState = WORKFLOW_STATE_IDLE;
@@ -143,6 +143,12 @@ var CNCController = function() {
             if (eventName === 'TinyG:settings') {
                 this.type = TINYG;
                 this.settings = args[0];
+            }
+            if (eventName === 'feeder:status') {
+                this.status = args[0];
+            }
+            if (eventName === 'sender:status') {
+                this.status = args[0];
             }
 
             this.callbacks[eventName].forEach(function(callback) {

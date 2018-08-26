@@ -4,9 +4,22 @@ var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
 var oldFilename = '';
+var jogging = false;
 var running = false;
 var userStopped = false;
+var oldState = null;
 var probing = false;
+
+cnc.initState = function() {
+    // Select the "Load GCode File" heading instead of any file
+    cnc.showGCode('', '');
+    oldFilename = '';
+    jogging = false;
+    running = false;
+    userStopped = false;
+    oldState = null;
+    probing = false;
+}
 
 controller.on('serialport:list', function(list) {
     var $el = $('[data-route="connection"] select[data-name="port"]');
@@ -35,6 +48,8 @@ controller.on('serialport:list', function(list) {
 });
 
 controller.on('serialport:open', function(options) {
+    cnc.initState();
+
     var controllerType = options.controllerType;
     var port = options.port;
     var baudrate = options.baudrate;
@@ -93,6 +108,7 @@ cnc.loadFile = function() {
 }
 
 cnc.goAxis = function(axis, coordinate) {
+    jogging = true;
     controller.command('gcode', 'G0 ' + axis + coordinate);
 }
 
@@ -103,6 +119,7 @@ cnc.moveAxis = function(axis, field) {
 
 cnc.setAxis = function(axis, field) {
     coordinate = document.getElementById(field).value;
+    jogging = true;
     controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
 }
 cnc.MDI = function(field) {
@@ -128,6 +145,7 @@ cnc.setDistance = function(distance) {
 }
 
 cnc.sendMove = function(cmd) {
+    jogging = true;
     var jog = function(params) {
         params = params || {};
         var s = _.map(params, function(value, letter) {
@@ -225,6 +243,13 @@ controller.on('serialport:write', function(data) {
         if (cmd.length === 2 && cmd[0] === "$13") {
             grblReportingUnits = Number(cmd[1]) || 0;
         }
+    }
+});
+
+controller.on('sender:status', function(status) {
+    cnc.senderHold = status.hold;
+    if (cnc.senderHold) {
+	cnc.senderHoldReason = status.holdReason.data;
     }
 });
 
@@ -355,6 +380,9 @@ controller.on('TinyG:state', function(data) {
         10: 'Jog',
         11: 'Interlock',
     }[machineState] || 'N/A';
+    if (machineState == "") {
+	return;
+    }
     var mpos = sr.mpos;
     var wpos = sr.wpos;
     var READY = 1, STOP = 3, END = 4, RUN = 5, HOLD = 6;
@@ -364,19 +392,38 @@ controller.on('TinyG:state', function(data) {
     var canResume = [HOLD].indexOf(machineState) >= 0;
     var canStop = [RUN, HOLD].indexOf(machineState) >= 0;
 
-    if (running) {
-	if (machineState == STOP) {
-	    if (userStopped) {
-		// Manual stop
-		userStopped = false;
-		running = false;
-	    } else {
-		// Stop via M0
-		canResume = true;
+    if (machineState == STOP) {
+
+	if (userStopped) {
+	    // Manual stop
+	    userStopped = false;
+	    running = false;
+	    stateText = 'UserStop';
+	} else {
+	    if (running) {
+		// M0 etc
 		canStart = false;
+		canResume = true;
+		if (cnc.senderHold) {
+		    stateText = cnc.senderHoldReason;
+		    if (stateText == "M6") {
+			stateText += " T" + sr.tool;
+			console.log(sr.tool);
+		    }
+		}
+	    } else if (jogging) {
+		// Jogging
+		jogging = false;
+		canStart = true;
+		canResume = false;
+	    } else {
+		canStart = true;
+		canResume = false;
 	    }
 	}
-	if (machineState == END) {
+    }
+    if (machineState == END) {
+	if (oldState != END) {
 	    running = false;
 	    if (probing) {
 		probing = false;
@@ -385,8 +432,11 @@ controller.on('TinyG:state', function(data) {
 		    oldFilename = null;
 		}
 	    }
+	} else {
 	}
     }
+    oldState = machineState;
+
     switch (sr.modal.units) {
     case 'G20':
 	$('[data-route="axes"] [id="units"]').text('Inch');
@@ -417,8 +467,10 @@ cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, sta
     }
 
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
+    $('[data-route="axes"] .control-pad .form-control').prop('disabled', !canClick);
     $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
+    $('[data-route="axes"] .axis-position .position').prop('disabled', !canClick);
 
     $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !canStart);
     $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
@@ -512,6 +564,8 @@ cnc.showGCode = function(name, gcode) {
     if (name != "") {
 	// gcode = "(" + name + ")<br />" + gcode;
 	$('[data-route="axes"] select[data-name="select-file"]').val(name);
+    } else {
+	$('[data-route="axes"] select[data-name="select-file"]')[0][0].selected = true;
     }
     $('[data-route="axes"] [id="gcode"]').text(gcode);
     root.displayer.showToolpath(gcode);
