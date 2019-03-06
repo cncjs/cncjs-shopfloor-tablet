@@ -34,13 +34,36 @@ It works with TinyG and Grbl.  It might work with Smoothie but that is untested.
 
 Get the cncjs-shopfloor-tablet files onto the machine control computer that runs the cncjs app, either by cloning the git tree or by downloading and extracting a .zip.
 
+Create a subdirectory to contain GCode files, for example "/home/pi/GCode".
+
+```
+$ mkdir /home/pi/GCode
+```
+
+Tell cnc to use that directory as the "watch directory" by adding a line like this to the .cncrc file, after the opening brace:
+
+```
+    "watchDirectory": "/home/pi/GCode",
+```
+
 Use cnc's -m option to set up a static mount.  Assuming that the files are in the directory */home/pi/cncjs-shopfloor-tablet*, the command would be:
 
 ```
 $ cnc -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
 ```
 
+If that command fails with an EADDRINUSE message, the problem is that cnc is already running and you will need to kill the old process before restarting with the shopfloor option.  If, when you previously set up cncjs, you used pm2 to autostart cnc, the command sequence would be:
+
+```
+$ pm2 stop $(which cnc)
+$ pm2 delete $(which cnc)
+$ pm2 start $(which cnc) -- -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
+$ pm2 save
+```
+
 Then browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
+
+You can still use the full cncjs UI by browsing 'http://*host*:8000'. You can use the different UI's simultaneously in different browser windows or tabs, which can be on different machines if you wish.
 
 ### Usage
 
