@@ -40,6 +40,7 @@ socket.on('connect', function() {
     root.cnc.router.init();
     window.location = '#/';
     $('[data-route="connection"] [data-name="btn-open"]').trigger('click');
+    root.cnc.filename = '';
     root.cnc.getFileList();
 });
 

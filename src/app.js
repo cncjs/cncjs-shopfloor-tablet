@@ -11,6 +11,7 @@ var oldState = null;
 var probing = false;
 var startTime = 0;
 var runTime = 0;
+var watchPath = '';
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -591,16 +592,37 @@ cnc.runUserCommand = function(name) {
 
 
 cnc.getFileList = function() {
-    jQuery.get("../api/watch/files", {token: cnc.token}, function(data) {
+    jQuery.get("../api/watch/files", {token: cnc.token, path: watchPath}, function(data) {
         var selector = $('[data-route="axes"] select[data-name="select-file"]');
+        var legend;
         selector.empty();
-        selector.append($("<option disabled />").text('Load GCode File'));
+        data.files.sort(function (a, b) {
+            return a.name.localeCompare(b.name);
+        });
+        if (watchPath === '') {
+            legend = 'Load GCode File';
+            selector.append($("<option disabled />").text(legend));
+        } else {
+            legend = 'In ' + watchPath;
+            selector.append($("<option disabled />").text(legend));
+            selector.append($("<option/>").text('..'));
+        }
+
         $.each(data.files, function(index, file) {
-	    if (!file.name.endsWith("~")) {
+	    if (file.type === 'd') {
+		selector.append($("<option/>").text(file.name + '/'));
+	    }
+	});
+        $.each(data.files, function(index, file) {
+	    if (file.type === 'f' && !file.name.endsWith("~")) {
 		selector.append($("<option/>").text(file.name));
 	    }
 	});
-        $('[data-route="axes"] select[data-name="select-file"]').val(cnc.filename || 'Load GCode File');
+        var selected = cnc.filename.split('/').slice(-1)[0];
+        if (selected == '')
+            selected = legend;
+        console.log("sel " + selected);
+        $('[data-route="axes"] select[data-name="select-file"]').val(selected);
     }, "json");
 }
 
@@ -615,7 +637,8 @@ cnc.showGCode = function(name, gcode) {
     cnc.filename = name;
     if (name != "") {
 	// gcode = "(" + name + ")<br />" + gcode;
-	$('[data-route="axes"] select[data-name="select-file"]').val(name);
+        var basename = name.split('/').slice(-1)[0];
+	$('[data-route="axes"] select[data-name="select-file"]').val(basename);
     } else {
 	$('[data-route="axes"] select[data-name="select-file"]')[0][0].selected = true;
     }
@@ -632,7 +655,19 @@ cnc.getGCode = function() {
 
 cnc.loadGCode = function() {
     var filename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
-    controller.command('watchdir:load', filename);
+    if (filename === '..') {
+        watchPath = watchPath.slice(0, -1).replace(/[^/]*$/,'');
+        cnc.filename = '';
+        console.log(watchPath);
+        cnc.getFileList();
+    } else if (filename.endsWith('/')) {
+        watchPath = watchPath + filename;
+        console.log(watchPath);
+        cnc.filename = '';
+        cnc.getFileList();
+    } else {
+        controller.command('watchdir:load', watchPath + filename);
+    }
 }
 
 $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
