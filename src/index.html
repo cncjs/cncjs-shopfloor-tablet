@@ -112,6 +112,14 @@
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('homing')"><i class="fa fa-home"></i>&nbsp;Homing</a>
                                     </li>
                                     <li>
+                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('g\
+code', 'G28.2 A0')"><i class="fa fa-home"></i>&nbsp;Home A</a>
+                                    </li>
+                                    <li>
+                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('g\
+code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
+                                    </li>
+                                    <li>
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('gcode', '$SLP')"><i class="fa fa-bed"></i>&nbsp;Sleep</a>
                                     </li>
                                     <li>
@@ -121,7 +129,7 @@
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('reset')"><i class="fa fa-undo"></i>&nbsp;Reset</a>
                                     </li>
                                     <li>
-                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.probe()"><i class="fa fa-undo"></i>&nbsp;Probe</a>
+                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.probe()"><i class="fa fa-pencil"></i>&nbsp;Probe</a>
                                     </li>
                                     <li>
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.runUserCommand('HardReset')"><i class="fa fa-undo"></i>&nbsp;HardReset</a>
