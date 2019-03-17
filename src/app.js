@@ -9,6 +9,8 @@ var running = false;
 var userStopped = false;
 var oldState = null;
 var probing = false;
+var startTime = 0;
+var runTime = 0;
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -249,7 +251,7 @@ controller.on('serialport:write', function(data) {
 controller.on('sender:status', function(status) {
     cnc.senderHold = status.hold;
     if (cnc.senderHold) {
-	cnc.senderHoldReason = status.holdReason.data;
+	cnc.senderHoldReason = status.holdReason ? status.holdReason.data : "";
     }
 });
 
@@ -366,6 +368,9 @@ controller.on('Smoothie:state', function(data) {
 controller.on('TinyG:state', function(data) {
     var sr = data.sr || {};
     var machineState = sr.machineState;
+    var feedrate = sr.feedrate;
+    var spindleSpeed = sr.sps;
+    var spindleDirection = sr.modal.spindle;
     var stateText = {
         0: 'Init',
         1: 'Ready',
@@ -458,15 +463,55 @@ controller.on('TinyG:state', function(data) {
         wpos.y = Number(wpos.y).toFixed(3);
         wpos.z = Number(wpos.z).toFixed(3);
     }
-    cnc.updateState(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos);
+    cnc.updateState(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos, feedrate, spindleDirection, spindleSpeed, sr.modal.wcs);
 });
 
-cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos) {
+    cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos, feedrate, spindleDirection, spindleSpeed, wcs) {
     if (cnc.filename == '') {
 	canStart = false;
     }
 
+    if (running) {
+	var elapsed = new Date().getTime() - startTime;
+	if (elapsed < 0)
+	    elapsed = 0;
+	var seconds = Math.floor(elapsed / 1000);
+	var minutes = Math.floor(seconds / 60);
+	seconds = seconds % 60;
+	if (seconds < 10)
+	    seconds = '0' + seconds;
+	runTime = minutes + ':' + seconds;
+    }
+
+    if (canClick) {
+	$('[data-route="axes"] .jog-controls').show();
+	$('[data-route="axes"] .run-controls').hide();
+    } else {
+	$('[data-route="axes"] .jog-controls').hide();
+	$('[data-route="axes"] .run-controls').show();
+	var rate;
+	if (document.getElementById('units').innerText == 'mm') {
+	    rate = Math.round(feedrate);
+	} else {
+	    // Keep at most 1 postdecimal digit
+	    rate = Math.round(feedrate/2.54) / 10;
+	}
+        $('[data-route="axes"] [id="feed-value"]').text(Number(rate));
+	var spindleText = 'Off';
+	switch (spindleDirection) {
+	case 'M3': spindleText = '  CW'; break;
+	case 'M4': spindleText = ' CCW'; break;
+	case 'M5': spindleText = ' Off'; break;
+	default:  spindleText = ' Off'; break;
+	}
+        $('[data-route="axes"] [id="spindle-value"]').text(Number(spindleSpeed) + spindleText);
+    }
+    // Eventually we will enable these to control rate overrides, but for now we
+    // leave them disabled, since cncjs and g2core disagree on the feedrate override
+    // commands (which changed from TinyG) and g2core currently ignores spindle overrides,
+    // even though it has commands for changing the override factor variable.
     $('[data-route="axes"] .control-pad .btn').prop('disabled', !canClick);
+
     $('[data-route="axes"] .control-pad .form-control').prop('disabled', !canClick);
     $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
     $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
@@ -482,6 +527,12 @@ cnc.updateState = function(canClick, canStart, canPause, canResume, canStop, sta
     $('[data-route="axes"] .nav-panel .btn-stop').prop('disabled', !canStop);
     $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
 
+    if ((stateText == 'Run' || stateText == 'Hold') && runTime && runTime != '0:00') {
+	$('[data-route="axes"] .nav-panel .btn-start').text(runTime);
+    } else {
+	$('[data-route="axes"] .nav-panel .btn-start').text('Start');
+    }
+    $('[data-route="axes"] [data-name="wpos-label"]').text(wcs);
     $('[data-route="axes"] [data-name="active-state"]').text(stateText);
     $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
@@ -504,6 +555,7 @@ controller.on('workflow:state', function(state) {
     if (state == 'idle') {
 	cnc.line = 0;
     }
+    console.log("Workflow state " + state);
 });
 
 controller.listAllPorts();
@@ -588,6 +640,7 @@ $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
 cnc.runGCode = function() {
     running = true;
     cnc.controller.command('gcode:start')
+    startTime = new Date().getTime();
 }
 
 cnc.stopGCode = function() {

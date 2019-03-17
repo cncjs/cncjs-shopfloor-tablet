@@ -273,6 +273,7 @@
     </div>
     <div class="control-pad">
         <div class="container-fluid">
+          <div class="middle-block jog-controls">
             <div class="row no-gutter">
                 <div class="col-xs-2">
 <!-- Diagonal jogging can be dangerous - operator information overload
@@ -545,6 +546,119 @@
                     </button>
 		</div>
             </div>
+          </div>
+            <div class="middle-block run-controls">
+              <div class="row no-gutter">
+                <div class="col-xs-2 feed-name" data-name="feed-label">
+                    Feedrate
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default feed-minus-20"
+                        title="Decrease feedrate by 20%"
+                        onclick="cnc.sendFeedOverride(0.8)"
+                    >
+                        F-20%
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default feed-minus-5"
+                        title="Decrease feedrate by 5%"
+                        onclick="cnc.sendFeedOverride(0.95)"
+                    >
+                        F-5%
+                    </button>
+                </div>
+                <div class="col-xs-2 feed-value" id="feed-value">
+                    ?
+                </div>
+
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default feed-plus-5"
+                        title="Increase feedrate by 5%"
+                        onclick="cnc.sendFeedOverride(1.05)"
+                    >
+                        F+5%
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default feed-plus-20"
+                        title="Increase feedrate by 20%"
+                        onclick="cnc.sendFeedOverride(1.2)"
+                    >
+                        F+20%
+                    </button>
+                </div>
+	      </div>
+              <div class="row no-gutter">
+                <div class="col-xs-2 spindle-name" data-name="spindle-label">
+                    Spindle
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default spindle-minus-20"
+                        title="Decrease spindle by 20%"
+                        onclick="cnc.sendSpindleOverride(0.8)"
+                    >
+                        S-20%
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default spindle-minus-5"
+                        title="Decrease spindle by 5%"
+                        onclick="cnc.sendSpindleOverride(0.95)"
+                    >
+                        S-5%
+                    </button>
+                </div>
+                <div class="col-xs-2 spindle-value" id="spindle-value">
+                    ?
+                </div>
+
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default spindle-plus-5"
+                        title="Increase spindle by 5%"
+                        onclick="cnc.sendSpindleOverride(1.05)"
+                    >
+                        S+5%
+                    </button>
+                </div>
+                <div class="col-xs-2">
+                    <button
+                        type="button"
+                        class="btn btn-default spindle-plus-20"
+                        title="Increase spindle by 20%"
+                        onclick="cnc.sendSpindleOverride(1.2)"
+                    >
+                        S+20%
+                    </button>
+                </div>
+	    </div>
+              <div class="row no-gutter">
+                <div class="col-xs-2 feed-name" data-name="feed-label">
+                    <button
+                        type="button"
+                        class="btn btn-default placeholder"
+                    >
+                        
+                    </button>
+                    
+                </div>
+	      </div>
+
+          </div>
         </div>
         <div class="mdi">
             <div class="container-fluid">

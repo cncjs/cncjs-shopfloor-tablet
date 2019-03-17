@@ -11,8 +11,22 @@
 [data-route="axes"] .btn[disabled] {
   opacity: .4;
 }
+[data-route="axes"] .btn-start[disabled] {
+  opacity: 1;
+}
 [data-route="axes"] .control-pad .form-control[disabled] {
   opacity: .4;
+}
+[data-route="axes"] .middle-block {
+    top: 100%;
+    left: 0;
+    z-index: 100;
+}
+[data-route="axes"] .jog-controls {
+    display: block;
+}
+[data-route="axes"] .run-controls {
+    display: none;
 }
 [data-route="axes"] > * {
   margin-bottom: 5px;
@@ -62,6 +76,15 @@
 }
 [data-route="axes"] .pos-name {
   text-align: center;
+}
+[data-route="axes"] .feed-value {
+  text-align: right;
+  padding: 0 8px;
+
+}
+[data-route="axes"] .spindle-value {
+  text-align: right;
+  padding: 0 8px;
 }
 [data-route="axes"] .axis-label {
   text-align: left;
