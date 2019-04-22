@@ -12,6 +12,7 @@ var probing = false;
 var startTime = 0;
 var runTime = 0;
 var watchPath = '';
+var feedOverride = 1.0;
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -633,6 +634,10 @@ cnc.getFileList = function() {
         console.log("sel " + selected);
         $('[data-route="axes"] select[data-name="select-file"]').val(selected);
     }, "json");
+}
+
+cnc.sendFeedOverride =function(deltaPercent) {
+    cnc.controller.command('feedOverride', deltaPercent)
 }
 
 cnc.showGCode = function(name, gcode) {
