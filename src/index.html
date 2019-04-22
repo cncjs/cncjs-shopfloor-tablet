@@ -20,6 +20,7 @@
 <link rel="stylesheet" type="text/css" href="css/app.css">
 </head>
 <body>
+<audio id="click" src="Button.wav" autostart="false"></audio>
 <div id="loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div style="background: transparent url('loading.gif') no-repeat 0 0; height: 32px; width: 32px; display: block; margin: 0 auto;"></div>
     <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: normal; color: #222; text-align: center; margin-top: 10px;">Loading...</div>
@@ -83,12 +84,12 @@
                     </button>
                 </div>
                 <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-pause" onclick="cnc.controller.command('gcode:pause')">
+                    <button type="button" class="btn btn-default btn-pause" onclick="cnc.click(); cnc.controller.command('gcode:pause')">
                         Pause
                     </button>
                 </div>
                 <div class="col-xs-2">
-                    <button type="button" class="btn btn-default btn-resume" onclick="cnc.controller.command('gcode:resume')">
+                    <button type="button" class="btn btn-default btn-resume" onclick="cnc.click(); cnc.controller.command('gcode:resume')">
                         Resume
                     </button>
                 </div>
@@ -777,7 +778,8 @@ $('document').ready(function() {
         connected: false,
         filename: '',
         line: 0,
-        token: null
+        token: null,
+        clicksound: document.getElementById("click")
     };
     root.cnc.router = window.Router({
         '/': function() {
