@@ -9,7 +9,6 @@ var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
 var oldFilename = '';
-var jogging = false;
 var running = false;
 var userStopRequested = false;
 var oldState = null;
@@ -31,7 +30,6 @@ cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
     cnc.showGCode('', '');
     oldFilename = '';
-    jogging = false;
     running = false;
     userStopRequested = false;
     oldState = null;
@@ -131,7 +129,6 @@ cnc.loadFile = function() {
 
 cnc.goAxis = function(axis, coordinate) {
     cnc.click();
-    jogging = true;
     controller.command('gcode', 'G0 ' + axis + coordinate);
 }
 
@@ -143,7 +140,6 @@ cnc.moveAxis = function(axis, field) {
 cnc.setAxis = function(axis, field) {
     cnc.click();
     coordinate = document.getElementById(field).value;
-    jogging = true;
     controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
 }
 cnc.MDI = function(field) {
@@ -176,7 +172,6 @@ cnc.click = function() { cnc.clicksound.play() }
 
 cnc.sendMove = function(cmd) {
     cnc.click();
-    jogging = true;
     var jog = function(params) {
         params = params || {};
         var s = _.map(params, function(value, letter) {
@@ -501,8 +496,6 @@ controller.on('TinyG:state', function(data) {
                         }
 		    }
 		}
-	    } else {
-                jogging = false;
 	    }
 	}
     }
