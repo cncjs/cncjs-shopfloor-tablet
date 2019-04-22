@@ -111,6 +111,7 @@ cnc.loadFile = function() {
 }
 
 cnc.goAxis = function(axis, coordinate) {
+    cnc.click();
     jogging = true;
     controller.command('gcode', 'G0 ' + axis + coordinate);
 }
@@ -121,20 +122,24 @@ cnc.moveAxis = function(axis, field) {
 }
 
 cnc.setAxis = function(axis, field) {
+    cnc.click();
     coordinate = document.getElementById(field).value;
     jogging = true;
     controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
 }
 cnc.MDI = function(field) {
+    cnc.click();
     mdicmd = document.getElementById(field).value;
     controller.command('gcode', mdicmd);
 }
 
 cnc.zeroAxis = function(axis) {
+    cnc.click();
     controller.command('gcode', 'G10 L20 P1 ' + axis + '0');
 }
 
 cnc.toggleUnits = function() {
+    cnc.click();
     if (document.getElementById('units').innerText == 'mm') {
 	controller.command('gcode', 'G20');
     } else {
@@ -144,10 +149,14 @@ cnc.toggleUnits = function() {
 }
 
 cnc.setDistance = function(distance) {
+    cnc.click();
     $('[data-route="axes"] select[data-name="select-distance"]').val(distance);
 }
 
+cnc.click = function() { cnc.clicksound.play() }
+
 cnc.sendMove = function(cmd) {
+    cnc.click();
     jogging = true;
     var jog = function(params) {
         params = params || {};
@@ -654,6 +663,7 @@ cnc.getGCode = function() {
 }
 
 cnc.loadGCode = function() {
+    cnc.click();
     var filename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
     if (filename === '..') {
         watchPath = watchPath.slice(0, -1).replace(/[^/]*$/,'');
@@ -673,12 +683,14 @@ cnc.loadGCode = function() {
 $('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
 
 cnc.runGCode = function() {
+    cnc.click();
     running = true;
     cnc.controller.command('gcode:start')
     startTime = new Date().getTime();
 }
 
 cnc.stopGCode = function() {
+    cnc.click();
     userStopped = true;
     cnc.controller.command('gcode:stop', { force: true })
 }
