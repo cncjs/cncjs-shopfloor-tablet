@@ -69,7 +69,8 @@ controller.on('serialport:open', function(options) {
     cnc.port = port;
     cnc.baudrate = baudrate;
 
-    $('[data-route="workspace"] [data-name="port"]').val(port);
+    $('[data-route="connection"] [data-name="btn-open"]').prop('disabled',true);
+    $('[data-route="connection"] [data-name="btn-close"]').prop('disabled',false);
 
     Cookies.set('cnc.controllerType', controllerType);
     Cookies.set('cnc.port', port);
@@ -86,7 +87,7 @@ controller.on('serialport:open', function(options) {
         controller.writeln('$$');
     }
 
-    root.location = '#/axes';
+    root.location = '#/workspace';
 });
 
 controller.on('serialport:close', function(options) {
@@ -97,8 +98,10 @@ controller.on('serialport:close', function(options) {
     cnc.port = '';
     cnc.baudrate = 0;
 
-    $('[data-route="workspace"] [data-name="port"]').val('');
-    $('[data-route="axes"] [data-name="active-state"]').text('NoConnect');
+    $('[data-route="connection"] [data-name="btn-open"]').prop('disabled',false);
+    $('[data-route="connection"] [data-name="btn-close"]').prop('disabled',true);
+
+    $('[data-route="workspace"] [data-name="active-state"]').text('NoConnect');
 
     root.location = '#/connection';
 });
@@ -157,7 +160,7 @@ cnc.toggleUnits = function() {
 
 cnc.setDistance = function(distance) {
     cnc.click();
-    $('[data-route="axes"] select[data-name="select-distance"]').val(distance);
+    $('[data-route="workspace"] select[data-name="select-distance"]').val(distance);
 }
 
 cnc.click = function() { cnc.clicksound.play() }
@@ -180,7 +183,7 @@ cnc.sendMove = function(cmd) {
         }).join(' ');
         controller.command('gcode', 'G0 ' + s);
     };
-    var distance = Number($('[data-route="axes"] select[data-name="select-distance"]').val()) || 0;
+    var distance = Number($('[data-route="workspace"] select[data-name="select-distance"]').val()) || 0;
 
     var fn = {
         'G28': function() {
@@ -301,12 +304,12 @@ function renderGrblState(data) {
 
     switch (parserstate.modal.units) {
     case 'G20':
-	$('[data-route="axes"] [id="units"]').text('Inch');
+	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
         factor = grblReportingUnits === 0 ? 1/25.4 : 1.0 ;
         break;
     case 'G21':
-	$('[data-route="axes"] [id="units"]').text('mm');
+	$('[data-route="workspace"] [id="units"]').text('mm');
         digits = 3;
         factor = grblReportingUnits === 0 ? 1.0 : 25.4;
         break;
@@ -367,11 +370,11 @@ controller.on('Smoothie:state', function(data) {
     // Smoothie reports both mpos and wpos in the current units
     switch (parserstate.modal.units) {
     case 'G20':
-	$('[data-route="axes"] [id="units"]').text('Inch');
+	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
         break;
     case 'G21':
-	$('[data-route="axes"] [id="units"]').text('mm');
+	$('[data-route="workspace"] [id="units"]').text('mm');
         digits = 3;
         break;
     }
@@ -474,7 +477,7 @@ controller.on('TinyG:state', function(data) {
 
     switch (sr.modal.units) {
     case 'G20':
-	$('[data-route="axes"] [id="units"]').text('Inch');
+	$('[data-route="workspace"] [id="units"]').text('Inch');
         // TinyG reports machine coordinates in mm regardless of the in/mm mode
         mpos.x = (mpos.x / 25.4).toFixed(4);
         mpos.y = (mpos.y / 25.4).toFixed(4);
@@ -485,7 +488,7 @@ controller.on('TinyG:state', function(data) {
         wpos.z = Number(wpos.z).toFixed(4);
         break;
     case 'G21':
-	$('[data-route="axes"] [id="units"]').text('mm');
+	$('[data-route="workspace"] [id="units"]').text('mm');
         mpos.x = Number(mpos.x).toFixed(3);
         mpos.y = Number(mpos.y).toFixed(3);
         mpos.z = Number(mpos.z).toFixed(3);
@@ -502,21 +505,21 @@ cnc.updateView = function() {
 	canStart = false;
     }
 
-    $('[data-route="axes"] .control-pad .jog-controls .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] .control-pad .form-control').prop('disabled', !canClick);
-    $('[data-route="axes"] .mdi .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] .axis-position .btn').prop('disabled', !canClick);
-    $('[data-route="axes"] .axis-position .position').prop('disabled', !canClick);
+    $('[data-route="workspace"] .control-pad .jog-controls .btn').prop('disabled', !canClick);
+    $('[data-route="workspace"] .control-pad .form-control').prop('disabled', !canClick);
+    $('[data-route="workspace"] .mdi .btn').prop('disabled', !canClick);
+    $('[data-route="workspace"] .axis-position .btn').prop('disabled', !canClick);
+    $('[data-route="workspace"] .axis-position .position').prop('disabled', !canClick);
 
-    $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !canStart);
-    $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
-    $('[data-route="axes"] .nav-panel .btn-pause').prop('disabled', !canPause);
-    $('[data-route="axes"] .nav-panel .btn-pause').prop('style').backgroundColor = canPause ? '#f68686' : '#f6f6f6';
-    $('[data-route="axes"] .nav-panel .btn-resume').prop('disabled', !canResume);
-    $('[data-route="axes"] .nav-panel .btn-resume').prop('style').backgroundColor = canResume ? '#86f686' : '#f6f6f6';
+    $('[data-route="workspace"] .nav-panel .btn-start').prop('disabled', !canStart);
+    $('[data-route="workspace"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
+    $('[data-route="workspace"] .nav-panel .btn-pause').prop('disabled', !canPause);
+    $('[data-route="workspace"] .nav-panel .btn-pause').prop('style').backgroundColor = canPause ? '#f68686' : '#f6f6f6';
+    $('[data-route="workspace"] .nav-panel .btn-resume').prop('disabled', !canResume);
+    $('[data-route="workspace"] .nav-panel .btn-resume').prop('style').backgroundColor = canResume ? '#86f686' : '#f6f6f6';
 
-    $('[data-route="axes"] .nav-panel .btn-stop').prop('disabled', !canStop);
-    $('[data-route="axes"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
+    $('[data-route="workspace"] .nav-panel .btn-stop').prop('disabled', !canStop);
+    $('[data-route="workspace"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
 
     if (spindleSpeed) {
         var spindleText = 'Off';
@@ -526,7 +529,7 @@ cnc.updateView = function() {
         case 'M5': spindleText = 'Off'; break;
         default:  spindleText = 'Off'; break;
         }
-        $('[data-route="axes"] [id="spindle"]').text(Number(spindleSpeed) + ' RPM ' + spindleText);
+        $('[data-route="workspace"] [id="spindle"]').text(Number(spindleSpeed) + ' RPM ' + spindleText);
     }
     if (running) {
 	var elapsed = new Date().getTime() - startTime;
@@ -540,19 +543,19 @@ cnc.updateView = function() {
 	runTime = minutes + ':' + seconds;
     }
     if (runTime) {
-        $('[data-route="axes"] [id="runtime"]').text(runTime);
+        $('[data-route="workspace"] [id="runtime"]').text(runTime);
     }
 
-    $('[data-route="axes"] [data-name="wpos-label"]').text(wcs);
+    $('[data-route="workspace"] [data-name="wpos-label"]').text(wcs);
     if (canPause) {
-        $('[data-route="axes"] [data-name="active-state"]').text('Vel ' + velocity.toFixed(2));
+        $('[data-route="workspace"] [data-name="active-state"]').text('Vel ' + velocity.toFixed(2));
     } else {
         stateText = stateName == 'Error' ? "Error: " + errorMessage : stateName;
-        $('[data-route="axes"] [data-name="active-state"]').text(stateText);
+        $('[data-route="workspace"] [data-name="active-state"]').text(stateText);
     }
-    $('[data-route="axes"] [id="wpos-x"]').prop('value', wpos.x);
-    $('[data-route="axes"] [id="wpos-y"]').prop('value', wpos.y);
-    $('[data-route="axes"] [id="wpos-z"]').prop('value', wpos.z);
+    $('[data-route="workspace"] [id="wpos-x"]').prop('value', wpos.x);
+    $('[data-route="workspace"] [id="wpos-y"]').prop('value', wpos.y);
+    $('[data-route="workspace"] [id="wpos-z"]').prop('value', wpos.z);
     if (document.getElementById('units').innerText == 'mm') {
 	root.displayer.reDrawTool(wpos.x, wpos.y);
     } else {
@@ -586,9 +589,8 @@ controller.on('workflow:state', function(state) {
 
 controller.listAllPorts();
 
-// Workspace 
-$('[data-route="workspace"] [data-name="port"]').val('');
-$('[data-route="workspace"] [data-name="btn-close"]').on('click', function() {
+// Close
+$('[data-route="connection"] [data-name="btn-close"]').on('click', function() {
     controller.closePort();
 });
 
@@ -618,7 +620,7 @@ cnc.runUserCommand = function(name) {
 
 cnc.getFileList = function() {
     jQuery.get("../api/watch/files", {token: cnc.token, path: watchPath}, function(data) {
-        var selector = $('[data-route="axes"] select[data-name="select-file"]');
+        var selector = $('[data-route="workspace"] select[data-name="select-file"]');
         var legend;
         selector.empty();
         data.files.sort(function (a, b) {
@@ -647,7 +649,7 @@ cnc.getFileList = function() {
         if (selected == '')
             selected = legend;
         console.log("sel " + selected);
-        $('[data-route="axes"] select[data-name="select-file"]').val(selected);
+        $('[data-route="workspace"] select[data-name="select-file"]').val(selected);
     }, "json");
 }
 
@@ -660,18 +662,18 @@ cnc.showGCode = function(name, gcode) {
     if (!gcodeLoaded) {
 	gcode = "(No GCode loaded)";
     }
-    $('[data-route="axes"] .nav-panel .btn-start').prop('disabled', !gcodeLoaded);
-    $('[data-route="axes"] .nav-panel .btn-start').prop('style').backgroundColor = gcodeLoaded ? '#86f686' : '#f6f6f6';
+    $('[data-route="workspace"] .nav-panel .btn-start').prop('disabled', !gcodeLoaded);
+    $('[data-route="workspace"] .nav-panel .btn-start').prop('style').backgroundColor = gcodeLoaded ? '#86f686' : '#f6f6f6';
 
     cnc.filename = name;
     if (name != "") {
 	// gcode = "(" + name + ")<br />" + gcode;
         var basename = name.split('/').slice(-1)[0];
-	$('[data-route="axes"] select[data-name="select-file"]').val(basename);
+	$('[data-route="workspace"] select[data-name="select-file"]').val(basename);
     } else {
-	$('[data-route="axes"] select[data-name="select-file"]')[0][0].selected = true;
+	$('[data-route="workspace"] select[data-name="select-file"]')[0][0].selected = true;
     }
-    $('[data-route="axes"] [id="gcode"]').text(gcode);
+    $('[data-route="workspace"] [id="gcode"]').text(gcode);
     root.displayer.showToolpath(gcode);
 }
 
@@ -684,7 +686,7 @@ cnc.getGCode = function() {
 
 cnc.loadGCode = function() {
     cnc.click();
-    var filename = $('[data-route="axes"] select[data-name="select-file"] option:selected')[0].text;
+    var filename = $('[data-route="workspace"] select[data-name="select-file"] option:selected')[0].text;
     if (filename === '..') {
         watchPath = watchPath.slice(0, -1).replace(/[^/]*$/,'');
         cnc.filename = '';
@@ -700,7 +702,7 @@ cnc.loadGCode = function() {
     }
 }
 
-$('[data-route="axes"] select[data-name="select-file"]').change(cnc.loadGCode);
+$('[data-route="workspace"] select[data-name="select-file"]').change(cnc.loadGCode);
 
 cnc.runGCode = function() {
     cnc.click();
@@ -729,7 +731,7 @@ $('[data-route="connection"] [data-name="btn-open"]').on('click', function() {
     var port = $('[data-route="connection"] [data-name="port"]').val();
     var baudrate = $('[data-route="connection"] [data-name="baudrate"]').val();
 
-    $('[data-route="connection"] [data-name="msg"]').html('Trying');
+    // $('[data-route="connection"] [data-name="msg"]').html('Trying');
     if (port) {
 	controller.openPort(port, {
             controllerType: controllerType,
@@ -740,10 +742,10 @@ $('[data-route="connection"] [data-name="btn-open"]').on('click', function() {
 );
 
 //
-// Axes
+// Workspace
 //
-$('[data-route="axes"] [data-name="btn-dropdown"]').dropdown();
-$('[data-route="axes"] [data-name="active-state"]').text('NoConnect');
-$('[data-route="axes"] select[data-name="select-distance"]').val('1');
+$('[data-route="workspace"] [data-name="btn-dropdown"]').dropdown();
+$('[data-route="workspace"] [data-name="active-state"]').text('NoConnect');
+$('[data-route="workspace"] select[data-name="select-distance"]').val('1');
 
 });

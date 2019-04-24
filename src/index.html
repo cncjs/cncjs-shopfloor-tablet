@@ -25,24 +25,9 @@
     <div style="background: transparent url('loading.gif') no-repeat 0 0; height: 32px; width: 32px; display: block; margin: 0 auto;"></div>
     <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: normal; color: #222; text-align: center; margin-top: 10px;">Loading...</div>
 </div>
-<div class="hidden" data-route="workspace">
-    <div class="form-group clearfix">
-        <div class="pull-left">
-            <input type="text" class="form-control" data-name="port" readonly value="" />
-        </div>
-        <div class="btn-group pull-right">
-            <button type="button" class="btn btn-danger" data-name="btn-close"><i class="fa fa-power-off"></i>&nbsp;Close</button>
-        </div>
-    </div>
-    <div class="form-group">
-        <ul class="list-group">
-            <a href="#/axes" class="list-group-item">Axes</a>
-        </ul>
-    </div>
-</div>
 <div class="hidden" data-route="connection">
     <div data-name="msg"></div>
-    <div class="form-group">
+    <div class="col-xs-3 form-group">
         <label>Controller Type</label>
         <select class="form-control" data-name="controllerType">
             <option value="Grbl">Grbl</option>
@@ -50,11 +35,11 @@
             <option value="TinyG">TinyG</option>
         </select>
     </div>
-    <div class="form-group">
+    <div class="col-xs-6 form-group">
         <label>Port</label>
         <select class="form-control" data-name="port"></select>
     </div>
-    <div class="form-group">
+    <div class="col-xs-3 form-group">
         <label>Baud rate</label>
         <select class="form-control" data-name="baudrate">
             <option value="250000">250000</option>
@@ -67,11 +52,22 @@
             <option value="2400">2400</option>
         </select>
     </div>
-    <div class="form-group" style="margin-bottom: 0 ">
+    <div class="row no-gutter"> </div>
+    <div class="form-group">
         <button type="button" class="btn btn-primary" data-name="btn-open">Open</button>
+        <button type="button" class="btn btn-danger" data-name="btn-close">
+          <!-- <i class="fa fa-power-off"></i>&nbsp; -->
+          Close
+        </button>
+    </div>
+    <div class="form-group">
+        <ul class="list-group">
+            <a href="#/workspace" class="list-group-item">Back to Workspace</a>
+        </ul>
+    </div>
     </div>
 </div>
-<div class="hidden" data-route="axes">
+<div class="hidden" data-route="workspace">
     <div class="nav-panel">
         <div class="container-fluid">
             <div class="row no-gutter">
@@ -137,7 +133,7 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                                     </li>
                                     <li role="separator" class="divider"></li>
                                     <li>
-                                        <a role="menuitem" href="#/workspace"><i class="fa fa-chevron-left"></i>&nbsp;Back</a>
+                                        <a role="menuitem" href="#/connection"><i class="fa fa-chevron-left"></i>&nbsp;Connection</a>
                                     </li>
                                 </ul>
                             </div>
@@ -622,16 +618,14 @@ $('document').ready(function() {
     root.cnc.router = window.Router({
         '/': function() {
             if (root.cnc.connected) {
-                window.location = '#/workspace';
+                window.location = '#/connection';
             } else {
-                window.location = cnc.reConnect() ? '#/axes' : '#/connection';
+                window.location = cnc.reConnect() ? '#/workspace' : '#/connection';
             }
-        },
-        '/workspace': function() {
         },
         '/connection': function() {
         },
-        '/axes': function() {
+        '/workspace': function() {
         },
         '/toolpath': function() {
         }

@@ -1,244 +1,244 @@
-[data-route="workspace"] {
+[data-route="close"] {
   padding: 10px;
 }
 [data-route="connection"] {
   padding: 10px;
 }
-[data-route="axes"] {
+[data-route="workspace"] {
   padding: 5px;
   font-size: 14px;
 }
-[data-route="axes"] .btn[disabled] {
+[data-route="workspace"] .btn[disabled] {
   opacity: .4;
 }
-[data-route="axes"] .btn-start[disabled] {
+[data-route="workspace"] .btn-start[disabled] {
   opacity: 1;
 }
-[data-route="axes"] .control-pad .form-control[disabled] {
+[data-route="workspace"] .control-pad .form-control[disabled] {
   opacity: .4;
 }
-[data-route="axes"] .middle-block {
+[data-route="workspace"] .middle-block {
     top: 100%;
     left: 0;
     z-index: 100;
 }
-[data-route="axes"] .jog-controls {
+[data-route="workspace"] .jog-controls {
     display: block;
 }
-[data-route="axes"] .run-controls {
+[data-route="workspace"] .run-controls {
     display: none;
 }
-[data-route="axes"] > * {
+[data-route="workspace"] > * {
   margin-bottom: 5px;
 }
-[data-route="axes"] > *:last-child {
+[data-route="workspace"] > *:last-child {
   margin-bottom: 0;
 }
-[data-route="axes"] .dropdown-menu>li>a .fa {
+[data-route="workspace"] .dropdown-menu>li>a .fa {
   width: 16px;
 }
-[data-route="axes"] .axis-position .row {
+[data-route="workspace"] .axis-position .row {
   padding-bottom: 5px;
 }
-[data-route="axes"] .nav-panel .container-fluid {
+[data-route="workspace"] .nav-panel .container-fluid {
   padding-bottom: 12px;
 }
-[data-route="axes"] .axis-position .container-fluid {
+[data-route="workspace"] .axis-position .container-fluid {
   background-color: azure;
   padding-top: 12px;
   padding-bottom: 12px;
 }
-[data-route="axes"] .control-pad .container-fluid {
+[data-route="workspace"] .control-pad .container-fluid {
   background-color: lightyellow;
   padding-top: 12px;
   padding-bottom: 12px;
 }
-[data-route="axes"] .nav-panel .btn {
+[data-route="workspace"] .nav-panel .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
   padding-bottom: 5px;
 }
-[data-route="axes"] .nav-panel .row [class^="col-"],
-[data-route="axes"] .nav-panel .row [class*=" col-"] {
+[data-route="workspace"] .nav-panel .row [class^="col-"],
+[data-route="workspace"] .nav-panel .row [class*=" col-"] {
   padding-right: 5px;
 }
-[data-route="axes"] .nav-panel .row [class^="col-"]:last-child,
-[data-route="axes"] .nav-panel .row [class*=" col-"]:last-child {
+[data-route="workspace"] .nav-panel .row [class^="col-"]:last-child,
+[data-route="workspace"] .nav-panel .row [class*=" col-"]:last-child {
   padding-right: 0;
 }
-[data-route="axes"] .active-state {
+[data-route="workspace"] .active-state {
 #  border: 1px solid #ccc;
 #  border-radius: 4px;
 #  background-color: #f6f686;
   padding: 5px 10px;
   text-align: center;
 }
-[data-route="axes"] .pos-name {
+[data-route="workspace"] .pos-name {
   text-align: center;
 }
-[data-route="axes"] .info-button {
+[data-route="workspace"] .info-button {
   text-align: center;
   padding: 5px 10px;
 }
-[data-route="axes"] .axis-label {
+[data-route="workspace"] .axis-label {
   text-align: left;
   font-size: 20px;
   padding: 0 8px;
 }
-[data-route="axes"] .position {
+[data-route="workspace"] .position {
   width: 95%;
   text-align: right;
 }
-[data-route="axes"] .load {
+[data-route="workspace"] .load {
   font-size: 12px;
   width: 99%;
   resize: none;
 }
-[data-route="axes"] .fileslist {
+[data-route="workspace"] .fileslist {
     padding-top: 20px;
 }
-[data-route="axes"] textarea {
+[data-route="workspace"] textarea {
   font-size: 12px;
   width: 99%;
   resize: none;
 }
-[data-route="axes"] .axis-position .btn {
+[data-route="workspace"] .axis-position .btn {
   width: 90%;
   text-align: center;
 }
 
-[data-route="axes"] .btn-units {
+[data-route="workspace"] .btn-units {
    text-align: left;
 }
 
-[data-route="axes"] .rotate-45deg {
+[data-route="workspace"] .rotate-45deg {
   transform: rotate(45deg);
 }
-[data-route="axes"] .rotate-45deg:before {
+[data-route="workspace"] .rotate-45deg:before {
   transform: rotate(45deg);
 }
-[data-route="axes"] .rotate--45deg {
+[data-route="workspace"] .rotate--45deg {
   transform: rotate(-45deg);
 }
-[data-route="axes"] .rotate--45deg:before {
+[data-route="workspace"] .rotate--45deg:before {
   transform: rotate(-45deg);
 }
-[data-route="axes"] .rotate-90deg {
+[data-route="workspace"] .rotate-90deg {
   transform: rotate(90deg);
 }
-[data-route="axes"] .rotate-90deg:before {
+[data-route="workspace"] .rotate-90deg:before {
   transform: rotate(90deg);
 }
-[data-route="axes"] .rotate--90deg {
+[data-route="workspace"] .rotate--90deg {
   transform: rotate(-90deg);
 }
-[data-route="axes"] .rotate--90deg:before {
+[data-route="workspace"] .rotate--90deg:before {
   transform: rotate(-90deg);
 }
 
-[data-route="axes"] .control-pad .row [class^="col-"],
-[data-route="axes"] .control-pad .row [class*=" col-"] {
+[data-route="workspace"] .control-pad .row [class^="col-"],
+[data-route="workspace"] .control-pad .row [class*=" col-"] {
   padding-right: 5px;
 }
-[data-route="axes"] .control-pad .row [class^="col-"]:last-child,
-[data-route="axes"] .control-pad .row [class*=" col-"]:last-child {
+[data-route="workspace"] .control-pad .row [class^="col-"]:last-child,
+[data-route="workspace"] .control-pad .row [class*=" col-"]:last-child {
   padding-right: 0;
 }
-[data-route="axes"] .control-pad .row {
+[data-route="workspace"] .control-pad .row {
   padding-bottom: 5px;
 }
-[data-route="axes"] .control-pad .row:last-child {
+[data-route="workspace"] .control-pad .row:last-child {
   padding-bottom: 5px;
 }
-[data-route="axes"] .control-pad .btn {
+[data-route="workspace"] .control-pad .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
 }
 
-[data-route="axes"] .mdi .container-fluid {
+[data-route="workspace"] .mdi .container-fluid {
   background-color: lavenderblush;
   padding-top: 12px;
   padding-bottom: 12px;
 }
 
 @media (min-width: 768px) {
-  [data-route="axes"] {
+  [data-route="workspace"] {
     font-size: 20px;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     min-width: 180px;
   }
-  [data-route="axes"] .dropdown-menu>li>a .fa {
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
     width: 20px;
   }
-  [data-route="axes"] .axis-label {
+  [data-route="workspace"] .axis-label {
     font-size: 24px;
     text-align: right;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     font-size: 20px;
   }
-  [data-route="axes"] .btn,
-  [data-route="axes"] .form-control {
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
     font-size: 20px;
     height: 40px;
   }
-  [data-route="axes"] #jog-distance {
+  [data-route="workspace"] #jog-distance {
     text-align-last: right;
   }
-  [data-route="axes"] textarea {
+  [data-route="workspace"] textarea {
     font-size: 12px;
   }
 }
 @media (min-width: 992px) {
-  [data-route="axes"] {
+  [data-route="workspace"] {
     font-size: 24px;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     min-width: 200px;
   }
-  [data-route="axes"] .dropdown-menu>li>a .fa {
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
     width: 24px;
   }
-  [data-route="axes"] .axis-label {
+  [data-route="workspace"] .axis-label {
     font-size: 28px;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     font-size: 24px;
   }
-  [data-route="axes"] .btn,
-  [data-route="axes"] .form-control {
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
     font-size: 24px;
     height: 46px;
   }
-  [data-route="axes"] textarea {
+  [data-route="workspace"] textarea {
     font-size: 14px;
   }
 }
 @media (min-width: 1200px) {
-  [data-route="axes"] {
+  [data-route="workspace"] {
     font-size: 28px;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     min-width: 220px;
   }
-  [data-route="axes"] .dropdown-menu>li>a .fa {
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
     width: 28px;
   }
-  [data-route="axes"] .axis-label {
+  [data-route="workspace"] .axis-label {
     font-size: 32px;
   }
-  [data-route="axes"] .dropdown-menu {
+  [data-route="workspace"] .dropdown-menu {
     font-size: 28px;
   }
-  [data-route="axes"] .btn,
-  [data-route="axes"] .form-control {
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
     font-size: 28px;
     height: 52px;
   }
-  [data-route="axes"] textarea {
+  [data-route="workspace"] textarea {
     font-size: 14px;
   }
 }

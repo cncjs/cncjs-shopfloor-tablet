@@ -310,9 +310,9 @@ $(function() {
     };
 
     ToolpathDisplayer.prototype.showToolpath = function(gcode) {
-        inInches = $('[data-route="axes"] [id="units"]').text() != 'mm';
+        inInches = $('[data-route="workspace"] [id="units"]').text() != 'mm';
         var getPos = function(name) {
-            var pos = Number($('[data-route="axes"] [id="' + name + '"]').prop('value'));
+            var pos = Number($('[data-route="workspace"] [id="' + name + '"]').prop('value'));
             return inInches ? pos * 25.4 : pos;
         }
         var initialPosition = {

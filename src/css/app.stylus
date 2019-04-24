@@ -1,4 +1,4 @@
-[data-route="workspace"] {
+[data-route="close"] {
     padding: 10px;
 }
 
@@ -6,7 +6,7 @@
     padding: 10px;
 }
 
-[data-route="axes"] {
+[data-route="workspace"] {
     padding: 5px;
     font-size: 14px;
 
