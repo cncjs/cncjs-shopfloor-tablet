@@ -33,13 +33,16 @@ controller.on('serialport:list', function(list) {
 
     $el.empty();
     $.each(list, function(key, value) {
-	if (value.manufacturer == 'Synthetos') {
-            var $option = $('<option></option>')
-		.attr('value', value.port)
-		.attr('data-inuse', value.inuse)
-		.text(value.port);
-            $el.append($option);
-	}
+        console.log(value)
+        var portText = value.port;
+        if (value.manufacturer) {
+            portText += ' (' + value.manufacturer + ')';
+        }
+        var $option = $('<option></option>')
+	    .attr('value', value.port)
+	    .attr('data-inuse', value.inuse)
+	    .html(portText);
+        $el.append($option);
     });
 
     if (cnc.controllerType) {
