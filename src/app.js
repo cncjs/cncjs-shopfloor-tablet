@@ -1,21 +1,31 @@
 $(function() {
 
+const MACHINE_STALL = 0;
+const MACHINE_IDLE = 1;
+const MACHINE_RUN = 2;
+const MACHINE_HOLD = 3;
+
 var root = window;
 var cnc = root.cnc || {};
 var controller = cnc.controller;
 var oldFilename = '';
 var jogging = false;
 var running = false;
-var userStopped = false;
+var userStopRequested = false;
 var oldState = null;
 var probing = false;
 var startTime = 0;
 var runTime = 0;
 var watchPath = '';
 var feedOverride = 1.0;
+var rapidOverride = 1.0;
+var spindleOverride = 1.0;
 var workflowState = '';
 var errorMessage;
-var canClick, canStart, canPause, canResume, canStop, stateText, wpos, mpos, velocity, spindleDirection, spindleSpeed, wcs, stateName;
+var receivedLines = 0;
+var gCodeLoaded = false;
+var machineWorkflow = MACHINE_STALL;
+var stateText, wpos, mpos, velocity, spindleDirection, spindleSpeed, wcs, stateName;
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -23,7 +33,7 @@ cnc.initState = function() {
     oldFilename = '';
     jogging = false;
     running = false;
-    userStopped = false;
+    userStopRequested = false;
     oldState = null;
     probing = false;
 }
@@ -33,7 +43,6 @@ controller.on('serialport:list', function(list) {
 
     $el.empty();
     $.each(list, function(key, value) {
-        console.log(value)
         var portText = value.port;
         if (value.manufacturer) {
             portText += ' (' + value.manufacturer + ')';
@@ -269,13 +278,27 @@ controller.on('serialport:write', function(data) {
 });
 
 controller.on('sender:status', function(status) {
-    cnc.senderHold = status.hold;
+    if (status.elapsedTime) {
+        elapsedTime = status.elapsedTime;
+    }
+    if (cnc.controllerType != 'TinyG' && status.received) {
+        // TinyG/g2core reports the line count in the state report,
+        // reflecting the line that is actually being executed. That
+        // is more interesting to the user that how many lines have
+        // been sent, so we only use the sender line count if the
+        // better one is not available.
+        receivedLines = status.received;
+    }
     if (cnc.senderHold) {
-        if (status.holdReason.err) {
-            cnc.senderHoldReason = 'Error';
-            errorMessage = status.holdReason.err;
+        if (status.holdReason) {
+            if (status.holdReason.err) {
+                cnc.senderHoldReason = 'Error';
+                errorMessage = status.holdReason.err;
+            } else {
+	        cnc.senderHoldReason = status.holdReason.data;
+            }
         } else {
-	    cnc.senderHoldReason = status.holdReason ? status.holdReason.data : "";
+            cnc.senderHoldReason = "";
         }
     }
 });
@@ -288,21 +311,28 @@ function renderGrblState(data) {
     stateName = status.activeState;
     mpos = status.mpos;
     wpos = status.wpos;
-    var IDLE = 'Idle', RUN = 'Run', JOG = 'Jog', HOLD = 'Hold';
-    canClick = [IDLE, RUN].indexOf(stateName) >= 0;
-    canStart = [IDLE].indexOf(stateName) >= 0;
-    canPause = [RUN, JOG].indexOf(stateName) >= 0;
-    canResume = [HOLD].indexOf(stateName) >= 0;
-    canStop = [RUN, JOG, HOLD].indexOf(stateName) >= 0;
+
+    // Grbl states are Idle, Run, Jog, Hold
+    // The code used to allow click in Run state but that seems wrong
+    // canClick = stateName == 'Idle';
+
+    if (stateName == 'Idle') {
+        machineWorkflow = MACHINE_IDLE;
+    } else if (stateName == 'Hold') {
+        machineWorkflow = MACHINE_HOLD;
+    } else {
+        machineWorkflow = MACHINE_RUN;
+    }
 
     var parserstate = data.parserstate || {};
+    var modal = parserstate.modal || {};
 
     // Unit conversion factor - depends on both $13 setting and parser units
     var factor = 1.0;
     // Number of postdecimal digits to display; 3 for in, 4 for mm
     var digits = 4;
 
-    switch (parserstate.modal.units) {
+    switch (modal.units) {
     case 'G20':
 	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
@@ -322,6 +352,15 @@ function renderGrblState(data) {
     wpos.x = (wpos.x * factor).toFixed(digits);
     wpos.y = (wpos.y * factor).toFixed(digits);
     wpos.z = (wpos.z * factor).toFixed(digits);
+
+    velocity = parserstate.feedrate;
+    spindleSpeed = parserstate.spindle;
+    spindleDirection = modal.spindle;
+    wcs = modal.wcs;
+
+    feedOverride = status.ov[0]/100.0;
+    rapidOverride = status.ov[1]/100.0;
+    spindleOverride = status.ov[2]/100.0;
 
     cnc.updateView();
 }
@@ -350,25 +389,32 @@ controller.on('Grbl:settings', function(data) {
     }
 });
 
+// Smoothie state and GRBL state are identical except for the overrides.
+// GRBL has ov: []  while Smootie has ovF and ovS.
+
 controller.on('Smoothie:state', function(data) {
     var status = data.status || {};
     stateName = status.activeState;
     mpos = status.mpos;
     wpos = status.wpos;
-    var IDLE = 'Idle', RUN = 'Run', HOLD = 'Hold';
-    canClick = [IDLE].indexOf(stateName) >= 0;
-    canStart = [IDLE].indexOf(stateName) >= 0;
-    canPause = [RUN].indexOf(stateName) >= 0;
-    canResume = [HOLD].indexOf(stateName) >= 0;
-    canStop = [RUN, HOLD].indexOf(stateName) >= 0;
+    // Smoothie states are Idle, Run, Hold
+    // canClick = stateName == 'Idle';
+    if (stateName == 'Idle') {
+        machineWorkflow = MACHINE_IDLE;
+    } else if (stateName == 'Hold') {
+        machineWorkflow = MACHINE_HOLD;
+    } else {
+        machineWorkflow = MACHINE_RUN;
+    }
 
     var parserstate = data.parserstate || {};
+    var modal = parserstate.modal || {};
 
     // Number of postdecimal digits to display; 3 for in, 4 for mm
     var digits = 4;
 
     // Smoothie reports both mpos and wpos in the current units
-    switch (parserstate.modal.units) {
+    switch (modal.units) {
     case 'G20':
 	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
@@ -386,6 +432,15 @@ controller.on('Smoothie:state', function(data) {
     wpos.x = wpos.x.toFixed(digits);
     wpos.y = wpos.y.toFixed(digits);
     wpos.z = wpos.z.toFixed(digits);
+
+    velocity = parserstate.feedrate;
+    spindleSpeed = parserstate.spindle;
+    spindleDirection = modal.spindle;
+    wcs = modal.wcs;
+
+    spindleOverride = status.ovF/100.0;
+    rapidOverride = 1.0;
+    feedOverride = status.ovS/100.0;
 
     cnc.updateView();
 });
@@ -416,50 +471,45 @@ controller.on('TinyG:state', function(data) {
     }
     mpos = sr.mpos;
     wpos = sr.wpos;
-    var READY = 1, STOP = 3, END = 4, RUN = 5, HOLD = 6;
-    canClick = [READY, STOP, END].indexOf(machineState) >= 0;
-    canStart = [READY, STOP, END].indexOf(machineState) >= 0;
-    canPause = [RUN].indexOf(machineState) >= 0;
-    canResume = [HOLD].indexOf(machineState) >= 0;
-    canStop = [RUN, HOLD].indexOf(machineState) >= 0;
+    var INIT = 0, READY = 1, ALARM = 2, STOP = 3, END = 4, RUN = 5,
+        HOLD = 6, PROBE = 7, CYCLE = 8, HOMING = 9, JOG = 10, INTERLOCK = 11;
+    if ([INIT, ALARM, INTERLOCK].indexOf(machineState) >= 0) {
+        machineWorkflow = MACHINE_STALL;
+    } else if ([READY, STOP, END].indexOf(machineState) >= 0) {
+        machineWorkflow = MACHINE_IDLE;
+    } else if ([RUN, CYCLE, HOMING, JOG].indexOf(machineState) >= 0) {
+        machineWorkflow = MACHINE_RUN;
+    } else {
+        machineWorkflow = MACHINE_HOLD;
+    }
 
     if (machineState == STOP) {
-
-	if (userStopped) {
+	if (userStopRequested) {
 	    // Manual stop
-	    userStopped = false;
+	    userStopRequested = false;
 	    running = false;
 	    stateName = 'UserStop';
 	} else {
 	    if (running) {
 		// M0 etc
-		canStart = false;
-		canResume = true;
-		canStop = true;
+		machineWorkflow = MACHINE_HOLD;
 		if (cnc.senderHold) {
 		    stateName = cnc.senderHoldReason;
 		    if (stateName == "M6") {
                         if (sr.tool) {
 			    stateName += " T" + sr.tool;
-			    console.log(sr.tool);
                         }
 		    }
 		}
-	    } else if (jogging) {
-		// Jogging
-		jogging = false;
-		canStart = true;
-		canResume = false;
 	    } else {
-		canStart = true;
-		canResume = false;
+                jogging = false;
 	    }
 	}
     }
     if (machineState == END) {
-	if (userStopped) {
+	if (userStopRequested) {
 	    // Manual stop
-	    userStopped = false;
+	    userStopRequested = false;
 	    running = false;
 	    stateName = 'UserStop';
         } else if (oldState != END) {
@@ -497,29 +547,91 @@ controller.on('TinyG:state', function(data) {
         wpos.z = Number(wpos.z).toFixed(3);
     }
     wcs = sr.modal.wcs;
+    if (sr.line && machineState != HOLD) {
+        receivedLines = sr.line;
+    }
+
+    // G2core now reports the overrides via properties
+    // troe, tro, froe, fro, spoe, and spo, but as of this
+    // writing the cncjs server uses the old properties
+    // mfo and mto, and does not propagate the new properties
+    spindleOverride = 1.0;
+    rapidOverride = 1.0;
+    feedOverride = 1.0;
+
     cnc.updateView();
 });
 
-cnc.updateView = function() {
-    if (cnc.filename == '') {
-	canStart = false;
+setButton = function(name, isEnabled, color, text) {
+    var button = $('[data-route="workspace"] .nav-panel ' + name);
+    button.prop('disabled', !isEnabled);
+    button.prop('style').backgroundColor = color;
+    button.prop('innerText', text);
+}
+
+var leftButtonHandler;
+setLeftButton = function(isEnabled, color, text, click) {
+    setButton('.btn-start', isEnabled, color, text);
+    leftButtonHandler = click;
+}
+cnc.doLeftButton = function() {
+    if (leftButtonHandler) {
+        leftButtonHandler();
     }
+}
 
-    $('[data-route="workspace"] .control-pad .jog-controls .btn').prop('disabled', !canClick);
-    $('[data-route="workspace"] .control-pad .form-control').prop('disabled', !canClick);
-    $('[data-route="workspace"] .mdi .btn').prop('disabled', !canClick);
-    $('[data-route="workspace"] .axis-position .btn').prop('disabled', !canClick);
-    $('[data-route="workspace"] .axis-position .position').prop('disabled', !canClick);
+var rightButtonHandler;
+setRightButton = function(isEnabled, color, text, click) {
+    setButton('.btn-pause', isEnabled, color, text);
+    rightButtonHandler = click;
+}
+cnc.doRightButton = function() {
+    if (rightButtonHandler) {
+        rightButtonHandler();
+    }
+}
 
-    $('[data-route="workspace"] .nav-panel .btn-start').prop('disabled', !canStart);
-    $('[data-route="workspace"] .nav-panel .btn-start').prop('style').backgroundColor = canStart ? '#86f686' : '#f6f6f6';
-    $('[data-route="workspace"] .nav-panel .btn-pause').prop('disabled', !canPause);
-    $('[data-route="workspace"] .nav-panel .btn-pause').prop('style').backgroundColor = canPause ? '#f68686' : '#f6f6f6';
-    $('[data-route="workspace"] .nav-panel .btn-resume').prop('disabled', !canResume);
-    $('[data-route="workspace"] .nav-panel .btn-resume').prop('style').backgroundColor = canResume ? '#86f686' : '#f6f6f6';
 
-    $('[data-route="workspace"] .nav-panel .btn-stop').prop('disabled', !canStop);
-    $('[data-route="workspace"] .nav-panel .btn-stop').prop('style').backgroundColor = canStop ? '#f64646' : '#f6f6f6';
+cnc.updateView = function() {
+    // if (cnc.filename == '') {
+    //	canStart = false;
+    //}
+
+    var cannotClick = machineWorkflow != MACHINE_IDLE;
+    $('[data-route="workspace"] .control-pad .jog-controls .btn').prop('disabled', cannotClick);
+    $('[data-route="workspace"] .control-pad .form-control').prop('disabled', cannotClick);
+    $('[data-route="workspace"] .mdi .btn').prop('disabled', cannotClick);
+    $('[data-route="workspace"] .axis-position .btn').prop('disabled', cannotClick);
+    $('[data-route="workspace"] .axis-position .position').prop('disabled', cannotClick);
+
+    var green = '#86f686';
+    var red = '#f64646';
+    var gray = '#f6f6f6';
+    switch (machineWorkflow) {
+    case MACHINE_STALL:
+        setLeftButton(true, gray, 'Start', null);
+        setRightButton(false, gray, 'Pause', null);
+        break;
+    case MACHINE_IDLE:
+        if (cnc.filename != '') {
+            // A GCode file is ready to go
+            setLeftButton(true, green, 'Start', runGCode);
+            setRightButton(false, gray, 'Pause', null);
+        } else {
+            // Can't start because no GCode to run
+            setLeftButton(false, gray, 'Start', null);
+            setRightButton(false, gray, 'Pause', null);
+        }
+        break;
+    case MACHINE_HOLD:
+        setLeftButton(true, green, 'Resume', resumeGCode);
+        setRightButton(true, red, 'Stop', stopGCode);
+        break;
+    case MACHINE_RUN:
+        setLeftButton(false, gray, 'Start', null);
+        setRightButton(true, red, 'Pause', pauseGCode);
+        break;
+    }
 
     if (spindleSpeed) {
         var spindleText = 'Off';
@@ -547,11 +659,15 @@ cnc.updateView = function() {
     }
 
     $('[data-route="workspace"] [data-name="wpos-label"]').text(wcs);
-    if (canPause) {
+    if (machineWorkflow == MACHINE_RUN) {
         $('[data-route="workspace"] [data-name="active-state"]').text('Vel ' + velocity.toFixed(2));
     } else {
         stateText = stateName == 'Error' ? "Error: " + errorMessage : stateName;
         $('[data-route="workspace"] [data-name="active-state"]').text(stateText);
+    }
+    if (machineWorkflow == MACHINE_RUN || machineWorkflow == MACHINE_HOLD) {
+        $('[data-route="workspace"] [id="line"]').text(receivedLines);
+        scrollToLine(receivedLines);
     }
     $('[data-route="workspace"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="workspace"] [id="wpos-y"]').prop('value', wpos.y);
@@ -566,7 +682,7 @@ cnc.updateView = function() {
 controller.on('gcode:load', function(name, gcode) {
     cnc.showGCode(name, gcode);
     if (probing) {
-	cnc.runGCode();
+	runGCode();
     }
 });
 
@@ -648,7 +764,6 @@ cnc.getFileList = function() {
         var selected = cnc.filename.split('/').slice(-1)[0];
         if (selected == '')
             selected = legend;
-        console.log("sel " + selected);
         $('[data-route="workspace"] select[data-name="select-file"]').val(selected);
     }, "json");
 }
@@ -658,12 +773,12 @@ cnc.sendFeedOverride =function(deltaPercent) {
 }
 
 cnc.showGCode = function(name, gcode) {
-    var gcodeLoaded = gcode != '';
-    if (!gcodeLoaded) {
+    gCodeLoaded = gcode != '';
+    if (!gCodeLoaded) {
 	gcode = "(No GCode loaded)";
     }
-    $('[data-route="workspace"] .nav-panel .btn-start').prop('disabled', !gcodeLoaded);
-    $('[data-route="workspace"] .nav-panel .btn-start').prop('style').backgroundColor = gcodeLoaded ? '#86f686' : '#f6f6f6';
+    // $('[data-route="workspace"] .nav-panel .btn-start').prop('disabled', !gcodeLoaded);
+    // $('[data-route="workspace"] .nav-panel .btn-start').prop('style').backgroundColor = gcodeLoaded ? '#86f686' : '#f6f6f6';
 
     cnc.filename = name;
     if (name != "") {
@@ -675,6 +790,9 @@ cnc.showGCode = function(name, gcode) {
     }
     $('[data-route="workspace"] [id="gcode"]').text(gcode);
     root.displayer.showToolpath(gcode);
+    if (machineWorkflow != MACHINE_STALL) {
+        cnc.updateView();
+    }
 }
 
 cnc.getGCode = function() {
@@ -704,16 +822,32 @@ cnc.loadGCode = function() {
 
 $('[data-route="workspace"] select[data-name="select-file"]').change(cnc.loadGCode);
 
-cnc.runGCode = function() {
+function scrollToLine(lineNumber) {
+  var gCodeLines = $('[data-route="workspace"] [id="gcode"]');
+  var lineHeight = parseInt(gCodeLines.css('line-height'));
+  gCodeLines.scrollTop((lineNumber-2) * lineHeight);
+}
+
+runGCode = function() {
     cnc.click();
     running = true;
     cnc.controller.command('gcode:start')
     startTime = new Date().getTime();
 }
 
-cnc.stopGCode = function() {
+pauseGCode = function() {
     cnc.click();
-    userStopped = true;
+    cnc.controller.command('gcode:pause');
+}
+
+resumeGCode = function() {
+    cnc.click();
+    cnc.controller.command('gcode:resume');
+}
+
+stopGCode = function() {
+    cnc.click();
+    userStopRequested = true;
     cnc.controller.command('gcode:stop', { force: true })
 }
 

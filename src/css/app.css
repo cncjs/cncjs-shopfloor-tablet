@@ -11,9 +11,6 @@
 [data-route="workspace"] .btn[disabled] {
   opacity: .4;
 }
-[data-route="workspace"] .btn-start[disabled] {
-  opacity: 1;
-}
 [data-route="workspace"] .control-pad .form-control[disabled] {
   opacity: .4;
 }
