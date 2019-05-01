@@ -24,7 +24,11 @@ var errorMessage;
 var receivedLines = 0;
 var gCodeLoaded = false;
 var machineWorkflow = MACHINE_STALL;
-var stateText, wpos, mpos, velocity, spindleDirection, spindleSpeed, wcs, stateName;
+var wpos, mpos;
+var velocity = 0;
+var spindleDirection, spindleSpeed, stateName;
+var elapsedTime = 0;
+var modal = {};
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -129,7 +133,14 @@ cnc.loadFile = function() {
 
 cnc.goAxis = function(axis, coordinate) {
     cnc.click();
-    controller.command('gcode', 'G0 ' + axis + coordinate);
+    if (modal.distance == 'G90') {
+	controller.command('gcode', 'G0 ' + axis + coordinate);
+    } else {
+	controller.command('gcode', 'G90');
+	controller.command('gcode', 'G0 ' + axis + coordinate);
+	controller.command('gcode', 'G91');
+    }
+    controller.command('gcode', '%wait');
 }
 
 cnc.moveAxis = function(axis, field) {
@@ -146,6 +157,7 @@ cnc.MDI = function(field) {
     cnc.click();
     mdicmd = document.getElementById(field).value;
     controller.command('gcode', mdicmd);
+    controller.command('gcode', '%wait');
 }
 
 cnc.zeroAxis = function(axis) {
@@ -155,7 +167,7 @@ cnc.zeroAxis = function(axis) {
 
 cnc.toggleUnits = function() {
     cnc.click();
-    if (document.getElementById('units').innerText == 'mm') {
+    if (modal.units == 'G21') {
 	controller.command('gcode', 'G20');
     } else {
 	controller.command('gcode', 'G21');
@@ -177,15 +189,28 @@ cnc.sendMove = function(cmd) {
         var s = _.map(params, function(value, letter) {
             return '' + letter + value;
         }).join(' ');
-        controller.command('gcode', 'G91 G0 ' + s); // relative distance
-        controller.command('gcode', 'G90'); // absolute distance
+	if (modal.distance == 'G90') {
+            controller.command('gcode', 'G91'); // relative distance
+            controller.command('gcode', 'G0 ' + s);
+            controller.command('gcode', 'G90'); // absolute distance
+	} else {
+            controller.command('gcode', 'G0 ' + s);
+	}
+	controller.command('gcode', '%wait');
     };
     var move = function(params) {
         params = params || {};
         var s = _.map(params, function(value, letter) {
             return '' + letter + value;
         }).join(' ');
-        controller.command('gcode', 'G0 ' + s);
+	if (modal.distance == 'G90') {
+            controller.command('gcode', 'G0 ' + s);
+	} else {
+            controller.command('gcode', 'G90'); // absolute distance
+            controller.command('gcode', 'G0 ' + s);
+            controller.command('gcode', 'G91'); // relative distance
+	}
+	controller.command('gcode', '%wait');
     };
     var distance = Number($('[data-route="workspace"] select[data-name="select-distance"]').val()) || 0;
 
@@ -244,10 +269,27 @@ cnc.sendMove = function(cmd) {
 };
 
 controller.on('serialport:read', function(data) {
-//    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #222; background: #F5F5F5';
-//    console.log('%cR%c', style, '', data);
     if (data.r) {
 	cnc.line++;
+    }
+    switch (cnc.controllerType) {
+    case 'Marlin':
+	if (data.startsWith('echo:') && machineWorkflow == MACHINE_IDLE) {
+	    stateName = data.substring(5);
+	    machineWorkflow = MACHINE_STALL;  // Disables Start button
+	} else if (data.startsWith('ok') && machineWorkflow == MACHINE_STALL) {
+	    stateName = 'Idle';
+	    machineWorkflow = MACHINE_IDLE;
+	}
+	cnc.updateView();
+	break;
+    case 'Smoothie':
+    case 'Grbl':
+	if (data.startsWith('error:')) {
+	    stateName = data;
+	}
+	cnc.updateView();
+	break;
     }
 });
 
@@ -270,6 +312,10 @@ controller.on('serialport:write', function(data) {
             grblReportingUnits = Number(cmd[1]) || 0;
         }
     }
+});
+
+controller.on('feeder:status', function(status) {
+    // console.log('feeder', status);
 });
 
 controller.on('sender:status', function(status) {
@@ -296,6 +342,9 @@ controller.on('sender:status', function(status) {
             cnc.senderHoldReason = "";
         }
     }
+    if (cnc.controllerType == 'Marlin') {
+	cnc.updateView();
+    }
 });
 
 // This is a copy of the Grbl:state report that came in before the Grbl:settings report
@@ -320,7 +369,9 @@ function renderGrblState(data) {
     }
 
     var parserstate = data.parserstate || {};
-    var modal = parserstate.modal || {};
+    if (parserstate.modal) {
+	Object.assign(modal, parserstate.modal);
+    }
 
     // Unit conversion factor - depends on both $13 setting and parser units
     var factor = 1.0;
@@ -329,12 +380,10 @@ function renderGrblState(data) {
 
     switch (modal.units) {
     case 'G20':
-	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
         factor = grblReportingUnits === 0 ? 1/25.4 : 1.0 ;
         break;
     case 'G21':
-	$('[data-route="workspace"] [id="units"]').text('mm');
         digits = 3;
         factor = grblReportingUnits === 0 ? 1.0 : 25.4;
         break;
@@ -348,10 +397,14 @@ function renderGrblState(data) {
     wpos.y = (wpos.y * factor).toFixed(digits);
     wpos.z = (wpos.z * factor).toFixed(digits);
 
-    velocity = parserstate.feedrate;
+    //velocity = (parserstate.feedrate * factor).toFixed(digits-3);
+    if (status.feedrate) {
+	velocity = (status.feedrate * factor).toFixed(digits-3);
+    } else if (parserstate.feedrate) {
+	velocity = (parserstate.feedrate * factor).toFixed(digits-3);
+    }
     spindleSpeed = parserstate.spindle;
     spindleDirection = modal.spindle;
-    wcs = modal.wcs;
 
     feedOverride = status.ov[0]/100.0;
     rapidOverride = status.ov[1]/100.0;
@@ -384,8 +437,9 @@ controller.on('Grbl:settings', function(data) {
     }
 });
 
-// Smoothie state and GRBL state are identical except for the overrides.
+// Smoothie state and GRBL state are similar except for the overrides.
 // GRBL has ov: []  while Smootie has ovF and ovS.
+// Smoothie also has currentFeedrate and feedrateOverride
 
 controller.on('Smoothie:state', function(data) {
     var status = data.status || {};
@@ -403,7 +457,9 @@ controller.on('Smoothie:state', function(data) {
     }
 
     var parserstate = data.parserstate || {};
-    var modal = parserstate.modal || {};
+    if (parserstate.modal) {
+	Object.assign(modal, parserstate.modal);
+    };
 
     // Number of postdecimal digits to display; 3 for in, 4 for mm
     var digits = 4;
@@ -411,11 +467,9 @@ controller.on('Smoothie:state', function(data) {
     // Smoothie reports both mpos and wpos in the current units
     switch (modal.units) {
     case 'G20':
-	$('[data-route="workspace"] [id="units"]').text('Inch');
         digits = 4;
         break;
     case 'G21':
-	$('[data-route="workspace"] [id="units"]').text('mm');
         digits = 3;
         break;
     }
@@ -428,10 +482,16 @@ controller.on('Smoothie:state', function(data) {
     wpos.y = wpos.y.toFixed(digits);
     wpos.z = wpos.z.toFixed(digits);
 
-    velocity = parserstate.feedrate;
+    // The following feedrate code is untested
+    if (status.currentFeedrate) {
+	velocity = status.currentFeedrate;
+    } else if (status.feedrate) {
+	velocity = status.currentFeedrate * status.feedrateOverride/100.0;
+    } else {
+	velocity = parserstate.feedrate;
+    }
     spindleSpeed = parserstate.spindle;
     spindleDirection = modal.spindle;
-    wcs = modal.wcs;
 
     spindleOverride = status.ovF/100.0;
     rapidOverride = 1.0;
@@ -440,13 +500,53 @@ controller.on('Smoothie:state', function(data) {
     cnc.updateView();
 });
 
+controller.on('Marlin:state', function(data) {
+    var mlabel = 'MPos:';
+    if (data.modal) {
+	Object.assign(modal, data.modal);
+    }
+    switch (modal.units) {
+    case 'G20':
+	mlabel = 'MPos (in):';
+	break;
+    case 'G21':
+	mlabel = 'MPos (mm):';
+	break;
+    }
+    velocity = data.feedrate;
+    var mpos = {}
+    mpos.x = Number(data.pos.x).toFixed(3);
+    mpos.y = Number(data.pos.y).toFixed(3);
+    mpos.z = Number(data.pos.z).toFixed(3);
+
+    // Marlin does not have a stalled state and it
+    // does not report its actual state, so we move
+    // to idle state automatically.
+    if (!stateName || stateName == 'NoConnect') {
+	machineWorkflow = MACHINE_IDLE;
+	stateName = "Idle";
+    }
+
+    wpos = mpos;
+    cnc.updateView();
+
+    extruderTemperature = Number(data.extruder.deg || 0).toFixed(0);
+    extruderTarget = Number(data.extruder.degTarget || 0).toFixed(0);
+    $('[data-route="workspace"] [id="extruder-temperature"]').html(extruderTemperature + '&deg;C / ' + extruderTarget + "&deg;C");
+});
+
 controller.on('TinyG:state', function(data) {
     var sr = data.sr || {};
     var machineState = sr.machineState;
     var feedrate = sr.feedrate;
+
+    if (sr.modal) {
+	Object.assign(modal, sr.modal);
+    }
+
     velocity = sr.velocity || 0;
     spindleSpeed = sr.sps;
-    spindleDirection = sr.modal.spindle;
+    spindleDirection = modal.spindle;
     stateName = {
         0: 'Init',
         1: 'Ready',
@@ -464,6 +564,7 @@ controller.on('TinyG:state', function(data) {
     if (machineState == "") {
 	return;
     }
+
     mpos = sr.mpos;
     wpos = sr.wpos;
     var INIT = 0, READY = 1, ALARM = 2, STOP = 3, END = 4, RUN = 5,
@@ -485,6 +586,7 @@ controller.on('TinyG:state', function(data) {
 	    running = false;
 	    stateName = 'UserStop';
 	} else {
+	    // Automatic stop at end of program or sequence
 	    if (running) {
 		// M0 etc
 		machineWorkflow = MACHINE_HOLD;
@@ -518,9 +620,8 @@ controller.on('TinyG:state', function(data) {
     }
     oldState = machineState;
 
-    switch (sr.modal.units) {
+    switch (modal.units) {
     case 'G20':
-	$('[data-route="workspace"] [id="units"]').text('Inch');
         // TinyG reports machine coordinates in mm regardless of the in/mm mode
         mpos.x = (mpos.x / 25.4).toFixed(4);
         mpos.y = (mpos.y / 25.4).toFixed(4);
@@ -531,7 +632,6 @@ controller.on('TinyG:state', function(data) {
         wpos.z = Number(wpos.z).toFixed(4);
         break;
     case 'G21':
-	$('[data-route="workspace"] [id="units"]').text('mm');
         mpos.x = Number(mpos.x).toFixed(3);
         mpos.y = Number(mpos.y).toFixed(3);
         mpos.z = Number(mpos.z).toFixed(3);
@@ -539,7 +639,6 @@ controller.on('TinyG:state', function(data) {
         wpos.y = Number(wpos.y).toFixed(3);
         wpos.z = Number(wpos.z).toFixed(3);
     }
-    wcs = sr.modal.wcs;
     if (sr.line && machineState != HOLD) {
         receivedLines = sr.line;
     }
@@ -590,12 +689,14 @@ cnc.updateView = function() {
     //	canStart = false;
     //}
 
-    var cannotClick = machineWorkflow != MACHINE_IDLE;
+    var cannotClick = machineWorkflow > MACHINE_IDLE;
     $('[data-route="workspace"] .control-pad .jog-controls .btn').prop('disabled', cannotClick);
     $('[data-route="workspace"] .control-pad .form-control').prop('disabled', cannotClick);
     $('[data-route="workspace"] .mdi .btn').prop('disabled', cannotClick);
     $('[data-route="workspace"] .axis-position .btn').prop('disabled', cannotClick);
     $('[data-route="workspace"] .axis-position .position').prop('disabled', cannotClick);
+
+    $('[data-route="workspace"] [id="units"]').text(units == 'G21' ? 'mm' : 'Inch');
 
     var green = '#86f686';
     var red = '#f64646';
@@ -606,7 +707,7 @@ cnc.updateView = function() {
         setRightButton(false, gray, 'Pause', null);
         break;
     case MACHINE_IDLE:
-        if (cnc.filename != '') {
+        if (gCodeLoaded) {
             // A GCode file is ready to go
             setLeftButton(true, green, 'Start', runGCode);
             setRightButton(false, gray, 'Pause', null);
@@ -638,6 +739,7 @@ cnc.updateView = function() {
     }
     if (running) {
 	var elapsed = new Date().getTime() - startTime;
+	var elapsed = Math.max(elapsedTime, elapsed);
 	if (elapsed < 0)
 	    elapsed = 0;
 	var seconds = Math.floor(elapsed / 1000);
@@ -651,11 +753,19 @@ cnc.updateView = function() {
         $('[data-route="workspace"] [id="runtime"]').text(runTime);
     }
 
-    $('[data-route="workspace"] [data-name="wpos-label"]').text(wcs);
+    $('[data-route="workspace"] [data-name="wpos-label"]').text(modal.wcs);
+    var distanceText = modal.distance == 'G90'
+	? modal.distance
+	: "<div style='color:red'>" + modal.distance + "</div>";
+    $('[data-route="workspace"] [id="distance"]').html(distanceText);
+
     if (machineWorkflow == MACHINE_RUN) {
-        $('[data-route="workspace"] [data-name="active-state"]').text('Vel ' + velocity.toFixed(2));
+	var rateText = units == 'G21'
+	    ? Number(velocity).toFixed(0) + ' mm/min'
+	    : Number(velocity).toFixed(2) + ' in/min';
+        $('[data-route="workspace"] [data-name="active-state"]').text(rateText);
     } else {
-        stateText = stateName == 'Error' ? "Error: " + errorMessage : stateName;
+        var stateText = stateName == 'Error' ? "Error: " + errorMessage : stateName;
         $('[data-route="workspace"] [data-name="active-state"]').text(stateText);
     }
     if (machineWorkflow == MACHINE_RUN || machineWorkflow == MACHINE_HOLD) {
@@ -665,7 +775,7 @@ cnc.updateView = function() {
     $('[data-route="workspace"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="workspace"] [id="wpos-y"]').prop('value', wpos.y);
     $('[data-route="workspace"] [id="wpos-z"]').prop('value', wpos.z);
-    if (document.getElementById('units').innerText == 'mm') {
+    if (units == 'G21') {
 	root.displayer.reDrawTool(wpos.x, wpos.y);
     } else {
 	root.displayer.reDrawTool(wpos.x * 25.4, wpos.y * 25.4);
@@ -694,6 +804,14 @@ controller.on('workflow:state', function(state) {
     // to be synchronized to the machine state, so user
     // interactions appear to control the machine directly,
     // without long queue delays.
+    if (cnc.controllerType == 'Marlin') {
+	switch(state) {
+	case 'idle': machineWorkflow = MACHINE_IDLE; running = false; break;
+	case 'paused': machineWorkflow = MACHINE_HOLD; break;
+	case 'running': machineWorkflow = MACHINE_RUN; break;
+	}
+	cnc.updateView();
+    }
 });
 
 controller.listAllPorts();

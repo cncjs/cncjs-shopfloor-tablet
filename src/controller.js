@@ -58,6 +58,7 @@ socket.on('close', function() {
 var GRBL = 'Grbl';
 var SMOOTHIE = 'Smoothie';
 var TINYG = 'TinyG';
+var MARLIN = 'Marlin';
 
 // Workflow State
 var WORKFLOW_STATE_RUNNING = 'running';
@@ -93,7 +94,9 @@ var CNCController = function() {
         'Smoothie:state': [],
         'Smoothie:settings': [],
         'TinyG:state': [],
-        'TinyG:settings': []
+        'TinyG:settings': [],
+        'Marlin:state': [],
+        'Marlin:settings': []
     };
 
     this.port = '';
@@ -145,6 +148,14 @@ var CNCController = function() {
                 this.type = TINYG;
                 this.settings = args[0];
             }
+	    if (eventName === 'Marlin:state') {
+		this.type = MARLIN;
+		this.state = args[0];
+	    }
+	    if (eventName === 'Marlin:settings') {
+		this.type = MARLIN;
+		this.settings = args[0];
+	    }
             if (eventName === 'feeder:status') {
                 this.status = args[0];
             }
@@ -192,7 +203,9 @@ CNCController.prototype.openPort = function(port, options) {
 CNCController.prototype.closePort = function(port) {
     port = port || this.port;
 
-    socket.emit('close', port);
+    if (port) {
+	socket.emit('close', port);
+    }
 
     this.type = '';
     this.port = '';
