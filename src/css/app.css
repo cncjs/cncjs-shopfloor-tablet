@@ -9,7 +9,7 @@
   font-size: 14px;
 }
 [data-route="workspace"] .btn[disabled] {
-  opacity: .4;
+  opacity: .6;
 }
 [data-route="workspace"] .control-pad .form-control[disabled] {
   opacity: .4;

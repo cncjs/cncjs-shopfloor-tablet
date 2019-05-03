@@ -24,7 +24,7 @@ var errorMessage;
 var receivedLines = 0;
 var gCodeLoaded = false;
 var machineWorkflow = MACHINE_STALL;
-var wpos, mpos;
+var wpos = {}, mpos = {};
 var velocity = 0;
 var spindleDirection, spindleSpeed, stateName;
 var elapsedTime = 0;
@@ -274,12 +274,16 @@ controller.on('serialport:read', function(data) {
     }
     switch (cnc.controllerType) {
     case 'Marlin':
-	if (data.startsWith('echo:') && machineWorkflow == MACHINE_IDLE) {
+	if (data.startsWith('echo:')) {
 	    stateName = data.substring(5);
-	    machineWorkflow = MACHINE_STALL;  // Disables Start button
+	    if (machineWorkflow == MACHINE_IDLE) {
+		machineWorkflow = MACHINE_STALL;  // Disables Start button
+	    }
 	} else if (data.startsWith('ok') && machineWorkflow == MACHINE_STALL) {
 	    stateName = 'Idle';
 	    machineWorkflow = MACHINE_IDLE;
+	} else if (data.startsWith('Error:')) {
+	    stateName = data;
 	}
 	cnc.updateView();
 	break;
@@ -375,33 +379,28 @@ function renderGrblState(data) {
 
     // Unit conversion factor - depends on both $13 setting and parser units
     var factor = 1.0;
-    // Number of postdecimal digits to display; 3 for in, 4 for mm
-    var digits = 4;
 
     switch (modal.units) {
     case 'G20':
-        digits = 4;
         factor = grblReportingUnits === 0 ? 1/25.4 : 1.0 ;
         break;
     case 'G21':
-        digits = 3;
         factor = grblReportingUnits === 0 ? 1.0 : 25.4;
         break;
     }
 
-    mpos.x = (mpos.x * factor).toFixed(digits);
-    mpos.y = (mpos.y * factor).toFixed(digits);
-    mpos.z = (mpos.z * factor).toFixed(digits);
+    mpos.x *= factor;
+    mpos.y *= factor;
+    mpos.z *= factor;
 
-    wpos.x = (wpos.x * factor).toFixed(digits);
-    wpos.y = (wpos.y * factor).toFixed(digits);
-    wpos.z = (wpos.z * factor).toFixed(digits);
+    wpos.x *= factor;
+    wpos.y *= factor;
+    wpos.z *= factor;
 
-    //velocity = (parserstate.feedrate * factor).toFixed(digits-3);
     if (status.feedrate) {
-	velocity = (status.feedrate * factor).toFixed(digits-3);
+	velocity = status.feedrate * factor;
     } else if (parserstate.feedrate) {
-	velocity = (parserstate.feedrate * factor).toFixed(digits-3);
+	velocity = parserstate.feedrate * factor;
     }
     spindleSpeed = parserstate.spindle;
     spindleDirection = modal.spindle;
@@ -461,26 +460,8 @@ controller.on('Smoothie:state', function(data) {
 	Object.assign(modal, parserstate.modal);
     };
 
-    // Number of postdecimal digits to display; 3 for in, 4 for mm
-    var digits = 4;
-
     // Smoothie reports both mpos and wpos in the current units
-    switch (modal.units) {
-    case 'G20':
-        digits = 4;
-        break;
-    case 'G21':
-        digits = 3;
-        break;
-    }
-
-    mpos.x = mpos.x.toFixed(digits);
-    mpos.y = mpos.y.toFixed(digits);
-    mpos.z = mpos.z.toFixed(digits);
-
-    wpos.x = wpos.x.toFixed(digits);
-    wpos.y = wpos.y.toFixed(digits);
-    wpos.z = wpos.z.toFixed(digits);
+    // so no scaling is necessary
 
     // The following feedrate code is untested
     if (status.currentFeedrate) {
@@ -501,23 +482,11 @@ controller.on('Smoothie:state', function(data) {
 });
 
 controller.on('Marlin:state', function(data) {
-    var mlabel = 'MPos:';
     if (data.modal) {
 	Object.assign(modal, data.modal);
     }
-    switch (modal.units) {
-    case 'G20':
-	mlabel = 'MPos (in):';
-	break;
-    case 'G21':
-	mlabel = 'MPos (mm):';
-	break;
-    }
     velocity = data.feedrate;
-    var mpos = {}
-    mpos.x = Number(data.pos.x).toFixed(3);
-    mpos.y = Number(data.pos.y).toFixed(3);
-    mpos.z = Number(data.pos.z).toFixed(3);
+    Object.assign(mpos, data.pos);
 
     // Marlin does not have a stalled state and it
     // does not report its actual state, so we move
@@ -623,21 +592,10 @@ controller.on('TinyG:state', function(data) {
     switch (modal.units) {
     case 'G20':
         // TinyG reports machine coordinates in mm regardless of the in/mm mode
-        mpos.x = (mpos.x / 25.4).toFixed(4);
-        mpos.y = (mpos.y / 25.4).toFixed(4);
-        mpos.z = (mpos.z / 25.4).toFixed(4);
-        // TinyG reports work coordinates according to the in/mm mode
-        wpos.x = Number(wpos.x).toFixed(4);
-        wpos.y = Number(wpos.y).toFixed(4);
-        wpos.z = Number(wpos.z).toFixed(4);
+	mpos.x /= 25.4;
+	mpos.y /= 25.4;
+	mpos.z /= 25.4;
         break;
-    case 'G21':
-        mpos.x = Number(mpos.x).toFixed(3);
-        mpos.y = Number(mpos.y).toFixed(3);
-        mpos.z = Number(mpos.z).toFixed(3);
-        wpos.x = Number(wpos.x).toFixed(3);
-        wpos.y = Number(wpos.y).toFixed(3);
-        wpos.z = Number(wpos.z).toFixed(3);
     }
     if (sr.line && machineState != HOLD) {
         receivedLines = sr.line;
@@ -696,7 +654,8 @@ cnc.updateView = function() {
     $('[data-route="workspace"] .axis-position .btn').prop('disabled', cannotClick);
     $('[data-route="workspace"] .axis-position .position').prop('disabled', cannotClick);
 
-    $('[data-route="workspace"] [id="units"]').text(units == 'G21' ? 'mm' : 'Inch');
+    $('[data-route="workspace"] [id="units"]').text(modal.units == 'G21' ? 'mm' : 'Inch');
+    $('[data-route="workspace"] [id="units"]').prop('disabled', cnc.controllerType == 'Marlin');
 
     var green = '#86f686';
     var red = '#f64646';
@@ -760,7 +719,7 @@ cnc.updateView = function() {
     $('[data-route="workspace"] [id="distance"]').html(distanceText);
 
     if (machineWorkflow == MACHINE_RUN) {
-	var rateText = units == 'G21'
+	var rateText = modal.units == 'G21'
 	    ? Number(velocity).toFixed(0) + ' mm/min'
 	    : Number(velocity).toFixed(2) + ' in/min';
         $('[data-route="workspace"] [data-name="active-state"]').text(rateText);
@@ -772,10 +731,18 @@ cnc.updateView = function() {
         $('[data-route="workspace"] [id="line"]').text(receivedLines);
         scrollToLine(receivedLines);
     }
+    var digits = modal.units == 'G20' ? 4 : 3;
+    mpos.x = Number(mpos.x).toFixed(digits);
+    mpos.y = Number(mpos.y).toFixed(digits);
+    mpos.z = Number(mpos.z).toFixed(digits);
+    wpos.x = Number(wpos.x).toFixed(digits);
+    wpos.y = Number(wpos.y).toFixed(digits);
+    wpos.z = Number(wpos.z).toFixed(digits);
+
     $('[data-route="workspace"] [id="wpos-x"]').prop('value', wpos.x);
     $('[data-route="workspace"] [id="wpos-y"]').prop('value', wpos.y);
     $('[data-route="workspace"] [id="wpos-z"]').prop('value', wpos.z);
-    if (units == 'G21') {
+    if (modal.units == 'G21') {
 	root.displayer.reDrawTool(wpos.x, wpos.y);
     } else {
 	root.displayer.reDrawTool(wpos.x * 25.4, wpos.y * 25.4);
@@ -919,11 +886,9 @@ cnc.loadGCode = function() {
     if (filename === '..') {
         watchPath = watchPath.slice(0, -1).replace(/[^/]*$/,'');
         cnc.filename = '';
-        console.log(watchPath);
         cnc.getFileList();
     } else if (filename.endsWith('/')) {
         watchPath = watchPath + filename;
-        console.log(watchPath);
         cnc.filename = '';
         cnc.getFileList();
     } else {
