@@ -958,4 +958,36 @@ $('[data-route="workspace"] [data-name="btn-dropdown"]').dropdown();
 $('[data-route="workspace"] [data-name="active-state"]').text('NoConnect');
 $('[data-route="workspace"] select[data-name="select-distance"]').val('1');
 
+clickon = function(name) {
+    $('[data-route="workspace"] .btn').removeClass('active');
+    var button = $('[data-route="workspace"] ' + name);
+    button.addClass('active');
+    button.trigger('click');
+}
+$(document).on('keydown', function(event){
+    switch(event.key) {
+    case "ArrowRight":
+	clickon('.jog-x-plus');
+	break;
+    case "ArrowLeft":
+	clickon('.jog-x-minus');
+	break;
+    case "ArrowUp":
+	clickon('.jog-y-plus');
+	break;
+    case "ArrowDown":
+	clickon('.jog-y-minus');
+	break;
+    case "PageUp":
+	clickon('.jog-z-plus');
+	break;
+    case "ArrowDown":
+	clickon('.jog-z-minus');
+	break;
+    case "Escape":
+    case "Pause":
+	clickon('.btn-pause');
+	break;
+    }
+});
 });
