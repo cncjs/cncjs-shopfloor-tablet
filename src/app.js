@@ -958,36 +958,86 @@ $('[data-route="workspace"] [data-name="btn-dropdown"]').dropdown();
 $('[data-route="workspace"] [data-name="active-state"]').text('NoConnect');
 $('[data-route="workspace"] select[data-name="select-distance"]').val('1');
 
+cycleDistance = function(up) {
+    var selector = $('[data-route="workspace"] select[data-name="select-distance"]');
+    var thisDistance = $('[data-route="workspace"] select[data-name="select-distance"] option:selected');
+    var that = up ? thisDistance.next() : thisDistance.prev();
+    var thatText = that.text();
+    if (thatText) {
+	cnc.click();
+	selector.val(thatText);
+    }
+}
 clickon = function(name) {
     $('[data-route="workspace"] .btn').removeClass('active');
     var button = $('[data-route="workspace"] ' + name);
     button.addClass('active');
     button.trigger('click');
 }
-$(document).on('keydown', function(event){
-    switch(event.key) {
-    case "ArrowRight":
-	clickon('.jog-x-plus');
-	break;
-    case "ArrowLeft":
-	clickon('.jog-x-minus');
-	break;
-    case "ArrowUp":
-	clickon('.jog-y-plus');
-	break;
-    case "ArrowDown":
-	clickon('.jog-y-minus');
-	break;
-    case "PageUp":
-	clickon('.jog-z-plus');
-	break;
-    case "ArrowDown":
-	clickon('.jog-z-minus');
-	break;
-    case "Escape":
-    case "Pause":
-	clickon('.btn-pause');
-	break;
+var shiftDown = false;
+var ctrlDown = false;
+jogClick = function(name) {
+    if (shiftDown || ctrlDown) {
+	var distanceElement = $('[data-route="workspace"] select[data-name="select-distance"]');
+	var distance = distanceElement.val();
+	var factor = shiftDown ? 10 : 0.1;
+	distanceElement.val(distance * factor);
+	clickon(name);
+	distanceElement.val(distance);
+    } else {
+	clickon(name);
+    }
+}
+$(document).on('keydown keyup', function(event){
+    if (event.type === 'keydown') {
+	switch(event.key) {
+	case "ArrowRight":
+	    jogClick('.jog-x-plus');
+	    break;
+	case "ArrowLeft":
+	    jogClick('.jog-x-minus');
+	    break;
+	case "ArrowUp":
+	    jogClick('.jog-y-plus');
+	    break;
+	case "ArrowDown":
+	    jogClick('.jog-y-minus');
+	    break;
+	case "PageUp":
+	    jogClick('.jog-z-plus');
+	    break;
+	case "ArrowDown":
+	    jogClick('.jog-z-minus');
+	    break;
+	case "Escape":
+	case "Pause":
+	    clickon('.btn-pause');
+	    break;
+	case "Shift":
+	    shiftDown = true;
+	    break;
+	case "Control":
+	    ctrlDown = true;
+	    break;
+	case "=": // = is unshifted + on US keyboards
+	case "+":
+	    cycleDistance(true);
+	    break;
+	case '-':
+	    cycleDistance(false);
+	    break;
+	default:
+	    console.log(event);
+	}
+    } else if (event.type === 'keyup') {
+	switch(event.key) {
+	case "Shift":
+	    shiftDown = false;
+	    break;
+	case "Control":
+	    ctrlDown = false;
+	    break;
+	}
     }
 });
 });
