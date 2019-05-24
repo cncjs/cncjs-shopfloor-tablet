@@ -1006,7 +1006,7 @@ $(document).on('keydown keyup', function(event){
 	case "PageUp":
 	    jogClick('.jog-z-plus');
 	    break;
-	case "ArrowDown":
+	case "PageDown":
 	    jogClick('.jog-z-minus');
 	    break;
 	case "Escape":
