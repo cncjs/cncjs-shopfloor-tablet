@@ -140,7 +140,6 @@ cnc.goAxis = function(axis, coordinate) {
 	controller.command('gcode', 'G0 ' + axis + coordinate);
 	controller.command('gcode', 'G91');
     }
-    controller.command('gcode', '%wait');
 }
 
 cnc.moveAxis = function(axis, field) {
@@ -157,7 +156,6 @@ cnc.MDI = function(field) {
     cnc.click();
     mdicmd = document.getElementById(field).value;
     controller.command('gcode', mdicmd);
-    controller.command('gcode', '%wait');
 }
 
 cnc.zeroAxis = function(axis) {
@@ -196,7 +194,6 @@ cnc.sendMove = function(cmd) {
 	} else {
             controller.command('gcode', 'G0 ' + s);
 	}
-	controller.command('gcode', '%wait');
     };
     var move = function(params) {
         params = params || {};
@@ -210,7 +207,6 @@ cnc.sendMove = function(cmd) {
             controller.command('gcode', 'G0 ' + s);
             controller.command('gcode', 'G91'); // relative distance
 	}
-	controller.command('gcode', '%wait');
     };
     var distance = Number($('[data-route="workspace"] select[data-name="select-distance"]').val()) || 0;
 
