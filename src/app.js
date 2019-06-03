@@ -867,7 +867,9 @@ cnc.showGCode = function(name, gcode) {
 	$('[data-route="workspace"] select[data-name="select-file"]')[0][0].selected = true;
     }
     $('[data-route="workspace"] [id="gcode"]').text(gcode);
-    root.displayer.showToolpath(gcode);
+    if (gCodeLoaded) {
+        root.displayer.showToolpath(gcode);
+    }
     if (machineWorkflow != MACHINE_STALL) {
         cnc.updateView();
     }
