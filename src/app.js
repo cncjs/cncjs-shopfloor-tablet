@@ -976,8 +976,9 @@ clickon = function(name) {
 }
 var shiftDown = false;
 var ctrlDown = false;
+var altDown = false;
 jogClick = function(name) {
-    if (shiftDown || ctrlDown) {
+    if (shiftDown || altDown) {
 	var distanceElement = $('[data-route="workspace"] select[data-name="select-distance"]');
 	var distance = distanceElement.val();
 	var factor = shiftDown ? 10 : 0.1;
@@ -993,21 +994,27 @@ $(document).on('keydown keyup', function(event){
 	switch(event.key) {
 	case "ArrowRight":
 	    jogClick('.jog-x-plus');
+            event.preventDefault();
 	    break;
 	case "ArrowLeft":
 	    jogClick('.jog-x-minus');
+            event.preventDefault();
 	    break;
 	case "ArrowUp":
 	    jogClick('.jog-y-plus');
+            event.preventDefault();
 	    break;
 	case "ArrowDown":
 	    jogClick('.jog-y-minus');
+            event.preventDefault();
 	    break;
 	case "PageUp":
 	    jogClick('.jog-z-plus');
+            event.preventDefault();
 	    break;
 	case "PageDown":
 	    jogClick('.jog-z-minus');
+            event.preventDefault();
 	    break;
 	case "Escape":
 	case "Pause":
@@ -1019,12 +1026,17 @@ $(document).on('keydown keyup', function(event){
 	case "Control":
 	    ctrlDown = true;
 	    break;
+	case "Alt":
+	    altDown = true;
+	    break;
 	case "=": // = is unshifted + on US keyboards
 	case "+":
 	    cycleDistance(true);
+            event.preventDefault();
 	    break;
 	case '-':
 	    cycleDistance(false);
+            event.preventDefault();
 	    break;
 	default:
 	    console.log(event);
@@ -1036,6 +1048,9 @@ $(document).on('keydown keyup', function(event){
 	    break;
 	case "Control":
 	    ctrlDown = false;
+	    break;
+	case "Alt":
+	    altDown = false;
 	    break;
 	}
     }
