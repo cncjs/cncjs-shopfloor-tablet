@@ -25,12 +25,15 @@ $(function() {
             y: -Infinity
         }
     };
+    var bboxIsSet = false;
 
     var resetBbox = function() {
         bbox.min.x = Infinity;
         bbox.min.y = Infinity;
         bbox.max.x = -Infinity;
         bbox.max.y = -Infinity;
+        bboxIsSet = false;
+
     }
 
     var formatLimit = function(mm) {
@@ -67,31 +70,49 @@ $(function() {
         tp.stroke();
     }
 
-    var xOffset;
-    var yOffset;
-    var scaler;
+    var xOffset = 0;
+    var yOffset = 0;
+    var scaler = 1;
     var xToPixel = function(x) { return scaler * x + xOffset; }
     var yToPixel = function(y) { return -scaler * y + yOffset; }
 
     var transformCanvas = function() {
+        toolSave = null;
         if (rect == undefined) {
             rect = canvas.parentNode.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
         }
-        var imageWidth = bbox.max.x - bbox.min.x;
-        var imageHeight = bbox.max.y - bbox.min.y;
-        var shrink = 0.90;
-        var inset = 5;
-        var scaleX = (canvas.width - inset*2) / imageWidth;
-        var scaleY = (canvas.height - inset*2) / imageHeight;
-        var minScale = Math.min(scaleX, scaleY);
-        scaler = minScale * shrink;
 
         // Reset the transform and clear the canvas
         tp.setTransform(1,0,0,1,0,0);
         tp.fillStyle = "white";
         tp.fillRect(0, 0, canvas.width, canvas.height);
+
+        var imageWidth;
+        var imageHeight;
+        var inset;
+        if (!bboxIsSet) {
+            imageWidth = canvas.width;
+            imageHeight = canvas.height;
+            inset = 0;
+            scaler = 1;
+            xOffset = 0;
+            yOffset = 0;
+            return;
+        }
+
+        var imageWidth = bbox.max.x - bbox.min.x;
+        var imageHeight = bbox.max.y - bbox.min.y;
+        var shrink = 0.90;
+        inset = 5;
+        var scaleX = (canvas.width - inset*2) / imageWidth;
+        var scaleY = (canvas.height - inset*2) / imageHeight;
+        var minScale = Math.min(scaleX, scaleY);
+
+        scaler = minScale * shrink;
+        xOffset = inset - bbox.min.x * scaler;
+        yOffset = (canvas.height-inset) - bbox.min.y * (-scaler);
 
         // Canvas coordinates of image bounding box top and right
         var imageTop = scaler * imageHeight;
@@ -113,7 +134,6 @@ $(function() {
         tp.textAlign = "right";
         tp.textBaseline = "center";
         tp.fillText(formatLimit(bbox.max.x), inset+imageRight, canvas.height-inset - imageTop/2);
-
         // Transform the path coordinate system so the image fills the canvas
         // with a small inset, and +Y goes upward.
         // The net transform from image space (x,y) to pixel space (x',y') is:
@@ -124,14 +144,11 @@ $(function() {
         // uses pixel coordinates, and there is no standard way to read back the current
         // transform matrix.
 
-        xOffset = inset - bbox.min.x * scaler;
-        yOffset = (canvas.height-inset) - bbox.min.y * (-scaler);
         tp.setTransform(scaler, 0, 0, -scaler, xOffset, yOffset);
 
         tp.lineWidth = 0.5 / scaler;
 
         drawOrigin(imageWidth * 0.04);
-
     }
     var wrappedDegrees = function(radians) {
         var degrees = radians * 180 / Math.PI;
@@ -147,6 +164,7 @@ $(function() {
             bbox.min.y = Math.min(bbox.min.y, start.y, end.y);
             bbox.max.x = Math.max(bbox.max.x, start.x, end.x);
             bbox.max.y = Math.max(bbox.max.y, start.y, end.y);
+            bboxIsSet = true;
         },
         addArcCurve: function(modal, start, end, center) {
             // To determine the precise bounding box of a circular arc we
@@ -260,6 +278,7 @@ $(function() {
 	    bbox.min.y = Math.min(bbox.min.y, minY);
 	    bbox.max.x = Math.max(bbox.max.x, maxX);
 	    bbox.max.y = Math.max(bbox.max.y, maxY);
+            bboxIsSet = true;
 	}
     };
 
@@ -327,6 +346,9 @@ $(function() {
         var gcodeLines = gcode.split('\n');
         new Toolpath(bboxHandlers).loadFromLinesSync(gcodeLines);
         transformCanvas();
+        if (!bboxIsSet) {
+            return;
+        }
         initialMoves = true;
         displayHandlers.position = initialPosition;
         new Toolpath(displayHandlers).loadFromLinesSync(gcodeLines);
