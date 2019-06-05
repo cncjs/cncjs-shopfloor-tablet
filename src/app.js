@@ -505,10 +505,6 @@ controller.on('TinyG:state', function(data) {
     var machineState = sr.machineState;
     var feedrate = sr.feedrate;
 
-    if (sr.modal) {
-	Object.assign(modal, sr.modal);
-    }
-
     velocity = sr.velocity || 0;
     spindleSpeed = sr.sps;
     spindleDirection = modal.spindle;
@@ -538,6 +534,9 @@ controller.on('TinyG:state', function(data) {
         machineWorkflow = MACHINE_STALL;
     } else if ([READY, STOP, END].indexOf(machineState) >= 0) {
         machineWorkflow = MACHINE_IDLE;
+        if (sr.modal) {
+	    Object.assign(modal, sr.modal);
+        }
     } else if ([RUN, CYCLE, HOMING, JOG].indexOf(machineState) >= 0) {
         machineWorkflow = MACHINE_RUN;
     } else {
@@ -553,27 +552,32 @@ controller.on('TinyG:state', function(data) {
 	} else {
 	    // Automatic stop at end of program or sequence
 	    if (running) {
-		// M0 etc
-		machineWorkflow = MACHINE_HOLD;
-		if (cnc.senderHold) {
+                if (cnc.senderHold) {
+                    // If it is a hold condition like an M0 pause,
+                    // the program has not ended so we go to hold
+                    // state and do not clear the running variable.
+		    machineWorkflow = MACHINE_HOLD;
 		    stateName = cnc.senderHoldReason;
 		    if (stateName == "M6") {
                         if (sr.tool) {
 			    stateName += " T" + sr.tool;
                         }
 		    }
-		}
-	    }
+	        } else {
+                    // If it is a real stop instead of a hold,
+                    // we clear running to show that the program is done.
+                    running = false;
+                }
+            }
 	}
     }
     if (machineState == END) {
+	running = false;
 	if (userStopRequested) {
 	    // Manual stop
 	    userStopRequested = false;
-	    running = false;
 	    stateName = 'UserStop';
         } else if (oldState != END) {
-	    running = false;
 	    if (probing) {
 		probing = false;
 		if (oldFilename) {
