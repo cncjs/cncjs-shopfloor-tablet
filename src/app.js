@@ -492,6 +492,12 @@ controller.on('Marlin:state', function(data) {
 	stateName = "Idle";
     }
 
+    if (modal.units === 'G20') {
+        // Marlin always reports position in mm
+	mpos.x /= 25.4;
+	mpos.y /= 25.4;
+	mpos.z /= 25.4;
+    }
     wpos = mpos;
     cnc.updateView();
 
