@@ -24,11 +24,13 @@ The layout is optimized for use on tablet computers.  It works well on inexpensi
 
 It can be used as the only UI for running complete jobs - choosing the program, setting up the work coordinate system, and controlling the run.
 
-The full cncjs UI can still be used, perhaps on a different computer or in a different browser tab on the same computer, if its advanced capabilities are required for some step such as pre-visualizing the GCode geometry.
+The full cncjs UI can still be used, perhaps on a different computer or in a different browser tab on the same computer, if its advanced capabilities are required for something that cncjs-shopfloor-tablet does not support.  The intention is that cncjs-shopfloor-tablet is sufficient for daily use in a production environment.
 
 ### Limitations
 
-It works with TinyG and Grbl.  It might work with Smoothie but that is untested.
+It works well with TinyG/g2core and GRBL.  It has been tested a little with Marlin but not extensively.  It has not been tested with Smoothieware - but Smoothie and GRBL are quite similar from a protocol standpoint so it is likely to work.
+
+Rotary axes A/B/C are not supported from the GUI, but you can issue GCode commands for those axes manually commands via the MDI boxes.
 
 ### Setup
 
