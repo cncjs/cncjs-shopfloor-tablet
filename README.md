@@ -51,7 +51,7 @@ Tell cnc to use that directory as the "watch directory" by adding a line like th
 Use cnc's -m option to set up a static mount.  Assuming that the files are in the directory */home/pi/cncjs-shopfloor-tablet*, the command would be:
 
 ```
-$ cnc -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
+$ cncjs -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
 ```
 
 If that command fails with an EADDRINUSE message, the problem is that cnc is already running and you will need to kill the old process before restarting with the shopfloor option.  If, when you previously set up cncjs, you used pm2 to autostart cnc, the command sequence would be:
