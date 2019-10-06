@@ -54,16 +54,23 @@ Use cnc's -m option to set up a static mount.  Assuming that the files are in th
 $ cncjs -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
 ```
 
-If that command fails with an EADDRINUSE message, the problem is that cnc is already running and you will need to kill the old process before restarting with the shopfloor option.  If, when you previously set up cncjs, you used pm2 to autostart cnc, the command sequence would be:
+If that command fails with an EADDRINUSE message, the problem is that cnc is already running and you will need to kill the old process before restarting with the shopfloor option.
+
+If you are using pm2 to autostart cncjs, use this command sequence:
 
 ```
-$ pm2 stop $(which cnc)
-$ pm2 delete $(which cnc)
-$ pm2 start $(which cnc) -- -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
+$ pm2 stop $(which cncjs)
+$ pm2 delete $(which cncjs)
+$ pm2 start $(which cncjs) -- -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
 $ pm2 save
 ```
 
-Then browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
+If you are using cron to autostart cncjs, you can kill the old cncjs process with ```$ killall node```, then manually run the ```$cncjs ...``` command above for testing.  To make cncjs-shopfloor-tablet work after rebooting, use ```$ crontab -e``` to edit the start instructions, adding ```-m /tablet:/home/pi/cncjs-shopfloor-tablet/src``` to the *@reboot* line.  The line might look like:
+```
+@reboot /usr/bin/cncjs -m /tablet:/home/pi/cncjs-shopfloor-tablet >> $HOME/cncjs.log 2>&1 &
+```
+
+After you have restarted the server with the -m option, browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
 
 You can still use the full cncjs UI by browsing 'http://*host*:8000'. You can use the different UI's simultaneously in different browser windows or tabs, which can be on different machines if you wish.
 
