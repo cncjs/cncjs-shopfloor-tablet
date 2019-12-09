@@ -1,9 +1,10 @@
 $(function() {
 
 const MACHINE_STALL = 0;
-const MACHINE_IDLE = 1;
-const MACHINE_RUN = 2;
-const MACHINE_HOLD = 3;
+const MACHINE_STOP = 1;
+const MACHINE_IDLE = 2;
+const MACHINE_RUN = 3;
+const MACHINE_HOLD = 4;
 
 var root = window;
 var cnc = root.cnc || {};
@@ -22,6 +23,8 @@ var spindleOverride = 1.0;
 var workflowState = '';
 var errorMessage;
 var receivedLines = 0;
+var lineStart = 0;
+var lineEnd = 0;
 var gCodeLoaded = false;
 var machineWorkflow = MACHINE_STALL;
 var wpos = {}, mpos = {};
@@ -29,6 +32,8 @@ var velocity = 0;
 var spindleDirection, spindleSpeed, stateName;
 var elapsedTime = 0;
 var modal = {};
+var senderHold = false;
+var senderHoldReason = '';
 
 cnc.initState = function() {
     // Select the "Load GCode File" heading instead of any file
@@ -325,21 +330,23 @@ controller.on('sender:status', function(status) {
     if (cnc.controllerType != 'TinyG' && status.received) {
         // TinyG/g2core reports the line count in the state report,
         // reflecting the line that is actually being executed. That
-        // is more interesting to the user that how many lines have
+        // is more interesting to the user than how many lines have
         // been sent, so we only use the sender line count if the
         // better one is not available.
         receivedLines = status.received;
     }
-    if (cnc.senderHold) {
+
+    senderHold = status.hold;
+    if (senderHold) {
         if (status.holdReason) {
             if (status.holdReason.err) {
-                cnc.senderHoldReason = 'Error';
+                senderHoldReason = 'Error';
                 errorMessage = status.holdReason.err;
             } else {
-	        cnc.senderHoldReason = status.holdReason.data;
+	        senderHoldReason = status.holdReason.data;
             }
         } else {
-            cnc.senderHoldReason = "";
+            senderHoldReason = "";
         }
     }
     if (cnc.controllerType == 'Marlin') {
@@ -538,13 +545,28 @@ controller.on('TinyG:state', function(data) {
         HOLD = 6, PROBE = 7, CYCLE = 8, HOMING = 9, JOG = 10, INTERLOCK = 11;
     if ([INIT, ALARM, INTERLOCK].indexOf(machineState) >= 0) {
         machineWorkflow = MACHINE_STALL;
-    } else if ([READY, STOP, END].indexOf(machineState) >= 0) {
-        machineWorkflow = MACHINE_IDLE;
+    } else if ([END].indexOf(machineState) >= 0) {
+        // MACHINE_STOP state happens only once at the end of the program,
+        // then it switches to MACHINE_IDLE.  This permits the GCode viewer
+        // to show that the program finished, but then lets the user scroll
+        // around in the viewer.
+        if (machineWorkflow == MACHINE_STOP) {
+            machineWorkflow = MACHINE_IDLE;
+            receivedLines = 0;
+        } else {
+            machineWorkflow =  MACHINE_STOP;
+        }
         if (sr.modal) {
 	    Object.assign(modal, sr.modal);
         }
-    } else if ([RUN, CYCLE, HOMING, JOG].indexOf(machineState) >= 0) {
+    } else if ([READY, STOP].indexOf(machineState) >= 0) {
+        machineWorkflow = (machineState == STOP && workflowState == 'paused') ? MACHINE_HOLD : MACHINE_IDLE;
+        if (sr.modal) {
+	    Object.assign(modal, sr.modal);
+        }
+    } else if ([RUN, CYCLE, HOMING, PROBE, JOG].indexOf(machineState) >= 0) {
         machineWorkflow = MACHINE_RUN;
+        running = true;
     } else {
         machineWorkflow = MACHINE_HOLD;
     }
@@ -558,12 +580,12 @@ controller.on('TinyG:state', function(data) {
 	} else {
 	    // Automatic stop at end of program or sequence
 	    if (running) {
-                if (cnc.senderHold) {
+                if (senderHold) {
                     // If it is a hold condition like an M0 pause,
                     // the program has not ended so we go to hold
                     // state and do not clear the running variable.
 		    machineWorkflow = MACHINE_HOLD;
-		    stateName = cnc.senderHoldReason;
+		    stateName = senderHoldReason;
 		    if (stateName == "M6") {
                         if (sr.tool) {
 			    stateName += " T" + sr.tool;
@@ -603,9 +625,7 @@ controller.on('TinyG:state', function(data) {
 	mpos.z /= 25.4;
         break;
     }
-    if (sr.line && machineState != HOLD) {
-        receivedLines = sr.line;
-    }
+    receivedLines = sr.line;
 
     // G2core now reports the overrides via properties
     // troe, tro, froe, fro, spoe, and spo, but as of this
@@ -671,6 +691,7 @@ cnc.updateView = function() {
         setLeftButton(true, gray, 'Start', null);
         setRightButton(false, gray, 'Pause', null);
         break;
+    case MACHINE_STOP:
     case MACHINE_IDLE:
         if (gCodeLoaded) {
             // A GCode file is ready to go
@@ -702,7 +723,9 @@ cnc.updateView = function() {
         }
         $('[data-route="workspace"] [id="spindle"]').text(Number(spindleSpeed) + ' RPM ' + spindleText);
     }
-    if (running) {
+    // Nonzero receivedLines is a good indicator of GCode execution
+    // as opposed to jogging, etc.
+    if (receivedLines) {
 	var elapsed = new Date().getTime() - startTime;
 	var elapsed = Math.max(elapsedTime, elapsed);
 	if (elapsed < 0)
@@ -714,9 +737,7 @@ cnc.updateView = function() {
 	    seconds = '0' + seconds;
 	runTime = minutes + ':' + seconds;
     }
-    if (runTime) {
-        $('[data-route="workspace"] [id="runtime"]').text(runTime);
-    }
+    $('[data-route="workspace"] [id="runtime"]').text(runTime);
 
     $('[data-route="workspace"] [data-name="wpos-label"]').text(modal.wcs);
     var distanceText = modal.distance == 'G90'
@@ -733,7 +754,8 @@ cnc.updateView = function() {
         var stateText = stateName == 'Error' ? "Error: " + errorMessage : stateName;
         $('[data-route="workspace"] [data-name="active-state"]').text(stateText);
     }
-    if (machineWorkflow == MACHINE_RUN || machineWorkflow == MACHINE_HOLD) {
+
+    if (machineWorkflow == MACHINE_RUN || machineWorkflow == MACHINE_HOLD || machineWorkflow == MACHINE_STOP) {
         $('[data-route="workspace"] [id="line"]').text(receivedLines);
         scrollToLine(receivedLines);
     }
@@ -757,6 +779,15 @@ cnc.updateView = function() {
 }
 
 controller.on('gcode:load', function(name, gcode) {
+    // Force the line count display to update.  It normally does not
+    // update in MACHINE_IDLE state because you don't want to change
+    // the GCode display while jogging.
+    var oldMachineWorkflow = machineWorkflow;
+    machineWorkflow = MACHINE_STOP;
+    receivedLines = 0;
+    cnc.updateView();
+    machineWorkflow = oldMachineWorkflow;
+
     cnc.showGCode(name, gcode);
     if (probing) {
 	runGCode();
@@ -907,10 +938,37 @@ cnc.loadGCode = function() {
 
 $('[data-route="workspace"] select[data-name="select-file"]').change(cnc.loadGCode);
 
+function nthLineEnd(str, n){
+    if (n <= 0)
+        return 0;
+    var L= str.length, i= -1;
+    while(n-- && i++<L){
+      i= str.indexOf("\n", i);
+        if (i < 0) break;
+    }
+    return i;
+}
+
 function scrollToLine(lineNumber) {
   var gCodeLines = $('[data-route="workspace"] [id="gcode"]');
   var lineHeight = parseInt(gCodeLines.css('line-height'));
+  var gCodeText = gCodeLines.text();
+
   gCodeLines.scrollTop((lineNumber-2) * lineHeight);
+  gCodeLines.select();
+
+  var start;
+  var end;
+  if (lineNumber <= 0) {
+      start = 0;
+      end = 1;
+  } else {
+      start = (lineNumber == 1) ? 0 : start = nthLineEnd(gCodeText, lineNumber-1) + 1;
+      end = gCodeText.indexOf("\n", start);
+  }
+
+  gCodeLines[0].selectionStart = start;
+  gCodeLines[0].selectionEnd = end;
 }
 
 runGCode = function() {
