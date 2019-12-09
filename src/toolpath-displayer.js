@@ -46,15 +46,15 @@ $(function() {
     var toolRadius = 6;
     var toolRectWH = toolRadius*2 + 4;  // Slop to encompass the entire image area
 
-    var drawTool = function(x, y) {
-        toolX = xToPixel(x)-toolRadius-2;
-        toolY = yToPixel(y)-toolRadius-2;
+    var drawTool = function(pos) {
+        toolX = xToPixel(pos.x)-toolRadius-2;
+        toolY = yToPixel(pos.y)-toolRadius-2;
         toolSave = tp.getImageData(toolX, toolY, toolRectWH, toolRectWH);
-        
+
         tp.beginPath();
         tp.strokeStyle = 'magenta';
         tp.fillStyle = 'magenta';
-        tp.arc(x, y, toolRadius/scaler, 0, Math.PI*2, true);
+        tp.arc(pos.x, pos.y, toolRadius/scaler, 0, Math.PI*2, true);
         tp.fill();
         tp.stroke();
     }
@@ -328,16 +328,29 @@ $(function() {
     var ToolpathDisplayer = function() {
     };
 
-    ToolpathDisplayer.prototype.showToolpath = function(gcode) {
+    var offset;
+
+    ToolpathDisplayer.prototype.showToolpath = function(gcode, wpos, mpos) {
         inInches = $('[data-route="workspace"] [id="units"]').text() != 'mm';
-        var getPos = function(name) {
-            var pos = Number($('[data-route="workspace"] [id="' + name + '"]').prop('value'));
-            return inInches ? pos * 25.4 : pos;
-        }
+
+        var factor = inInches ? 25.4 : 1.0;
+
         var initialPosition = {
-            x: getPos("wpos-x"),
-            y: getPos("wpos-y"),
-            z: getPos("wpos-z")
+            x: wpos.x * factor,
+            y: wpos.y * factor,
+            z: wpos.z * factor
+        };
+
+        var mposmm = {
+            x: mpos.x * factor,
+            y: mpos.y * factor,
+            z: mpos.z * factor
+        };
+
+        offset = {
+            x: initialPosition.x - mposmm.x,
+            y: initialPosition.y - mposmm.y,
+            z: initialPosition.z - mposmm.z
         };
 
         resetBbox();
@@ -353,13 +366,20 @@ $(function() {
         displayHandlers.position = initialPosition;
         new Toolpath(displayHandlers).loadFromLinesSync(gcodeLines);
 
-        drawTool(initialPosition.x, initialPosition.y);
+        drawTool(initialPosition);
     };
 
-    ToolpathDisplayer.prototype.reDrawTool = function(x, y) {
+    ToolpathDisplayer.prototype.reDrawTool = function(modal, mpos) {
         if (toolSave != null) {
             tp.putImageData(toolSave, toolX, toolY);
-            drawTool(x, y);
+            var factor = modal.units === 'G20' ? 25.4 : 1.0;
+
+            var dpos = {
+                x: mpos.x * factor + offset.x,
+                y: mpos.y * factor + offset.y,
+                z: mpos.z * factor + offset.z
+            };
+            drawTool(dpos);
         }
     }
 

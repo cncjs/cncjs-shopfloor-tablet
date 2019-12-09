@@ -737,22 +737,23 @@ cnc.updateView = function() {
         $('[data-route="workspace"] [id="line"]').text(receivedLines);
         scrollToLine(receivedLines);
     }
-    var digits = modal.units == 'G20' ? 4 : 3;
-    mpos.x = Number(mpos.x).toFixed(digits);
-    mpos.y = Number(mpos.y).toFixed(digits);
-    mpos.z = Number(mpos.z).toFixed(digits);
-    wpos.x = Number(wpos.x).toFixed(digits);
-    wpos.y = Number(wpos.y).toFixed(digits);
-    wpos.z = Number(wpos.z).toFixed(digits);
+    root.displayer.reDrawTool(modal, mpos);
 
-    $('[data-route="workspace"] [id="wpos-x"]').prop('value', wpos.x);
-    $('[data-route="workspace"] [id="wpos-y"]').prop('value', wpos.y);
-    $('[data-route="workspace"] [id="wpos-z"]').prop('value', wpos.z);
-    if (modal.units == 'G21') {
-	root.displayer.reDrawTool(wpos.x, wpos.y);
-    } else {
-	root.displayer.reDrawTool(wpos.x * 25.4, wpos.y * 25.4);
-    }
+    var digits = modal.units == 'G20' ? 4 : 3;
+    var dmpos = {
+        x: Number(mpos.x).toFixed(digits),
+        y: Number(mpos.y).toFixed(digits),
+        z: Number(mpos.z).toFixed(digits)
+    };
+    var dwpos = {
+        x: Number(wpos.x).toFixed(digits),
+        y: Number(wpos.y).toFixed(digits),
+        z: Number(wpos.z).toFixed(digits)
+    };
+
+    $('[data-route="workspace"] [id="wpos-x"]').prop('value', dwpos.x);
+    $('[data-route="workspace"] [id="wpos-y"]').prop('value', dwpos.y);
+    $('[data-route="workspace"] [id="wpos-z"]').prop('value', dwpos.z);
 }
 
 controller.on('gcode:load', function(name, gcode) {
@@ -874,7 +875,7 @@ cnc.showGCode = function(name, gcode) {
     }
     $('[data-route="workspace"] [id="gcode"]').text(gcode);
     if (gCodeLoaded) {
-        root.displayer.showToolpath(gcode);
+        root.displayer.showToolpath(gcode, wpos, mpos);
     }
     if (machineWorkflow != MACHINE_STALL) {
         cnc.updateView();
