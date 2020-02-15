@@ -1056,7 +1056,17 @@ jogClick = function(name) {
 	clickon(name);
     }
 }
+
+// Reports whether a text input box has focus - see the next comment
+cnc.inputFocused = false;
+
 $(document).on('keydown keyup', function(event){
+    // When we are in a modal input field like the MDI text boxes
+    // or the numeric entry boxes, disable keyboard jogging so those
+    // keys can be used for text editing.
+    if (cnc.inputFocused) {
+        return;
+    }
     if (event.type === 'keydown') {
 	switch(event.key) {
 	case "ArrowRight":
