@@ -30,7 +30,7 @@ The full cncjs UI can still be used, perhaps on a different computer or in a dif
 
 It works well with TinyG/g2core and GRBL.  It has been tested a little with Marlin but not extensively.  It has not been tested with Smoothieware - but Smoothie and GRBL are quite similar from a protocol standpoint so it is likely to work.
 
-Rotary axes A/B/C are not supported from the GUI, but you can issue GCode commands for those axes manually commands via the MDI boxes.
+Rotary axes A/B/C are not supported from the GUI, but you can issue GCode commands for those axes manually via the MDI boxes.
 
 ### Setup
 
