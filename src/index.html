@@ -173,9 +173,6 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                       </div>
                     </div>
                     <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Set X to 0" onclick="cnc.zeroAxis('X')">
-                        X=0
-                      </button>
                     </div>
                     <div class="col-xs-2">
                       <div class="col-xs-4 axis-label">Y</div>
@@ -184,9 +181,6 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                       </div>
                     </div>
                     <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Set Y to 0" onclick="cnc.zeroAxis('Y')">
-                        Y=0
-                      </button>
                     </div>
                     <div class="col-xs-2">
                       <div class="col-xs-4 axis-label">Z</div>
@@ -195,9 +189,6 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                       </div>
                     </div>
                     <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Set Z to 0" onclick="cnc.zeroAxis('Z')">
-                        Z=0
-                      </button>
                     </div>
                     <div class="col-xs-2">
                       <div class="col-xs-4 axis-label">A</div>
@@ -206,9 +197,6 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                       </div>
                     </div>
                     <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Set A to 0" onclick="cnc.zeroAxis('A')">
-                        A=0
-                      </button>
                     </div>
                 </div>
             </div>
@@ -223,13 +211,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
 
                 <div class="col-xs-11">
                     <div class="col-xs-1 inset">
-                      <button type="button" class="btn btn-default" title="Set X (G10 X0)" onclick="cnc.setAxis('X', 'wpos-x')">
-                        X=
-                      </button>
-                    </div>
-                    <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Move to X (G0 X0)" onclick="cnc.moveAxis('X', 'wpos-x')">
-                        &#8594;X
+                      <button type="button" class="btn btn-default" title="Set X to 0" onclick="cnc.zeroAxis('X')">
+                        X=0
                       </button>
                     </div>
                     <div class="col-xs-1">
@@ -237,15 +220,12 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         &#8594;X0
                       </button>
                     </div>
+                    <div class="col-xs-1">
+                    </div>
 
                     <div class="col-xs-1 inset">
-                      <button type="button" class="btn btn-default" title="Set Y (G10 Y0)" onclick="cnc.setAxis('Y', 'wpos-y')">
-                        Y=
-                      </button>
-                    </div>
-                    <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Move to Y (G0 Y0)" onclick="cnc.moveAxis('Y', 'wpos-y')">
-                        &#8594;Y
+                      <button type="button" class="btn btn-default" title="Set Y to 0" onclick="cnc.zeroAxis('Y')">
+                        Y=0
                       </button>
                     </div>
                     <div class="col-xs-1">
@@ -253,15 +233,12 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         &#8594;Y0
                       </button>
                     </div>
+                    <div class="col-xs-1">
+                    </div>
 
                     <div class="col-xs-1 inset">
-                      <button type="button" class="btn btn-default" title="Set Z (G10 Z0)" onclick="cnc.setAxis('Z', 'wpos-z')">
-                        Z=
-                      </button>
-                    </div>
-                    <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Move to Z (G0 Z0)" onclick="cnc.moveAxis('Z', 'wpos-z')">
-                         &#8594;Z
+                      <button type="button" class="btn btn-default" title="Set Z to 0" onclick="cnc.zeroAxis('Z')">
+                        Z=0
                       </button>
                     </div>
                     <div class="col-xs-1">
@@ -269,21 +246,20 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         &#8594;Z0
                       </button>
                     </div>
+                    <div class="col-xs-1">
+                    </div>
 
                     <div class="col-xs-1 inset">
-                      <button type="button" class="btn btn-default" title="Set A (G10 A0)" onclick="cnc.setAxis('A', 'wpos-a')">
-                        A=
-                      </button>
-                    </div>
-                    <div class="col-xs-1">
-                      <button type="button" class="btn btn-default" title="Move to A (G0 A0)" onclick="cnc.moveAxis('A', 'wpos-a')">
-                         &#8594;A
+                      <button type="button" class="btn btn-default" title="Set A to 0" onclick="cnc.zeroAxis('A')">
+                        A=0
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Goto 0 in A" onclick="cnc.goAxis('A', 0)">
                         &#8594;A0
                       </button>
+                    </div>
+                    <div class="col-xs-1">
                     </div>
                 </div>
             </div>
@@ -637,10 +613,10 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
 
 
 $('document').ready(function() {
-    $('#wpos-x').numpad();
-    $('#wpos-y').numpad();
-    $('#wpos-z').numpad();
-    $('#wpos-a').numpad();
+    $('#wpos-x').numpad('X');
+    $('#wpos-y').numpad('Y');
+    $('#wpos-z').numpad('Z');
+    $('#wpos-a').numpad('A');
     var root = window;
     root.cnc = {
         router: null,

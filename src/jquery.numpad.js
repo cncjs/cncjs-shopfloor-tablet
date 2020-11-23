@@ -21,7 +21,7 @@
 	window.scrollTo(x, y);
     }
 	
-    $.fn.numpad=function(options){
+    $.fn.numpad=function(axis, options){
     	if (typeof options == 'string'){
     	    var nmpd = $.data(this[0], 'numpad');
     	    if (!nmpd) throw "Cannot perform '" + options + "' on a numpad prior to initialization!";
@@ -42,7 +42,7 @@
 	// Create a numpad. One for all elements in this jQuery selector.
 	// Since numpad() can be called on multiple elements on one page, each call will create a unique numpad id.
 	var id = 'nmpd' + ($('.nmpd-wrapper').length + 1);
-	var nmpd = {};
+	var nmpd = { };
 	return this.each(function(){
 
 	    // If an element with the generated unique numpad id exists, the numpad had been instantiated already.
@@ -51,6 +51,7 @@
 		/** @var nmpd jQuery object containing the entire numpad */
 		nmpd = $('<div id="' + id + '"></div>').addClass('nmpd-wrapper');
 		nmpd.options = options;
+                nmpd.options.textDone = axis + 'Done';
 		/** @var display jQuery object representing the display of the numpad (typically an input field) */
 		nmpd.s0 =  $(options.displayTpl).addClass('nmpd-display');
 		nmpd.s1 =  $(options.displayTpl).addClass('nmpd-display');
@@ -65,23 +66,30 @@
 			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Roll').addClass('roll').click(function(){
 				 nmpd.roll();
 			     })))
-			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('SIN').addClass('sin').click(function(){
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('UnRoll').addClass('unroll').click(function(){
+				 nmpd.unroll();
+			     })))
+		             .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('SIN').addClass('sin').click(function(){
 				 nmpd.sin();
 			     })))
 			    );
 		table.append($(options.rowTpl)
 			     .append($(options.displayCellTpl).append(nmpd.s1).append($('<input type="hidden" class="dirty" value="0"></input>')))
-			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Drop').addClass('drop').click(function(){
-				 nmpd.drop();
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Swap').addClass('swap').click(function(){
+				 nmpd.swap();
 			     })))
+			     .append($(options.cellTpl))
 			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('COS').addClass('cos').click(function(){
 				 nmpd.cos();
 			     })))
 			    );
 		table.append($(options.rowTpl)
 			     .append($(options.displayCellTpl).append(nmpd.s0).append($('<input type="hidden" class="dirty" value="0"></input>')))
-			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Swap').addClass('swap').click(function(){
-				 nmpd.swap();
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Enter').addClass('enter').click(function(){
+				 nmpd.push();
+			     })))
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Drop').addClass('drop').click(function(){
+				 nmpd.drop();
 			     })))
 			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('TAN').addClass('tan').click(function(){
 				 nmpd.tan();
@@ -89,8 +97,11 @@
 			    );
 		table.append($(options.rowTpl)
 			     .append($(options.displayCellTpl).append(nmpd.display).append($('<input type="hidden" class="dirty" value="0"></input>')))
-			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('Enter').addClass('enter').click(function(){
-				 nmpd.push();
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textDelete).addClass('del').click(function(){
+			         nmpd.setValue(nmpd.getValue().toString().substring(0,nmpd.getValue().toString().length - 1));
+			     })))
+			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textClear).addClass('clear').click(function(){
+			         nmpd.setValue('');
 			     })))
 			     .append($(options.cellTpl).append($(options.buttonFunctionTpl).html('SQRT').addClass('sqrt').click(function(){
 				 nmpd.sqrt();
@@ -102,34 +113,32 @@
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(7).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(8).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(9).addClass('numero')))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textDelete).addClass('del').click(function(){
-			    nmpd.setValue(nmpd.getValue().toString().substring(0,nmpd.getValue().toString().length - 1));
-			})))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('+').addClass('plus').click(function(){
+			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp;').addClass('plus').click(function(){
 			    nmpd.plus();
 			})))
+
 		).append(
 		    $(options.rowTpl)
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(4).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(5).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(6).addClass('numero')))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textClear).addClass('clear').click(function(){
-			    nmpd.setValue('');
-			})))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('-').addClass('minus').click(function(){
+			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&nbsp;&nbsp;-&nbsp;&nbsp;').addClass('minus').click(function(){
 			    nmpd.minus();
 			})))
-
+                        .append($(options.exitCellTpl).append($(options.buttonFunctionTpl).html('GoTo '+axis).addClass('goto').click(function(){
+                            cnc.goAxis(axis, nmpd.getValue());
+			    nmpd.close(false);
+                        })))
 		).append(
 		    $(options.rowTpl)
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(1).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(2).addClass('numero')))
 			.append($(options.cellTpl).append($(options.buttonNumberTpl).html(3).addClass('numero')))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textCancel).addClass('cancel').click(function(){
-			    nmpd.close(false);
-			})))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('*').addClass('times').click(function(){
+			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&nbsp;&nbsp;*&nbsp;&nbsp;').addClass('times').click(function(){
 			    nmpd.times();
+			})))
+                        .append($(options.exitCellTpl).append($(options.buttonFunctionTpl).html(options.textCancel).addClass('cancel').click(function(){
+			    nmpd.close(false);
 			})))
 		).append(
 		    $(options.rowTpl)
@@ -148,10 +157,14 @@
 
 			    nmpd.setValue(val + options.decimalSeparator);
 			})))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html(options.textDone).addClass('done')))
-			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('/').addClass('divide').click(function(){
+			.append($(options.cellTpl).append($(options.buttonFunctionTpl).html('&nbsp;&nbsp;/&nbsp;&nbsp;').addClass('divide').click(function(){
 			    nmpd.divide();
 			})))
+                        .append($(options.exitCellTpl).append($(options.buttonFunctionTpl).html('Set '+axis).addClass('set').click(function(){
+                            cnc.setAxisByValue(axis, nmpd.getValue());
+			    nmpd.close(false);
+                        })
+))
 		);
 		// Create the backdrop of the numpad - an overlay for the main page
 		nmpd.append($(options.backgroundTpl).addClass('nmpd-overlay').click(function(){nmpd.close(false);}));
@@ -280,6 +293,16 @@
 		return nmpd;
 	    }
 
+	    /**
+	     * UnRotate the stack through the display value
+	     * @return jQuery object nmpd
+	     */
+	    nmpd.unroll = function(){
+		var tmp = nmpd.s2.val();
+		nmpd.push();
+		nmpd.setValue(tmp);
+		return nmpd;
+	    }
 	    /**
 	     * Exchange the top of the stack with the display value
 	     * @return jQuery object nmpd
@@ -512,6 +535,7 @@
 	displayCellTpl: '<td colspan="3"></td>',
 	rowTpl: '<tr></tr>',
 	cellTpl: '<td></td>',
+	exitCellTpl: '<td colspan="2"></td>',
 	buttonNumberTpl: '<button></button>',
 	buttonFunctionTpl: '<button></button>',
 	gridTableClass: '',
