@@ -148,14 +148,19 @@ cnc.goAxis = function(axis, coordinate) {
 }
 
 cnc.moveAxis = function(axis, field) {
-    coordinate = document.getElementById(field).value;
-    cnc.goAxis(axis, coordinate)
+    cnc.goAxis(axis, document.getElementById(field).value)
 }
 
-cnc.setAxis = function(axis, field) {
+cnc.currentAxisPNum = function() {
+    return 'P' + String(Number(modal.wcs.substring(1)) - 53);
+}
+
+cnc.setAxisByValue = function(axis, coordinate) {
     cnc.click();
-    coordinate = document.getElementById(field).value;
-    controller.command('gcode', 'G10 L20 P1 ' + axis + coordinate);
+    controller.command('gcode', 'G10 L20 ' +  cnc.currentAxisPNum() + ' ' + axis + coordinate);
+}
+cnc.setAxis = function(axis, field) {
+    cnc.setAxisByValue(axis, document.getElementById(field).value);
 }
 cnc.MDI = function(field) {
     cnc.click();
@@ -164,8 +169,7 @@ cnc.MDI = function(field) {
 }
 
 cnc.zeroAxis = function(axis) {
-    cnc.click();
-    controller.command('gcode', 'G10 L20 P1 ' + axis + '0');
+    cnc.setAxisByValue(axis, 0);
 }
 
 cnc.toggleUnits = function() {
