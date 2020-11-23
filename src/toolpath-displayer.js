@@ -104,6 +104,12 @@ $(function() {
 
         var imageWidth = bbox.max.x - bbox.min.x;
         var imageHeight = bbox.max.y - bbox.min.y;
+        if (imageWidth == 0) {
+            imageWidth = 1;
+        }
+        if (imageHeight == 0) {
+            imageHeight = 1;
+        }
         var shrink = 0.90;
         inset = 5;
         var scaleX = (canvas.width - inset*2) / imageWidth;
@@ -111,6 +117,9 @@ $(function() {
         var minScale = Math.min(scaleX, scaleY);
 
         scaler = minScale * shrink;
+        if (scaler < 0) {
+            scaler = -scaler;
+        }
         xOffset = inset - bbox.min.x * scaler;
         yOffset = (canvas.height-inset) - bbox.min.y * (-scaler);
 

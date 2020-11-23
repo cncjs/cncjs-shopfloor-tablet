@@ -166,37 +166,48 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                 </div>
 
                 <div class="col-xs-11">
-                    <div class="col-xs-1">
-                        <div class="axis-label">X</div>
-                    </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control position" id="wpos-x" value="0.0000">
+                      <div class="col-xs-4 axis-label">X</div>
+                      <div class="col-xs-8">
+                        <input type="number" class="form-control position" id="wpos-x" value="0.0000">
+                      </div>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Set X to 0" onclick="cnc.zeroAxis('X')">
                         X=0
                       </button>
                     </div>
-                    <div class="col-xs-1">
-                        <div class="axis-label">Y</div>
-                    </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control position" id="wpos-y" value="0.0000">
+                      <div class="col-xs-4 axis-label">Y</div>
+                      <div class="col-xs-8">
+                        <input type="number" class="form-control position" id="wpos-y" value="0.0000">
+                      </div>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Set Y to 0" onclick="cnc.zeroAxis('Y')">
                         Y=0
                       </button>
                     </div>
-                    <div class="col-xs-1">
-                        <div class="axis-label">Z</div>
-                    </div>
                     <div class="col-xs-2">
-                      <input type="number" class="form-control position" id="wpos-z" value="0.0000">
+                      <div class="col-xs-4 axis-label">Z</div>
+                      <div class="col-xs-8">
+                        <input type="number" class="form-control position" id="wpos-z" value="0.0000">
+                      </div>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Set Z to 0" onclick="cnc.zeroAxis('Z')">
                         Z=0
+                      </button>
+                    </div>
+                    <div class="col-xs-2">
+                      <div class="col-xs-4 axis-label">A</div>
+                      <div class="col-xs-8">
+                        <input type="number" class="form-control position" id="wpos-a" value="0.0000">
+                      </div>
+                    </div>
+                    <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Set A to 0" onclick="cnc.zeroAxis('A')">
+                        A=0
                       </button>
                     </div>
                 </div>
@@ -211,57 +222,67 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                 </div>
 
                 <div class="col-xs-11">
-                    <div class="col-xs-1">
-                    </div>
-                    <div class="col-xs-1">
+                    <div class="col-xs-1 inset">
                       <button type="button" class="btn btn-default" title="Set X (G10 X0)" onclick="cnc.setAxis('X', 'wpos-x')">
                         X=
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Move to X (G0 X0)" onclick="cnc.moveAxis('X', 'wpos-x')">
-                        GoX
+                        &#8594;X
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Goto 0 in X" onclick="cnc.goAxis('X', 0)">
-                        GoX0
+                        &#8594;X0
                       </button>
                     </div>
 
-                    <div class="col-xs-1">
-                    </div>
-                    <div class="col-xs-1">
+                    <div class="col-xs-1 inset">
                       <button type="button" class="btn btn-default" title="Set Y (G10 Y0)" onclick="cnc.setAxis('Y', 'wpos-y')">
                         Y=
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Move to Y (G0 Y0)" onclick="cnc.moveAxis('Y', 'wpos-y')">
-                        GoY
+                        &#8594;Y
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Goto 0 in Y" onclick="cnc.goAxis('Y', 0)">
-                        GoY0
+                        &#8594;Y0
                       </button>
                     </div>
 
-                    <div class="col-xs-1">
-                    </div>
-                    <div class="col-xs-1">
+                    <div class="col-xs-1 inset">
                       <button type="button" class="btn btn-default" title="Set Z (G10 Z0)" onclick="cnc.setAxis('Z', 'wpos-z')">
                         Z=
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Move to Z (G0 Z0)" onclick="cnc.moveAxis('Z', 'wpos-z')">
-                         GoZ
+                         &#8594;Z
                       </button>
                     </div>
                     <div class="col-xs-1">
                       <button type="button" class="btn btn-default" title="Goto 0 in Z" onclick="cnc.goAxis('Z', 0)">
-                        GoZ0
+                        &#8594;Z0
+                      </button>
+                    </div>
+
+                    <div class="col-xs-1 inset">
+                      <button type="button" class="btn btn-default" title="Set A (G10 A0)" onclick="cnc.setAxis('A', 'wpos-a')">
+                        A=
+                      </button>
+                    </div>
+                    <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Move to A (G0 A0)" onclick="cnc.moveAxis('A', 'wpos-a')">
+                         &#8594;A
+                      </button>
+                    </div>
+                    <div class="col-xs-1">
+                      <button type="button" class="btn btn-default" title="Goto 0 in A" onclick="cnc.goAxis('A', 0)">
+                        &#8594;A0
                       </button>
                     </div>
                 </div>
@@ -303,7 +324,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.001"
-                        onclick="cnc.setDistance('0.001')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog00"
                     >
                         0.001
                     </button>
@@ -313,7 +335,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.01"
-                        onclick="cnc.setDistance('0.01')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog01"
                     >
                         0.01
                     </button>
@@ -323,7 +346,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.1"
-                        onclick="cnc.setDistance('0.1')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog02"
                     >
                         0.1
                     </button>
@@ -333,7 +357,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 1"
-                        onclick="cnc.setDistance('1')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog03"
                     >
                         1
                     </button>
@@ -390,7 +415,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.003"
-                        onclick="cnc.setDistance('0.003')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog10"
                     >
                         0.003
                     </button>
@@ -400,7 +426,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.03"
-                        onclick="cnc.setDistance('0.03')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog11"
                     >
                         0.03
                     </button>
@@ -410,7 +437,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.3"
-                        onclick="cnc.setDistance('0.3')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog12"
                     >
                         0.3
                     </button>
@@ -420,7 +448,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 3"
-                        onclick="cnc.setDistance('3')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog13"
                     >
                         3
                     </button>
@@ -458,7 +487,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.005"
-                        onclick="cnc.setDistance('0.005')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog20"
                     >
                         0.005
                     </button>
@@ -468,7 +498,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.05"
-                        onclick="cnc.setDistance('0.05')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog21"
                     >
                         0.05
                     </button>
@@ -478,7 +509,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 0.5"
-                        onclick="cnc.setDistance('0.5')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog22"
                     >
                         0.5
                     </button>
@@ -488,7 +520,8 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         type="button"
                         class="btn btn-default set-distance"
                         title="Jog by 5"
-                        onclick="cnc.setDistance('5')"
+                        onclick="cnc.btnSetDistance()"
+                        id="jog23"
                     >
                         5
                     </button>
@@ -560,10 +593,20 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                         </textarea>
                     </div>
                     <div class="col-xs-3">
-		      <canvas id="small-toolpath" class="previewer"></canvas>
+		      <canvas id="small-toolpath" class="previewer" width="100%" height="100%"></canvas>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="container-fluid">
+          <div class="row no-gutter">
+            <div class="col-xs-12">
+              <div class="serial" data-name="serial0">serial messages</div>
+            </div>
+            <div class="col-xs-12">
+              <div class="serial" data-name="serial1">serial messages</div>
+            </div>
+          </div>
         </div>
     </div>
 </div>
@@ -597,6 +640,7 @@ $('document').ready(function() {
     $('#wpos-x').numpad();
     $('#wpos-y').numpad();
     $('#wpos-z').numpad();
+    $('#wpos-a').numpad();
     var root = window;
     root.cnc = {
         router: null,

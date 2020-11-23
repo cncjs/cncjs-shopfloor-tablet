@@ -79,7 +79,7 @@
   padding: 5px 10px;
 }
 [data-route="workspace"] .axis-label {
-  text-align: left;
+  text-align: center;
   font-size: 20px;
   padding: 0 8px;
 }
@@ -153,26 +153,96 @@
   padding-left: 0;
   padding-right: 0;
 }
+[data-route="workspace"] .axis-position .inset {
+  padding-left: 15px;
+}
 
 [data-route="workspace"] .mdi .container-fluid {
   background-color: lavenderblush;
   padding-top: 12px;
-  padding-bottom: 12px;
+  padding-bottom: 0px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 736px) {
   [data-route="workspace"] {
-    font-size: 20px;
+    font-size: 14px;
   }
   [data-route="workspace"] .dropdown-menu {
     min-width: 180px;
   }
   [data-route="workspace"] .dropdown-menu>li>a .fa {
-    width: 20px;
+    width: 14px;
   }
   [data-route="workspace"] .axis-label {
     font-size: 24px;
-    text-align: right;
+    text-align: center;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    font-size: 14px;
+  }
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
+    font-size: 14px;
+    height: 30px;
+  }
+  [data-route="workspace"] #jog-distance {
+    text-align-last: right;
+  }
+  [data-route="workspace"] textarea {
+    font-size: 9px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 180px;
+      height: 100px;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-route="workspace"] {
+    font-size: 15px;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    min-width: 180px;
+  }
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
+    width: 15px;
+  }
+  [data-route="workspace"] .axis-label {
+    font-size: 24px;
+    text-align: center;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    font-size: 15px;
+  }
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
+    font-size: 15px;
+    height: 30px;
+  }
+  [data-route="workspace"] #jog-distance {
+    text-align-last: right;
+  }
+  [data-route="workspace"] textarea {
+    font-size: 11px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 230px;
+      height: 130px;
+  }
+}
+@media (min-width: 992px) {
+  [data-route="workspace"] {
+    font-size: 20px;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    min-width: 200px;
+  }
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
+    width: 20px;
+  }
+  [data-route="workspace"] .axis-label {
+    font-size: 28px;
+    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 20px;
@@ -182,36 +252,12 @@
     font-size: 20px;
     height: 40px;
   }
-  [data-route="workspace"] #jog-distance {
-    text-align-last: right;
-  }
   [data-route="workspace"] textarea {
     font-size: 12px;
   }
-}
-@media (min-width: 992px) {
-  [data-route="workspace"] {
-    font-size: 24px;
-  }
-  [data-route="workspace"] .dropdown-menu {
-    min-width: 200px;
-  }
-  [data-route="workspace"] .dropdown-menu>li>a .fa {
-    width: 24px;
-  }
-  [data-route="workspace"] .axis-label {
-    font-size: 28px;
-  }
-  [data-route="workspace"] .dropdown-menu {
-    font-size: 24px;
-  }
-  [data-route="workspace"] .btn,
-  [data-route="workspace"] .form-control {
-    font-size: 24px;
-    height: 46px;
-  }
-  [data-route="workspace"] textarea {
-    font-size: 14px;
+  [data-route="workspace"] #small-toolpath {
+      width: 250px;
+      height: 130px;
   }
 }
 @media (min-width: 1200px) {
@@ -226,6 +272,7 @@
   }
   [data-route="workspace"] .axis-label {
     font-size: 32px;
+    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 28px;
@@ -237,5 +284,9 @@
   }
   [data-route="workspace"] textarea {
     font-size: 14px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 300px;
+      height: 160px;
   }
 }

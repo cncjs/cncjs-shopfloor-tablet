@@ -178,6 +178,12 @@ cnc.toggleUnits = function() {
     // No need to fix the button label, as that will be done by the status watcher
 }
 
+cnc.btnSetDistance = function() {
+    cnc.click();
+    var distance = event.target.innerText;
+    $('[data-route="workspace"] select[data-name="select-distance"]').val(distance);
+}
+
 cnc.setDistance = function(distance) {
     cnc.click();
     $('[data-route="workspace"] select[data-name="select-distance"]').val(distance);
@@ -270,6 +276,10 @@ cnc.sendMove = function(cmd) {
 };
 
 controller.on('serialport:read', function(data) {
+    $('[data-route="workspace"] [data-name="serial0"]').text(
+        $('[data-route="workspace"] [data-name="serial1"]').text()
+    );
+    $('[data-route="workspace"] [data-name="serial1"]').text(data);
     if (data.r) {
 	cnc.line++;
     }
@@ -539,6 +549,9 @@ controller.on('TinyG:state', function(data) {
 	return;
     }
 
+    if (sr.modal) {
+	Object.assign(modal, sr.modal);
+    }
     mpos = sr.mpos;
     wpos = sr.wpos;
     var INIT = 0, READY = 1, ALARM = 2, STOP = 3, END = 4, RUN = 5,
@@ -556,14 +569,8 @@ controller.on('TinyG:state', function(data) {
         } else {
             machineWorkflow =  MACHINE_STOP;
         }
-        if (sr.modal) {
-	    Object.assign(modal, sr.modal);
-        }
     } else if ([READY, STOP].indexOf(machineState) >= 0) {
         machineWorkflow = (machineState == STOP && workflowState == 'paused') ? MACHINE_HOLD : MACHINE_IDLE;
-        if (sr.modal) {
-	    Object.assign(modal, sr.modal);
-        }
     } else if ([RUN, CYCLE, HOMING, PROBE, JOG].indexOf(machineState) >= 0) {
         machineWorkflow = MACHINE_RUN;
         running = true;
@@ -668,6 +675,72 @@ cnc.doRightButton = function() {
 }
 
 
+    cnc.setJogSelector = function(units) {
+        var selector = $('[data-route="workspace"] select[data-name="select-distance"]');
+        selector.empty();
+        if (units == "Inch") {
+            $('[data-route="workspace"] [id="jog00"]').text('0.001');
+            $('[data-route="workspace"] [id="jog01"]').text('0.01');
+            $('[data-route="workspace"] [id="jog02"]').text('0.1');
+            $('[data-route="workspace"] [id="jog03"]').text('1');
+            $('[data-route="workspace"] [id="jog10"]').text('0.003');
+            $('[data-route="workspace"] [id="jog11"]').text('0.03');
+            $('[data-route="workspace"] [id="jog12"]').text('0.3');
+            $('[data-route="workspace"] [id="jog13"]').text('3');
+            $('[data-route="workspace"] [id="jog20"]').text('0.005');
+            $('[data-route="workspace"] [id="jog21"]').text('0.05');
+            $('[data-route="workspace"] [id="jog22"]').text('0.5');
+            $('[data-route="workspace"] [id="jog23"]').text('5');
+            selector.append($("<option/>").text('0.00025'));
+            selector.append($("<option/>").text('0.0005'));
+            selector.append($("<option/>").text('0.001'));
+            selector.append($("<option/>").text('0.003'));
+            selector.append($("<option/>").text('0.005'));
+            selector.append($("<option/>").text('0.01'));
+            selector.append($("<option/>").text('0.03'));
+            selector.append($("<option/>").text('0.05'));
+            selector.append($("<option/>").text('0.1'));
+            selector.append($("<option/>").text('0.3'));
+            selector.append($("<option/>").text('0.5'));
+            selector.append($("<option/>").text('1'));
+            selector.append($("<option/>").text('3'));
+            selector.append($("<option/>").text('5'));
+            selector.append($("<option/>").text('10'));
+            selector.append($("<option/>").text('30'));
+            selector.val('1');
+        } else  {
+            $('[data-route="workspace"] [id="jog00"]').text('0.01');
+            $('[data-route="workspace"] [id="jog01"]').text('0.1');
+            $('[data-route="workspace"] [id="jog02"]').text('1');
+            $('[data-route="workspace"] [id="jog03"]').text('10');
+            $('[data-route="workspace"] [id="jog10"]').text('0.03');
+            $('[data-route="workspace"] [id="jog11"]').text('0.3');
+            $('[data-route="workspace"] [id="jog12"]').text('3');
+            $('[data-route="workspace"] [id="jog13"]').text('30');
+            $('[data-route="workspace"] [id="jog20"]').text('0.05');
+            $('[data-route="workspace"] [id="jog21"]').text('0.5');
+            $('[data-route="workspace"] [id="jog22"]').text('5');
+            $('[data-route="workspace"] [id="jog23"]').text('50');
+            selector.append($("<option/>").text('0.005'));
+            selector.append($("<option/>").text('0.01'));
+            selector.append($("<option/>").text('0.03'));
+            selector.append($("<option/>").text('0.05'));
+            selector.append($("<option/>").text('0.1'));
+            selector.append($("<option/>").text('0.3'));
+            selector.append($("<option/>").text('0.5'));
+            selector.append($("<option/>").text('1'));
+            selector.append($("<option/>").text('3'));
+            selector.append($("<option/>").text('5'));
+            selector.append($("<option/>").text('10'));
+            selector.append($("<option/>").text('30'));
+            selector.append($("<option/>").text('50'));
+            selector.append($("<option/>").text('100'));
+            selector.append($("<option/>").text('300'));
+            selector.append($("<option/>").text('1000'));
+            selector.val('10');
+        }
+    }
+
 cnc.updateView = function() {
     // if (cnc.filename == '') {
     //	canStart = false;
@@ -680,7 +753,12 @@ cnc.updateView = function() {
     $('[data-route="workspace"] .axis-position .btn').prop('disabled', cannotClick);
     $('[data-route="workspace"] .axis-position .position').prop('disabled', cannotClick);
 
-    $('[data-route="workspace"] [id="units"]').text(modal.units == 'G21' ? 'mm' : 'Inch');
+    var newUnits = modal.units == 'G21' ? 'mm' : 'Inch';
+    if ($('[data-route="workspace"] [id="units"]').text() != newUnits) {
+        $('[data-route="workspace"] [id="units"]').text(newUnits);
+        cnc.setJogSelector(newUnits);
+    }
+    // $('[data-route="workspace"] [id="units"]').text(modal.units == 'G21' ? 'mm' : 'Inch');
     $('[data-route="workspace"] [id="units"]').prop('disabled', cnc.controllerType == 'Marlin');
 
     var green = '#86f686';
@@ -765,17 +843,20 @@ cnc.updateView = function() {
     var dmpos = {
         x: Number(mpos.x).toFixed(digits),
         y: Number(mpos.y).toFixed(digits),
-        z: Number(mpos.z).toFixed(digits)
+        z: Number(mpos.z).toFixed(digits),
+        a: Number(mpos.a).toFixed(2)
     };
     var dwpos = {
         x: Number(wpos.x).toFixed(digits),
         y: Number(wpos.y).toFixed(digits),
-        z: Number(wpos.z).toFixed(digits)
+        z: Number(wpos.z).toFixed(digits),
+        a: Number(wpos.a).toFixed(2)
     };
 
     $('[data-route="workspace"] [id="wpos-x"]').prop('value', dwpos.x);
     $('[data-route="workspace"] [id="wpos-y"]').prop('value', dwpos.y);
     $('[data-route="workspace"] [id="wpos-z"]').prop('value', dwpos.z);
+    $('[data-route="workspace"] [id="wpos-a"]').prop('value', dwpos.a);
 }
 
 controller.on('gcode:load', function(name, gcode) {
@@ -848,7 +929,6 @@ cnc.runUserCommand = function(name) {
 	}
     });
 }
-
 
 cnc.getFileList = function() {
     jQuery.get("../api/watch/files", {token: cnc.token, path: watchPath}, function(data) {
