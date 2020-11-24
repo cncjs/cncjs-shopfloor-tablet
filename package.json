@@ -1,6 +1,6 @@
 {
   "name": "cncjs-shopfloor-tablet",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "A simplified UI for cncjs optimized for tablet computers in a production (shop floor) environment.",
   "homepage": "https://github.com/cncjs/cncjs-shopfloor-tablet",
   "author": "Mitch Bradley",
