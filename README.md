@@ -30,7 +30,7 @@ The full cncjs UI can still be used, perhaps on a different computer or in a dif
 
 It works well with TinyG/g2core and GRBL.  It has been tested a little with Marlin but not extensively.  It has not been tested with Smoothieware - but Smoothie and GRBL are quite similar from a protocol standpoint so it is likely to work.
 
-Rotary axes A/B/C are not supported from the GUI, but you can issue GCode commands for those axes manually commands via the MDI boxes.
+Rotary axes A/B/C are not supported from the GUI, but you can issue GCode commands for those axes manually via the MDI boxes.
 
 ### Setup
 
@@ -42,35 +42,23 @@ Create a subdirectory to contain GCode files, for example "/home/pi/GCode".
 $ mkdir /home/pi/GCode
 ```
 
-Tell cnc to use that directory as the "watch directory" by adding a line like this to the .cncrc file, after the opening brace:
+Edit the .cncrc file in your home directory, adding a "watch directory" to hold GCode files, and adding a "mount point" to attach the shopfloor-tablet code to the CNCjs server.  You need to add lines like these to .cncrc, somewhere after the opening brace:
 
 ```
     "watchDirectory": "/home/pi/GCode",
+    "mountPoints": [
+        {
+            "route": "/tablet",
+            "target": "/home/pi/cncjs-shopfloor-tablet/src/"
+        }
+     ],   
 ```
 
-Use cnc's -m option to set up a static mount.  Assuming that the files are in the directory */home/pi/cncjs-shopfloor-tablet*, the command would be:
+You can use any text editor to edit that file.  On a Raspberry Pi, the most common such editor is called "nano".  The Internet has tutorials for using it.
 
-```
-$ cncjs -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
-```
+After editing that file, you will need to restart the CNCjs server to make it see these new lines.  One way to do that is to reboot the machine that runs the CNCjs server.
 
-If that command fails with an EADDRINUSE message, the problem is that cnc is already running and you will need to kill the old process before restarting with the shopfloor option.
-
-If you are using pm2 to autostart cncjs, use this command sequence:
-
-```
-$ pm2 stop $(which cncjs)
-$ pm2 delete $(which cncjs)
-$ pm2 start $(which cncjs) -- -m /tablet:/home/pi/cncjs-shopfloor-tablet/src
-$ pm2 save
-```
-
-If you are using cron to autostart cncjs, you can kill the old cncjs process with ```$ killall node```, then manually run the ```$cncjs ...``` command above for testing.  To make cncjs-shopfloor-tablet work after rebooting, use ```$ crontab -e``` to edit the start instructions, adding ```-m /tablet:/home/pi/cncjs-shopfloor-tablet/src``` to the *@reboot* line.  The line might look like:
-```
-@reboot /usr/bin/cncjs -m /tablet:/home/pi/cncjs-shopfloor-tablet >> $HOME/cncjs.log 2>&1 &
-```
-
-After you have restarted the server with the -m option, browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
+After you have restarted the server, browse to the url 'http://*host*:8000/tablet/', where *host* is the name or IP address of the cncjs server.
 
 You can still use the full cncjs UI by browsing 'http://*host*:8000'. You can use the different UI's simultaneously in different browser windows or tabs, which can be on different machines if you wish.
 

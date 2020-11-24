@@ -51,3 +51,6 @@ table tbody > tr > td {
     background-color: #404040;
     border-color: #383838;
 }
+{
+touch-action: none;
+}

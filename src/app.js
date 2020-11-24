@@ -398,6 +398,31 @@ controller.on('sender:status', function(status) {
     }
 });
 
+// This is used for GRBL and Smoothie.  It sets machineWorkflow
+// and possibly adjusts stateName based on the state and the
+// reason for stopping.
+function setMachineWorkflow(stateName) {
+    if (stateName == 'Idle') {
+        machineWorkflow = MACHINE_IDLE;
+        if (senderHold && senderHoldReason !== '%wait') {
+            // M6 goes to IDLE state but the program has
+            // has not really ended so we go to HOLD state.
+	    machineWorkflow = MACHINE_HOLD;
+	    stateName = senderHoldReason;
+        }
+    } else if (stateName == 'Hold') {
+        machineWorkflow = MACHINE_HOLD;
+        // M0 goes to HOLD state
+        if (senderHold && senderHoldReason !== '%wait') {
+	    stateName = senderHoldReason;
+        }
+    } else {
+        machineWorkflow = MACHINE_RUN;
+    }
+    return stateName;
+}
+
+
 // This is a copy of the Grbl:state report that came in before the Grbl:settings report
 var savedGrblState;
 
@@ -411,13 +436,7 @@ function renderGrblState(data) {
     // The code used to allow click in Run state but that seems wrong
     // canClick = stateName == 'Idle';
 
-    if (stateName == 'Idle') {
-        machineWorkflow = MACHINE_IDLE;
-    } else if (stateName == 'Hold') {
-        machineWorkflow = MACHINE_HOLD;
-    } else {
-        machineWorkflow = MACHINE_RUN;
-    }
+    stateName = setMachineWorkflow(stateName);
 
     var parserstate = data.parserstate || {};
     if (parserstate.modal) {
@@ -494,13 +513,7 @@ controller.on('Smoothie:state', function(data) {
     wpos = status.wpos;
     // Smoothie states are Idle, Run, Hold
     // canClick = stateName == 'Idle';
-    if (stateName == 'Idle') {
-        machineWorkflow = MACHINE_IDLE;
-    } else if (stateName == 'Hold') {
-        machineWorkflow = MACHINE_HOLD;
-    } else {
-        machineWorkflow = MACHINE_RUN;
-    }
+    stateName = setMachineWorkflow(stateName);
 
     var parserstate = data.parserstate || {};
     if (parserstate.modal) {
