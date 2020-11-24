@@ -2,6 +2,35 @@
 .nmpd-target {cursor: pointer;}
 .nmpd-grid {position:absolute; left:50px; top:50px; z-index:5000; -khtml-user-select: none; padding:10px; width: 80%; height:80%; }
 .nmpd-overlay {z-index:4999;}
-input.nmpd-display {text-align: right; font-size: 40px; }
-.nmpd-btn {font-size: 30px; }
+input.nmpd-display,
+.nmpd-btn {font-size: 14px; font-weight: 400; }
+input.nmpd-display {text-align: right; }
 .form-control { height: 80%; }
+@media (min-width: 660px) {
+    .nmpd-btn,
+    input.nmpd-display    {font-size: 15px; }
+}
+@media (min-width: 736px) {
+    .nmpd-btn,
+    input.nmpd-display    {font-size: 18px; }
+}
+@media (min-width: 768px) {
+    .nmpd-btn,
+    input.nmpd-display    {font-size: 28px; }
+}
+
+@media (min-width: 992px) {
+    .nmpd-btn,
+    input.nmpd-display    {font-size: 32px; }
+}
+
+@media (min-width: 1200px) {
+    .nmpd-btn {font-size: 40px; }
+    input.nmpd-display    {font-size: 40px; }
+
+}
+@media (min-width: 1900px) {
+    .nmpd-btn {font-size: 50px; }
+    input.nmpd-display    {font-size: 50px; }
+
+}

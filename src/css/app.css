@@ -51,7 +51,7 @@
   padding-top: 12px;
   padding-bottom: 12px;
 }
-[data-route="workspace"] .nav-panel .btn {
+[data-route="workspace"] .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
@@ -80,13 +80,14 @@
   padding: 5px 10px;
 }
 [data-route="workspace"] .axis-label {
-  text-align: center;
-  font-size: 20px;
+  text-align: right;
   padding: 0 8px;
+  font-size: 17px;
 }
 [data-route="workspace"] .position {
   width: 95%;
   text-align: right;
+  font-size: 16px;
 }
 [data-route="workspace"] .load {
   font-size: 12px;
@@ -97,7 +98,7 @@
     padding-top: 20px;
 }
 [data-route="workspace"] textarea {
-  font-size: 12px;
+  font-size: 9px;
   width: 99%;
   resize: none;
 }
@@ -152,7 +153,6 @@
 [data-route="workspace"] .control-pad .btn {
   width: 100%;
   padding-left: 0;
-  padding-right: 0;
 }
 [data-route="workspace"] .axis-position .inset {
   padding-left: 15px;
@@ -162,6 +162,11 @@
   background-color: lavenderblush;
   padding-top: 12px;
   padding-bottom: 0px;
+}
+
+[data-route="workspace"] #small-toolpath {
+  width: 180px;
+  height: 100px;
 }
 
 @media (min-width: 736px) {
@@ -176,7 +181,6 @@
   }
   [data-route="workspace"] .axis-label {
     font-size: 24px;
-    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 14px;
@@ -185,6 +189,9 @@
   [data-route="workspace"] .form-control {
     font-size: 14px;
     height: 30px;
+  }
+  [data-route="workspace"] .position {
+    font-size: 18px;
   }
   [data-route="workspace"] #jog-distance {
     text-align-last: right;
@@ -210,7 +217,6 @@
   }
   [data-route="workspace"] .axis-label {
     font-size: 24px;
-    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 15px;
@@ -219,6 +225,9 @@
   [data-route="workspace"] .form-control {
     font-size: 15px;
     height: 30px;
+  }
+  [data-route="workspace"] .position {
+    font-size: 19px;
   }
   [data-route="workspace"] #jog-distance {
     text-align-last: right;
@@ -243,7 +252,6 @@
   }
   [data-route="workspace"] .axis-label {
     font-size: 28px;
-    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 20px;
@@ -252,6 +260,9 @@
   [data-route="workspace"] .form-control {
     font-size: 20px;
     height: 40px;
+  }
+  [data-route="workspace"] .position {
+    font-size: 24px;
   }
   [data-route="workspace"] textarea {
     font-size: 12px;
@@ -273,7 +284,6 @@
   }
   [data-route="workspace"] .axis-label {
     font-size: 32px;
-    text-align: center;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 28px;
@@ -283,11 +293,26 @@
     font-size: 28px;
     height: 52px;
   }
+  [data-route="workspace"] .position {
+    font-size: 28px;
+  }
   [data-route="workspace"] textarea {
-    font-size: 14px;
+    font-size: 15px;
   }
   [data-route="workspace"] #small-toolpath {
       width: 300px;
       height: 160px;
+  }
+}
+@media (min-width: 1500px) {
+  [data-route="workspace"] #small-toolpath {
+      width: 360px;
+      height: 180px;
+  }
+}
+@media (min-width: 1800px) {
+  [data-route="workspace"] #small-toolpath {
+      width: 460px;
+      height: 190px;
   }
 }
