@@ -11,6 +11,8 @@
 <title>CNCjs</title>
 <meta name="description" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="stylesheet" type="text/css" href="vendor/normalize/normalize.css">
@@ -98,6 +100,9 @@
                                     <i class="fa fa-list"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                    <li>
+                                        <a role="menuitem" href="javascript:void(0)" onclick="cnc.toggleFullscreen()"><i class="fa fa-fullscreen"></i>&nbsp;Fullscreen</a>
+                                    </li>
                                     <li>
                                         <a role="menuitem" href="javascript:void(0)" onclick="cnc.controller.command('homing')"><i class="fa fa-home"></i>&nbsp;Homing</a>
                                     </li>
@@ -510,7 +515,7 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                 <div class="row no-gutter">
                     <div class="col-xs-5">
                         <div class="col-xs-10">
-                            <input type="text" class="form-control" id="mditext0" placeholder="GCode Command" onFocus="cnc.inputFocused=true" onBlur="cnc.inputFocused=false">
+                            <input type="text" class="form-control mdifield" id="mditext0" placeholder="GCode Command" onFocus="cnc.inputFocused=true" onBlur="cnc.inputFocused=false">
                         </div>
                         <div class="col-xs-2">
                             <button
@@ -523,7 +528,7 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                             </button>
                         </div>
                         <div class="col-xs-10">
-                            <input type="text" class="form-control" id="mditext1" placeholder="GCode Command" onFocus="cnc.inputFocused=true" onBlur="cnc.inputFocused=false">
+                            <input type="text" class="form-control mdifield" id="mditext1" placeholder="GCode Command" onFocus="cnc.inputFocused=true" onBlur="cnc.inputFocused=false">
                         </div>
                         <div class="col-xs-2">
                             <button
@@ -571,18 +576,11 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
                     <div class="col-xs-3">
 		      <canvas id="small-toolpath" class="previewer" width="100%" height="100%"></canvas>
                     </div>
+                    <div class="col-xs-12">
+                      <textarea class="messages" id="messages" rows="2" spellcheck="false" readonly>Serial Messages</textarea>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container-fluid">
-          <div class="row no-gutter">
-            <div class="col-xs-12">
-              <div class="serial" data-name="serial0">serial messages</div>
-            </div>
-            <div class="col-xs-12">
-              <div class="serial" data-name="serial1">serial messages</div>
-            </div>
-          </div>
         </div>
     </div>
 </div>
@@ -611,8 +609,7 @@ code', 'M5')"><i class="fa fa-power-off"></i>&nbsp;Spindle Off</a>
   $.fn.numpad.defaults.onKeypadOpen = function() {cnc.inputFocused = true;};
   $.fn.numpad.defaults.onKeypadClose = function() {cnc.inputFocused = false;};
 
-
-$('document').ready(function() {
+  $('document').ready(function() {
     $('#wpos-x').numpad('X');
     $('#wpos-y').numpad('Y');
     $('#wpos-z').numpad('Z');

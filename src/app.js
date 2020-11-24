@@ -100,7 +100,8 @@ controller.on('serialport:open', function(options) {
         // settings report, so interpreting the numbers from the first status
         // report is ambiguous.  Subsequent status reports are interpreted correctly.
         // We work around that by deferring status reports until the settings report.
-        controller.writeln('$$');
+        // I commented this out because of https://github.com/cncjs/cncjs-shopfloor-tablet/issues/20
+        // controller.writeln('$$');
     }
 
     root.location = '#/workspace';
@@ -162,14 +163,30 @@ cnc.setAxisByValue = function(axis, coordinate) {
 cnc.setAxis = function(axis, field) {
     cnc.setAxisByValue(axis, document.getElementById(field).value);
 }
-cnc.MDI = function(field) {
+cnc.MDIcmd = function(value) {
     cnc.click();
-    mdicmd = document.getElementById(field).value;
-    controller.command('gcode', mdicmd);
+    controller.command('gcode', value);
+}
+
+cnc.MDI = function(field) {
+    cnc.MDIcmd(document.getElementById(field).value);
 }
 
 cnc.zeroAxis = function(axis) {
     cnc.setAxisByValue(axis, 0);
+}
+
+cnc.toggleFullscreen = function() {
+    var messages = document.getElementById('messages');
+
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+        messages.rows = 2;
+    } else {
+        document.documentElement.requestFullscreen();
+        messages.rows = 4;
+    }
+    messages.scrollTop = messages.scrollHeight;
 }
 
 cnc.toggleUnits = function() {
@@ -279,17 +296,20 @@ cnc.sendMove = function(cmd) {
     fn && fn();
 };
 
-controller.on('serialport:read', function(data) {
-    $('[data-route="workspace"] [data-name="serial0"]').text(
-        $('[data-route="workspace"] [data-name="serial1"]').text()
-    );
-    $('[data-route="workspace"] [data-name="serial1"]').text(data);
+    echoData = function(data) {
+        var messages = $('[data-route="workspace"] [id="messages"]');
+        messages.text(messages.text() + "\n" + data);
+        messages[0].scrollTop = messages[0].scrollHeight;
+    }
+
+    controller.on('serialport:read', function(data) {
     if (data.r) {
 	cnc.line++;
     }
     switch (cnc.controllerType) {
     case 'Marlin':
 	if (data.startsWith('echo:')) {
+            echoData(data);
 	    stateName = data.substring(5);
 	    if (machineWorkflow == MACHINE_IDLE) {
 		machineWorkflow = MACHINE_STALL;  // Disables Start button
@@ -298,17 +318,27 @@ controller.on('serialport:read', function(data) {
 	    stateName = 'Idle';
 	    machineWorkflow = MACHINE_IDLE;
 	} else if (data.startsWith('Error:')) {
+            echoData(data);
 	    stateName = data;
 	}
 	cnc.updateView();
 	break;
     case 'Smoothie':
     case 'Grbl':
+        if (!data.startsWith('ok')) {
+            echoData(data);
+        }
 	if (data.startsWith('error:')) {
 	    stateName = data;
 	}
 	cnc.updateView();
 	break;
+    case 'TinyG':
+        if (!data.startsWith('{"qr"')) {
+            echoData(data);
+        }
+
+        break;
     }
 });
 
@@ -317,7 +347,7 @@ controller.on('serialport:read', function(data) {
 // We track the $13 value by watching for the Grbl:settings event and by
 // watching for manual changes via serialport:write.  Upon initial connection,
 // we issue a settings request in serialport:open.
-var grblReportingUnits;  // initially undefined
+var grblReportingUnits = 0;  // initially undefined
 
 controller.on('serialport:write', function(data) {
 //    var style = 'font-weight: bold; line-height: 20px; padding: 2px 4px; border: 1px solid; color: #00529B; background: #BDE5F8';
@@ -818,6 +848,8 @@ cnc.updateView = function() {
 	if (seconds < 10)
 	    seconds = '0' + seconds;
 	runTime = minutes + ':' + seconds;
+    } else {
+        runTime = "0:00";
     }
     $('[data-route="workspace"] [id="runtime"]').text(runTime);
 
@@ -1143,6 +1175,13 @@ jogClick = function(name) {
 
 // Reports whether a text input box has focus - see the next comment
 cnc.inputFocused = false;
+
+$('.mdifield').on('keyup', function(event){
+    if (event.key === 'Enter') {
+        cnc.MDIcmd(event.target.value);
+        event.target.blur();
+    }
+});
 
 $(document).on('keydown keyup', function(event){
     // When we are in a modal input field like the MDI text boxes
