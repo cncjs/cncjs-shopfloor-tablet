@@ -32,6 +32,7 @@ It works well with TinyG/g2core and GRBL.  It has been tested a little with Marl
 
 Rotary axis A is supported from the GUI, but not B and C.  You can issue GCode commands for those axes manually via the MDI boxes.  The A axis GUI support includes a DRO, Set and GoTo functions, but not jog buttons.  There is a Home A menu entry in the dropdown menu.
 
+
 ### Setup
 
 Get the cncjs-shopfloor-tablet files onto the machine control computer that runs the cncjs app, either by cloning the git tree or by downloading and extracting a .zip.
