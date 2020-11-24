@@ -850,7 +850,7 @@ cnc.updateView = function() {
     }
     // Nonzero receivedLines is a good indicator of GCode execution
     // as opposed to jogging, etc.
-    if (receivedLines) {
+    if (receivedLines && startTime) {
 	var elapsed = new Date().getTime() - startTime;
 	var elapsed = Math.max(elapsedTime, elapsed);
 	if (elapsed < 0)
