@@ -7,6 +7,7 @@
 [data-route="workspace"] {
   padding: 5px;
   font-size: 14px;
+  background-color: #fff;
 }
 [data-route="workspace"] .btn[disabled] {
   opacity: .6;
@@ -50,7 +51,7 @@
   padding-top: 12px;
   padding-bottom: 12px;
 }
-[data-route="workspace"] .nav-panel .btn {
+[data-route="workspace"] .btn {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
@@ -79,13 +80,14 @@
   padding: 5px 10px;
 }
 [data-route="workspace"] .axis-label {
-  text-align: left;
-  font-size: 20px;
+  text-align: right;
   padding: 0 8px;
+  font-size: 17px;
 }
 [data-route="workspace"] .position {
   width: 95%;
   text-align: right;
+  font-size: 16px;
 }
 [data-route="workspace"] .load {
   font-size: 12px;
@@ -96,7 +98,7 @@
     padding-top: 20px;
 }
 [data-route="workspace"] textarea {
-  font-size: 12px;
+  font-size: 9px;
   width: 99%;
   resize: none;
 }
@@ -151,28 +153,105 @@
 [data-route="workspace"] .control-pad .btn {
   width: 100%;
   padding-left: 0;
-  padding-right: 0;
+}
+[data-route="workspace"] .axis-position .inset {
+  padding-left: 15px;
 }
 
 [data-route="workspace"] .mdi .container-fluid {
   background-color: lavenderblush;
   padding-top: 12px;
-  padding-bottom: 12px;
+  padding-bottom: 0px;
 }
 
-@media (min-width: 768px) {
+[data-route="workspace"] #small-toolpath {
+  width: 180px;
+  height: 100px;
+}
+
+@media (min-width: 736px) {
   [data-route="workspace"] {
-    font-size: 20px;
+    font-size: 14px;
   }
   [data-route="workspace"] .dropdown-menu {
     min-width: 180px;
   }
   [data-route="workspace"] .dropdown-menu>li>a .fa {
-    width: 20px;
+    width: 14px;
   }
   [data-route="workspace"] .axis-label {
     font-size: 24px;
-    text-align: right;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    font-size: 14px;
+  }
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
+    font-size: 14px;
+    height: 30px;
+  }
+  [data-route="workspace"] .position {
+    font-size: 18px;
+  }
+  [data-route="workspace"] #jog-distance {
+    text-align-last: right;
+  }
+  [data-route="workspace"] textarea {
+    font-size: 9px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 180px;
+      height: 100px;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-route="workspace"] {
+    font-size: 15px;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    min-width: 180px;
+  }
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
+    width: 15px;
+  }
+  [data-route="workspace"] .axis-label {
+    font-size: 24px;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    font-size: 15px;
+  }
+  [data-route="workspace"] .btn,
+  [data-route="workspace"] .form-control {
+    font-size: 15px;
+    height: 30px;
+  }
+  [data-route="workspace"] .position {
+    font-size: 19px;
+  }
+  [data-route="workspace"] #jog-distance {
+    text-align-last: right;
+  }
+  [data-route="workspace"] textarea {
+    font-size: 11px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 230px;
+      height: 130px;
+  }
+}
+@media (min-width: 992px) {
+  [data-route="workspace"] {
+    font-size: 20px;
+  }
+  [data-route="workspace"] .dropdown-menu {
+    min-width: 200px;
+  }
+  [data-route="workspace"] .dropdown-menu>li>a .fa {
+    width: 20px;
+  }
+  [data-route="workspace"] .axis-label {
+    font-size: 28px;
   }
   [data-route="workspace"] .dropdown-menu {
     font-size: 20px;
@@ -182,36 +261,15 @@
     font-size: 20px;
     height: 40px;
   }
-  [data-route="workspace"] #jog-distance {
-    text-align-last: right;
+  [data-route="workspace"] .position {
+    font-size: 24px;
   }
   [data-route="workspace"] textarea {
     font-size: 12px;
   }
-}
-@media (min-width: 992px) {
-  [data-route="workspace"] {
-    font-size: 24px;
-  }
-  [data-route="workspace"] .dropdown-menu {
-    min-width: 200px;
-  }
-  [data-route="workspace"] .dropdown-menu>li>a .fa {
-    width: 24px;
-  }
-  [data-route="workspace"] .axis-label {
-    font-size: 28px;
-  }
-  [data-route="workspace"] .dropdown-menu {
-    font-size: 24px;
-  }
-  [data-route="workspace"] .btn,
-  [data-route="workspace"] .form-control {
-    font-size: 24px;
-    height: 46px;
-  }
-  [data-route="workspace"] textarea {
-    font-size: 14px;
+  [data-route="workspace"] #small-toolpath {
+      width: 250px;
+      height: 130px;
   }
 }
 @media (min-width: 1200px) {
@@ -235,7 +293,26 @@
     font-size: 28px;
     height: 52px;
   }
+  [data-route="workspace"] .position {
+    font-size: 28px;
+  }
   [data-route="workspace"] textarea {
-    font-size: 14px;
+    font-size: 15px;
+  }
+  [data-route="workspace"] #small-toolpath {
+      width: 300px;
+      height: 160px;
+  }
+}
+@media (min-width: 1500px) {
+  [data-route="workspace"] #small-toolpath {
+      width: 360px;
+      height: 180px;
+  }
+}
+@media (min-width: 1800px) {
+  [data-route="workspace"] #small-toolpath {
+      width: 460px;
+      height: 190px;
   }
 }
