@@ -1,3 +1,4 @@
+// Mofified
 $(function() {
 
 const MACHINE_STALL = 0;
@@ -926,7 +927,11 @@ controller.on('gcode:load', function(name, gcode) {
 
 controller.on('workflow:state', function(state) {
     switch(state) {
-    case 'idle': cnc.line = 0; break;
+    case 'idle': 
+     cnc.line = 0;
+     // Stop the probing: correct if not stopped the following load of a gcode file will start to run at loading
+     probing=false; 
+     break;
     case 'paused': break;
     case 'running': break;
     }
